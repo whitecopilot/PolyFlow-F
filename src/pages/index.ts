@@ -1,0 +1,7 @@
+export { LoginPage } from './LoginPage'
+export { HomePage } from './HomePage'
+export { StakingPage } from './StakingPage'
+export { RewardsPage } from './RewardsPage'
+export { TeamPage } from './TeamPage'
+export { InvitePage } from './InvitePage'
+export { MintPage } from './MintPage'

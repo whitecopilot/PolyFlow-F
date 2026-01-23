@@ -1,0 +1,102 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: dark;
+  color: #FFFFFF;
+  background-color: #111111;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  touch-action: manipulation;
+  overscroll-behavior: contain;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  max-width: 430px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+  /* PolyFlow 背景渐变 - 左上角蓝紫色 + 右下角粉紫色光晕 */
+  background:
+    radial-gradient(37% 49% at 0px 0px, rgba(41, 47, 225, 0.08) 0px, rgba(41, 47, 225, 0) 100%),
+    radial-gradient(36% 48% at 100% 100%, rgba(194, 14, 215, 0.08) 0px, rgba(194, 14, 215, 0) 100%),
+    #111111;
+}
+
+/* 隐藏滚动条但保持滚动功能 */
+::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* 输入框样式重置 */
+input, textarea, select {
+  font-family: inherit;
+  font-size: 16px; /* 防止 iOS 缩放 */
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+}
+
+/* 禁用长按选择 */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+/* 允许输入框选择文本 */
+input, textarea {
+  user-select: text;
+}
+
+/* 按钮基础样式 */
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* 链接基础样式 */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 图片自适应 */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* 动画性能优化 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
