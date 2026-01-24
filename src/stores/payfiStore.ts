@@ -66,6 +66,8 @@ interface PayFiState {
   // 业务操作
   purchaseNFT: (level: NFTLevel) => Promise<boolean>;
   upgradeNFT: (targetLevel: NFTLevel) => Promise<boolean>;
+  stakeNFT: () => Promise<boolean>;
+  unstakeNFT: () => Promise<boolean>;
   burnPIC: (amount: number) => Promise<boolean>;
   withdraw: (picAmount: number) => Promise<boolean>;
   claimRewards: () => Promise<boolean>;
@@ -98,15 +100,17 @@ export const usePayFiStore = create<PayFiState>()(
       inviteCode: 'PF2024XY',
       inviteLink: '', // 在组件中基于当前域名动态生成
 
-      // 获取所有数据
+      // 获取所有数据（保留已存在的 userAssets，避免覆盖用户操作后的状态）
       fetchAllData: async () => {
         set({ isLoading: true, error: null });
         try {
           await delay(500); // 模拟网络延迟
 
+          const { userAssets: existingAssets } = get();
+
           set({
             priceInfo: getMockPriceInfo(),
-            userAssets: getMockUserAssets(),
+            userAssets: existingAssets || getMockUserAssets(),
             teamStats: getMockTeamStats(),
             earningsStats: getMockEarningsStats(),
             pidReleasePlans: getMockPIDReleasePlans(),
@@ -132,9 +136,13 @@ export const usePayFiStore = create<PayFiState>()(
         }
       },
 
-      // 获取用户资产
+      // 获取用户资产（如果已有数据则不覆盖，避免覆盖用户操作后的状态）
       fetchUserAssets: async () => {
         try {
+          const { userAssets: existingAssets } = get();
+          // 如果已有数据，不重新获取（mock 模式下保持用户操作后的状态）
+          if (existingAssets) return;
+
           await delay(300);
           set({ userAssets: getMockUserAssets() });
         } catch (error) {
@@ -223,7 +231,7 @@ export const usePayFiStore = create<PayFiState>()(
           // 计算获得的 PID
           const pidAmount = config.price / priceInfo.pidPrice;
 
-          // 更新用户资产（模拟）
+          // 更新用户资产（模拟）- 购买后默认未质押
           set({
             userAssets: {
               ...userAssets,
@@ -237,6 +245,9 @@ export const usePayFiStore = create<PayFiState>()(
               totalExitLimit: config.price * config.nftExitMultiplier + userAssets.exitFromBurn,
               remainingLimit: config.price * config.nftExitMultiplier + userAssets.exitFromBurn - userAssets.earnedRewards,
               pidTotalLocked: userAssets.pidTotalLocked + pidAmount,
+              // 新购买的 NFT 默认未质押，需要用户主动质押
+              nftStaked: false,
+              nftStakeTime: null,
             },
             isLoading: false,
           });
@@ -281,7 +292,7 @@ export const usePayFiStore = create<PayFiState>()(
           const newPidAmount = upgradeCost / priceInfo.pidPrice;
           const newTotalInvest = userAssets.totalNFTInvest + upgradeCost;
 
-          // 更新用户资产
+          // 更新用户资产 - 升级后新 NFT 需要重新质押
           set({
             userAssets: {
               ...userAssets,
@@ -295,6 +306,9 @@ export const usePayFiStore = create<PayFiState>()(
               totalExitLimit: newTotalInvest * targetConfig.nftExitMultiplier + userAssets.exitFromBurn,
               remainingLimit: newTotalInvest * targetConfig.nftExitMultiplier + userAssets.exitFromBurn - userAssets.earnedRewards,
               pidTotalLocked: userAssets.pidTotalLocked + newPidAmount,
+              // 升级后新 NFT 默认未质押，需要用户主动质押
+              nftStaked: false,
+              nftStakeTime: null,
             },
             isLoading: false,
           });
@@ -302,6 +316,79 @@ export const usePayFiStore = create<PayFiState>()(
           return true;
         } catch (error) {
           set({ error: '升级失败', isLoading: false });
+          return false;
+        }
+      },
+
+      // 质押 NFT
+      stakeNFT: async () => {
+        set({ isLoading: true });
+        try {
+          await delay(1500); // 模拟链上交易时间
+
+          const { userAssets } = get();
+          if (!userAssets) {
+            set({ error: '数据未加载', isLoading: false });
+            return false;
+          }
+
+          if (!userAssets.currentNFTLevel) {
+            set({ error: '您还没有 NFT，请先购买', isLoading: false });
+            return false;
+          }
+
+          if (userAssets.nftStaked) {
+            set({ error: 'NFT 已处于质押状态', isLoading: false });
+            return false;
+          }
+
+          // 更新质押状态
+          set({
+            userAssets: {
+              ...userAssets,
+              nftStaked: true,
+              nftStakeTime: new Date(),
+            },
+            isLoading: false,
+          });
+
+          return true;
+        } catch (error) {
+          set({ error: '质押失败', isLoading: false });
+          return false;
+        }
+      },
+
+      // 解除质押 NFT
+      unstakeNFT: async () => {
+        set({ isLoading: true });
+        try {
+          await delay(1500); // 模拟链上交易时间
+
+          const { userAssets } = get();
+          if (!userAssets) {
+            set({ error: '数据未加载', isLoading: false });
+            return false;
+          }
+
+          if (!userAssets.nftStaked) {
+            set({ error: 'NFT 未质押', isLoading: false });
+            return false;
+          }
+
+          // 更新质押状态
+          set({
+            userAssets: {
+              ...userAssets,
+              nftStaked: false,
+              nftStakeTime: null,
+            },
+            isLoading: false,
+          });
+
+          return true;
+        } catch (error) {
+          set({ error: '解除质押失败', isLoading: false });
           return false;
         }
       },

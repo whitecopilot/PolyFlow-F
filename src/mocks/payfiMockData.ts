@@ -58,8 +58,8 @@ export function getMockUserAssets(): UserAssets {
     powerFromNFT: 1000,
     powerFromBurn: 500,
     totalPower: 1500,
-    nftStaked: true,
-    nftStakeTime: new Date('2024-06-15'),
+    nftStaked: false,  // 默认未质押，用于测试质押功能
+    nftStakeTime: null,
 
     totalNFTInvest: 1000,
     totalPICBurnUsdt: 500,

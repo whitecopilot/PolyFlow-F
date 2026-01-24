@@ -19,6 +19,8 @@ import {
   HiOutlineArrowUp,
   HiOutlineCheck,
   HiOutlineLockClosed,
+  HiOutlineCube,
+  HiOutlinePlay,
 } from 'react-icons/hi2'
 
 const MotionBox = motion.create(Box)
@@ -29,11 +31,13 @@ export function NFTPage() {
     priceInfo,
     purchaseNFT,
     upgradeNFT,
+    stakeNFT,
     fetchUserAssets,
   } = usePayFiStore()
 
   const [selectedLevel, setSelectedLevel] = useState<NFTLevel>(null)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [isStaking, setIsStaking] = useState(false)
 
   useEffect(() => {
     fetchUserAssets()
@@ -62,6 +66,32 @@ export function NFTPage() {
     } finally {
       setIsProcessing(false)
     }
+  }
+
+  // 处理质押
+  const handleStake = async () => {
+    if (isStaking || !currentLevel || userAssets?.nftStaked) return
+
+    setIsStaking(true)
+    try {
+      await stakeNFT()
+    } finally {
+      setIsStaking(false)
+    }
+  }
+
+  // 格式化质押时间
+  const formatStakeTime = (date: Date | null) => {
+    if (!date) return '-'
+    const d = new Date(date)
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  }
+
+  // 计算质押天数
+  const getStakeDays = (date: Date | null) => {
+    if (!date) return 0
+    const diff = new Date().getTime() - new Date(date).getTime()
+    return Math.floor(diff / (1000 * 60 * 60 * 24))
   }
 
   // 获取选中等级的配置
@@ -109,6 +139,141 @@ export function NFTPage() {
             </HStack>
           </MotionBox>
         </GradientBorderCard>
+
+        {/* 质押状态卡片 - 仅在持有 NFT 时显示 */}
+        {currentLevel && (
+          <MotionBox
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <GradientBorderCard
+              glowIntensity={userAssets?.nftStaked ? 'medium' : 'none'}
+            >
+              <Box p="4">
+                <HStack justify="space-between" align="start" mb="3">
+                  <HStack gap={2}>
+                    <Box
+                      w="8"
+                      h="8"
+                      borderRadius="lg"
+                      bg={userAssets?.nftStaked ? 'rgba(34, 197, 94, 0.2)' : 'rgba(251, 191, 36, 0.2)'}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <HiOutlineCube
+                        size={18}
+                        color={userAssets?.nftStaked ? '#22C55E' : '#FBBF24'}
+                      />
+                    </Box>
+                    <VStack align="start" gap={0}>
+                      <Text fontSize="sm" fontWeight="600" color="white">
+                        质押挖矿
+                      </Text>
+                      <Text fontSize="xs" color="whiteAlpha.500">
+                        质押 NFT 开启挖矿收益
+                      </Text>
+                    </VStack>
+                  </HStack>
+
+                  <Box
+                    px="2.5"
+                    py="1"
+                    borderRadius="full"
+                    bg={userAssets?.nftStaked ? 'rgba(34, 197, 94, 0.2)' : 'rgba(251, 191, 36, 0.2)'}
+                  >
+                    <Text
+                      fontSize="xs"
+                      fontWeight="bold"
+                      color={userAssets?.nftStaked ? '#22C55E' : '#FBBF24'}
+                    >
+                      {userAssets?.nftStaked ? '挖矿中' : '未质押'}
+                    </Text>
+                  </Box>
+                </HStack>
+
+                {/* 质押信息 */}
+                {userAssets?.nftStaked ? (
+                  <Box
+                    bg="rgba(34, 197, 94, 0.08)"
+                    borderRadius="lg"
+                    p="3"
+                  >
+                    <SimpleGrid columns={2} gap={3}>
+                      <VStack align="start" gap={0}>
+                        <Text fontSize="xs" color="whiteAlpha.500">
+                          质押时间
+                        </Text>
+                        <Text fontSize="sm" fontWeight="600" color="white">
+                          {formatStakeTime(userAssets.nftStakeTime)}
+                        </Text>
+                      </VStack>
+                      <VStack align="start" gap={0}>
+                        <Text fontSize="xs" color="whiteAlpha.500">
+                          已质押天数
+                        </Text>
+                        <Text fontSize="sm" fontWeight="600" color="#22C55E">
+                          {getStakeDays(userAssets.nftStakeTime)} 天
+                        </Text>
+                      </VStack>
+                    </SimpleGrid>
+                  </Box>
+                ) : (
+                  <>
+                    <Box
+                      bg="rgba(251, 191, 36, 0.08)"
+                      borderRadius="lg"
+                      p="3"
+                      mb="3"
+                    >
+                      <VStack gap={1.5} align="start">
+                        <HStack gap={1.5}>
+                          <Box w="1.5" h="1.5" borderRadius="full" bg="#FBBF24" />
+                          <Text fontSize="xs" color="whiteAlpha.700">
+                            质押后才能获得<Text as="span" color="#FBBF24" fontWeight="600">静态挖矿收益</Text>
+                          </Text>
+                        </HStack>
+                        <HStack gap={1.5}>
+                          <Box w="1.5" h="1.5" borderRadius="full" bg="#FBBF24" />
+                          <Text fontSize="xs" color="whiteAlpha.700">
+                            未质押也可获得<Text as="span" color="#22C55E" fontWeight="600">PID 线性释放</Text>
+                          </Text>
+                        </HStack>
+                        <HStack gap={1.5}>
+                          <Box w="1.5" h="1.5" borderRadius="full" bg="#FBBF24" />
+                          <Text fontSize="xs" color="whiteAlpha.700">
+                            质押操作需要链上确认
+                          </Text>
+                        </HStack>
+                      </VStack>
+                    </Box>
+
+                    {/* 质押按钮 - 仅在未质押时显示 */}
+                    <ActionButton
+                      variant="primary"
+                      w="full"
+                      size="md"
+                      onClick={handleStake}
+                      disabled={isStaking}
+                    >
+                      <HStack gap={2} justify="center">
+                        {isStaking ? (
+                          <Text>链上确认中...</Text>
+                        ) : (
+                          <>
+                            <HiOutlinePlay size={16} />
+                            <Text>立即质押</Text>
+                          </>
+                        )}
+                      </HStack>
+                    </ActionButton>
+                  </>
+                )}
+              </Box>
+            </GradientBorderCard>
+          </MotionBox>
+        )}
 
         {/* 等级进度条 */}
         <Box px="2">
