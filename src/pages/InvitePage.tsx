@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useRef, useCallback, useMemo } from 'react'
 import { Box, Flex, Text, VStack, Input } from '@chakra-ui/react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import { QRCodeSVG } from 'qrcode.react'
 import { SecondaryPageHeader } from '../components/layout'
-import { ActionButton } from '../components/common'
+import { ActionButton, PolyFlowLogo } from '../components/common'
 import { usePayFiStore } from '../stores/payfiStore'
 import { PAYFI_CONFIG } from '../mocks/payfiConfig'
 import {
@@ -12,13 +13,23 @@ import {
   HiOutlineQrCode,
   HiOutlineCheckCircle,
   HiOutlineGift,
+  HiXMark,
+  HiArrowDownTray,
 } from 'react-icons/hi2'
 
 const MotionBox = motion.create(Box)
 
 export function InvitePage() {
-  const { inviteCode, inviteLink } = usePayFiStore()
+  const { inviteCode } = usePayFiStore()
   const [copied, setCopied] = useState<'code' | 'link' | null>(null)
+  const [showPoster, setShowPoster] = useState(false)
+  const posterRef = useRef<HTMLDivElement>(null)
+
+  // 基于当前域名生成邀请链接
+  const inviteLink = useMemo(() => {
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://polyflow.tech'
+    return `${baseUrl}/?ref=${inviteCode}`
+  }, [inviteCode])
 
   const handleCopy = async (type: 'code' | 'link') => {
     const text = type === 'code' ? inviteCode : inviteLink
@@ -43,8 +54,8 @@ export function InvitePage() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'PolyFlow NFT 质押',
-          text: '加入 PolyFlow，开启你的 Web3 收益之旅！',
+          title: 'PolyFlow NFT Staking',
+          text: 'Join PolyFlow and start your Web3 earning journey!',
           url: inviteLink,
         })
       } catch {
@@ -54,6 +65,30 @@ export function InvitePage() {
       handleCopy('link')
     }
   }
+
+  // 下载海报
+  const handleDownloadPoster = useCallback(async () => {
+    if (!posterRef.current) return
+
+    try {
+      // 动态导入 html2canvas
+      const html2canvas = (await import('html2canvas')).default
+      const canvas = await html2canvas(posterRef.current, {
+        backgroundColor: '#000000',
+        scale: 2,
+        useCORS: true,
+      })
+
+      const link = document.createElement('a')
+      link.download = `PolyFlow_Invite_${inviteCode}.png`
+      link.href = canvas.toDataURL('image/png')
+      link.click()
+    } catch (error) {
+      console.error('生成海报失败:', error)
+      // 降级：提示用户截图保存
+      alert('请长按海报截图保存')
+    }
+  }, [inviteCode])
 
   return (
     <Box minH="100vh" bg="black">
@@ -226,7 +261,7 @@ export function InvitePage() {
               <Text>分享链接</Text>
             </Flex>
           </ActionButton>
-          <ActionButton flex="1" variant="secondary">
+          <ActionButton flex="1" variant="secondary" onClick={() => setShowPoster(true)}>
             <Flex align="center" gap="2">
               <HiOutlineQrCode size={18} />
               <Text>生成海报</Text>
@@ -280,6 +315,174 @@ export function InvitePage() {
           </VStack>
         </Box>
       </VStack>
+
+      {/* 海报弹窗 */}
+      <AnimatePresence>
+        {showPoster && (
+          <>
+            {/* 遮罩层 */}
+            <MotionBox
+              position="fixed"
+              inset={0}
+              bg="blackAlpha.800"
+              zIndex={100}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowPoster(false)}
+            />
+
+            {/* 海报内容 */}
+            <MotionBox
+              position="fixed"
+              top="0"
+              left="0"
+              right="0"
+              bottom="0"
+              zIndex={101}
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="center"
+              p="4"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ type: 'spring', damping: 25 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* 海报画布 */}
+              <Box
+                ref={posterRef}
+                w="320px"
+                bg="linear-gradient(180deg, #0a0a0f 0%, #111118 50%, #0d0d12 100%)"
+                borderRadius="20px"
+                overflow="hidden"
+                boxShadow="0 25px 50px -12px rgba(0, 0, 0, 0.8)"
+              >
+                {/* 顶部装饰 */}
+                <Box
+                  position="absolute"
+                  top="-50px"
+                  right="-50px"
+                  w="150px"
+                  h="150px"
+                  bg="radial-gradient(circle, rgba(41, 47, 225, 0.3) 0%, transparent 70%)"
+                  borderRadius="full"
+                  pointerEvents="none"
+                />
+                <Box
+                  position="absolute"
+                  bottom="100px"
+                  left="-30px"
+                  w="100px"
+                  h="100px"
+                  bg="radial-gradient(circle, rgba(216, 17, 240, 0.2) 0%, transparent 70%)"
+                  borderRadius="full"
+                  pointerEvents="none"
+                />
+
+                <VStack gap="5" p="6" position="relative">
+                  {/* Logo 和标题 */}
+                  <VStack gap="2">
+                    <PolyFlowLogo size={48} showText={false} colorMode="gradient" />
+                    <Text fontSize="xl" fontWeight="bold" color="white">
+                      PolyFlow
+                    </Text>
+                    <Text fontSize="xs" color="whiteAlpha.600" textAlign="center">
+                      NFT Staking Platform
+                    </Text>
+                  </VStack>
+
+                  {/* 广告语 */}
+                  <Box
+                    bg="linear-gradient(135deg, rgba(41, 47, 225, 0.2) 0%, rgba(216, 17, 240, 0.2) 100%)"
+                    borderRadius="12px"
+                    p="4"
+                    w="full"
+                    textAlign="center"
+                  >
+                    <Text fontSize="lg" fontWeight="bold" color="white" mb="1">
+                      开启 Web3 收益之旅
+                    </Text>
+                    <Text fontSize="xs" color="whiteAlpha.700">
+                      质押 NFT，享受稳定收益
+                    </Text>
+                  </Box>
+
+                  {/* 二维码 */}
+                  <Box
+                    bg="white"
+                    p="3"
+                    borderRadius="16px"
+                    position="relative"
+                  >
+                    <QRCodeSVG
+                      value={inviteLink}
+                      size={160}
+                      level="H"
+                      includeMargin={false}
+                      imageSettings={{
+                        src: '/favicon.svg',
+                        x: undefined,
+                        y: undefined,
+                        height: 32,
+                        width: 32,
+                        excavate: true,
+                      }}
+                    />
+                  </Box>
+
+                  {/* 邀请码 */}
+                  <VStack gap="1">
+                    <Text fontSize="xs" color="whiteAlpha.500">
+                      邀请码
+                    </Text>
+                    <Text
+                      fontSize="lg"
+                      fontWeight="bold"
+                      color="white"
+                      letterSpacing="widest"
+                      fontFamily="mono"
+                    >
+                      {inviteCode}
+                    </Text>
+                  </VStack>
+
+                  {/* 底部文案 */}
+                  <Text fontSize="10px" color="whiteAlpha.400" textAlign="center">
+                    扫描二维码，加入 PolyFlow
+                  </Text>
+                </VStack>
+              </Box>
+
+              {/* 操作按钮 */}
+              <Flex gap="3" mt="4" justify="center">
+                <ActionButton
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setShowPoster(false)}
+                >
+                  <Flex align="center" gap="2">
+                    <HiXMark size={16} />
+                    <Text>关闭</Text>
+                  </Flex>
+                </ActionButton>
+                <ActionButton
+                  variant="primary"
+                  size="sm"
+                  onClick={handleDownloadPoster}
+                >
+                  <Flex align="center" gap="2">
+                    <HiArrowDownTray size={16} />
+                    <Text>保存海报</Text>
+                  </Flex>
+                </ActionButton>
+              </Flex>
+            </MotionBox>
+          </>
+        )}
+      </AnimatePresence>
     </Box>
   )
 }

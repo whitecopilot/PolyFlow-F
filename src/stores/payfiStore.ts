@@ -96,7 +96,7 @@ export const usePayFiStore = create<PayFiState>()(
       isLoading: false,
       error: null,
       inviteCode: 'PF2024XY',
-      inviteLink: 'https://polyflow.app/invite/PF2024XY',
+      inviteLink: '', // 在组件中基于当前域名动态生成
 
       // 获取所有数据
       fetchAllData: async () => {
