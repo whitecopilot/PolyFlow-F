@@ -3,10 +3,10 @@ import type { ReactNode } from 'react'
 
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost'
 
-interface ActionButtonProps {
+export interface ActionButtonProps {
   variant?: ButtonVariant
   children?: ReactNode
-  onClick?: () => void
+  onClick?: () => void | Promise<void>
   loading?: boolean
   loadingText?: string
   disabled?: boolean
@@ -14,6 +14,7 @@ interface ActionButtonProps {
   w?: string
   h?: string
   px?: string | number
+  py?: string | number
   mt?: string | number
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '2xs' | 'xs'
   bg?: string
@@ -30,6 +31,7 @@ export function ActionButton({
   w,
   h = '48px',
   px = '6',
+  py,
   mt,
   size,
   bg: customBg,
@@ -77,6 +79,7 @@ export function ActionButton({
     <Button
       h={h}
       px={px}
+      py={py}
       fontSize="sm"
       fontWeight="600"
       borderRadius="12px"

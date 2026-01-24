@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Box, Flex, Text, VStack, Input } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
-import { PageHeader, ActionButton } from '../components/common'
-import { useStakingStore } from '../stores/stakingStore'
+import { SecondaryPageHeader } from '../components/layout'
+import { ActionButton } from '../components/common'
+import { usePayFiStore } from '../stores/payfiStore'
+import { PAYFI_CONFIG } from '../mocks/payfiConfig'
 import {
   HiOutlineLink,
   HiOutlineClipboardDocument,
@@ -15,7 +17,7 @@ import {
 const MotionBox = motion.create(Box)
 
 export function InvitePage() {
-  const { inviteCode, inviteLink } = useStakingStore()
+  const { inviteCode, inviteLink } = usePayFiStore()
   const [copied, setCopied] = useState<'code' | 'link' | null>(null)
 
   const handleCopy = async (type: 'code' | 'link') => {
@@ -54,8 +56,8 @@ export function InvitePage() {
   }
 
   return (
-    <Box>
-      <PageHeader title="邀请好友" />
+    <Box minH="100vh" bg="black">
+      <SecondaryPageHeader title="邀请好友" />
 
       <VStack gap="5" p="4" align="stretch">
         {/* 邀请奖励卡片 */}
@@ -93,15 +95,11 @@ export function InvitePage() {
           <VStack gap="2" align="stretch">
             <RewardItem
               icon={<HiOutlineGift size={16} />}
-              text="直推用户质押，获得 10% 收益加成"
+              text={`直推用户静态收益，获得 ${PAYFI_CONFIG.REFERRAL_L1_RATE * 100}% 推荐奖励`}
             />
             <RewardItem
               icon={<HiOutlineGift size={16} />}
-              text="二级用户质押，获得 5% 收益加成"
-            />
-            <RewardItem
-              icon={<HiOutlineGift size={16} />}
-              text="三级用户质押，获得 2% 收益加成"
+              text={`二代用户静态收益，获得 ${PAYFI_CONFIG.REFERRAL_L2_RATE * 100}% 推荐奖励`}
             />
           </VStack>
         </MotionBox>
@@ -268,16 +266,16 @@ export function InvitePage() {
           </Text>
           <VStack gap="4" align="stretch">
             <FAQItem
-              question="邀请奖励什么时候发放？"
-              answer="邀请奖励实时计算，每日 UTC 0:00 结算，可在收益页面领取。"
+              question="推荐奖励如何计算？"
+              answer="直推用户每日静态收益的 10% 作为您的推荐奖励，二代用户为 5%，实时计算并累计。"
             />
             <FAQItem
               question="邀请人数有上限吗？"
-              answer="没有上限，您可以邀请任意数量的好友加入。"
+              answer="没有上限，您可以邀请任意数量的好友加入，团队业绩越高，节点等级越高。"
             />
             <FAQItem
-              question="好友取消质押会影响我的收益吗？"
-              answer="是的，收益基于好友的实时质押量计算，取消质押后对应的收益加成将停止。"
+              question="推荐奖励以什么形式发放？"
+              answer="推荐奖励以 PIC 形式累计，可在收益页面进行提现，提现时 80% 即时到账，20% 线性释放。"
             />
           </VStack>
         </Box>

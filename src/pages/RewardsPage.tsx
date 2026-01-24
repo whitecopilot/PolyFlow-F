@@ -1,270 +1,405 @@
-import { useState } from 'react'
-import { Box, Flex, Text, VStack, SimpleGrid } from '@chakra-ui/react'
+// 收益页面 - 收益矩阵
+
+import { Box, Flex, Text, VStack, HStack, Input, SimpleGrid } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
-import { PageHeader, ActionButton, StatCard } from '../components/common'
-import { useStakingStore } from '../stores/stakingStore'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
-  HiOutlineGift,
-  HiOutlineSparkles,
-  HiOutlineClock,
-  HiOutlineArrowTrendingUp,
-  HiOutlineCalendarDays,
+  PageHeader,
+  ActionButton,
+  GradientBorderCard,
+  NodeBadge,
+} from '../components/common'
+import { usePayFiStore } from '../stores/payfiStore'
+import { REWARD_TYPE_NAMES, PAYFI_CONFIG, getNodeConfig } from '../mocks/payfiConfig'
+import type { RewardType } from '../types/payfi'
+import {
+  HiOutlineBanknotes,
+  HiOutlineBolt,
+  HiOutlineUserGroup,
+  HiOutlineBuildingLibrary,
+  HiOutlineScale,
+  HiOutlineGlobeAlt,
+  HiOutlineClipboardDocumentList,
 } from 'react-icons/hi2'
 
 const MotionBox = motion.create(Box)
 
-interface RewardRecord {
-  id: string
-  type: 'staking' | 'team' | 'bonus'
-  amount: string
-  date: string
-  status: 'claimed' | 'pending'
+// 奖励类型图标映射
+const REWARD_ICONS: Record<RewardType, React.ReactNode> = {
+  static: <HiOutlineBolt size={18} color="#292FE1" />,
+  referral: <HiOutlineUserGroup size={18} color="#D811F0" />,
+  node: <HiOutlineBuildingLibrary size={18} color="#22C55E" />,
+  same_level: <HiOutlineScale size={18} color="#EAB308" />,
+  global: <HiOutlineGlobeAlt size={18} color="#06B6D4" />,
 }
 
-// 模拟收益记录
-const mockRewardRecords: RewardRecord[] = [
-  { id: '1', type: 'staking', amount: '12.34', date: '2024-01-15', status: 'claimed' },
-  { id: '2', type: 'team', amount: '5.67', date: '2024-01-15', status: 'claimed' },
-  { id: '3', type: 'staking', amount: '12.34', date: '2024-01-14', status: 'claimed' },
-  { id: '4', type: 'bonus', amount: '100.00', date: '2024-01-13', status: 'claimed' },
-  { id: '5', type: 'staking', amount: '12.34', date: '2024-01-13', status: 'claimed' },
-]
+const REWARD_COLORS: Record<RewardType, string> = {
+  static: '#292FE1',
+  referral: '#D811F0',
+  node: '#22C55E',
+  same_level: '#EAB308',
+  global: '#06B6D4',
+}
 
 export function RewardsPage() {
-  const { stakingInfo, claimRewards } = useStakingStore()
-  const [isClaiming, setIsClaiming] = useState(false)
+  const navigate = useNavigate()
+  const {
+    userAssets,
+    priceInfo,
+    earningsStats,
+    teamStats,
+    withdraw,
+    fetchEarningsStats,
+  } = usePayFiStore()
 
-  const handleClaim = async () => {
-    if (parseFloat(stakingInfo.pendingRewards) <= 0) return
-    setIsClaiming(true)
-    await new Promise((r) => setTimeout(r, 1500))
-    claimRewards()
-    setIsClaiming(false)
+  const [withdrawAmount, setWithdrawAmount] = useState('')
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false)
+
+  useEffect(() => {
+    fetchEarningsStats()
+  }, [fetchEarningsStats])
+
+  // 计算提现预估
+  const withdrawPicAmount = parseFloat(withdrawAmount) || 0
+  const withdrawUsdtValue = withdrawPicAmount * (priceInfo?.picPrice || 0)
+  const withdrawFee = withdrawUsdtValue * PAYFI_CONFIG.WITHDRAW_FEE_RATE
+  const netAmount = withdrawUsdtValue - withdrawFee
+  const instantAmount = netAmount * PAYFI_CONFIG.INSTANT_RELEASE_RATE
+  const linearAmount = netAmount * (1 - PAYFI_CONFIG.INSTANT_RELEASE_RATE)
+
+  // 处理提现
+  const handleWithdraw = async () => {
+    if (!withdrawAmount || isProcessing) return
+
+    setIsProcessing(true)
+    try {
+      const amount = parseFloat(withdrawAmount)
+      const success = await withdraw(amount)
+      if (success) {
+        setWithdrawAmount('')
+        setShowWithdrawModal(false)
+      }
+    } finally {
+      setIsProcessing(false)
+    }
   }
 
+  // 总收益
+  const totalEarnings = earningsStats
+    ? earningsStats.totalStaticEarned +
+      earningsStats.totalReferralEarned +
+      earningsStats.totalNodeEarned +
+      earningsStats.totalSameLevelEarned +
+      earningsStats.totalGlobalEarned
+    : 0
+
+  // 节点配置
+  const nodeConfig = getNodeConfig(teamStats?.nodeLevel || 'P0')
+
   return (
-    <Box>
-      <PageHeader title="收益" />
+    <Box minH="100vh" bg="black">
+      <PageHeader title="我的收益" />
 
       <VStack gap="5" p="4" align="stretch">
-        {/* 待领取收益卡片 */}
-        <MotionBox
-          bg="linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(79, 70, 229, 0.1) 100%)"
-          borderRadius="20px"
-          p="5"
-          border="1px solid"
-          borderColor="rgba(16, 185, 129, 0.3)"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Flex justify="space-between" align="flex-start" mb="4">
-            <Box>
-              <Text fontSize="sm" color="text.muted" mb="1">
-                待领取收益
-              </Text>
-              <Flex align="baseline" gap="2">
-                <Text
-                  fontSize="3xl"
-                  fontWeight="700"
-                  color="accent.green"
-                  fontFamily="heading"
-                >
-                  {stakingInfo.pendingRewards}
-                </Text>
-                <Text fontSize="sm" color="text.secondary">
-                  PFT
-                </Text>
-              </Flex>
-            </Box>
-            <Flex
-              w="48px"
-              h="48px"
-              borderRadius="14px"
-              bg="rgba(16, 185, 129, 0.2)"
-              align="center"
-              justify="center"
-            >
-              <HiOutlineGift size={24} color="#10B981" />
-            </Flex>
-          </Flex>
-
-          <ActionButton
-            w="100%"
-            variant="primary"
-            bg="#10B981"
-            onClick={handleClaim}
-            loading={isClaiming}
-            disabled={parseFloat(stakingInfo.pendingRewards) <= 0}
+        {/* 收益总览卡片 */}
+        <GradientBorderCard glowIntensity="high">
+          <MotionBox
+            p="5"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
           >
-            <Flex align="center" gap="2">
-              <HiOutlineGift size={18} />
-              <Text>领取收益</Text>
+            {/* 标题行带提现记录入口 */}
+            <Flex justify="space-between" align="center" mb="3">
+              <Text fontSize="sm" color="whiteAlpha.600">
+                累计收益
+              </Text>
+              <Flex
+                align="center"
+                gap="1"
+                color="whiteAlpha.500"
+                cursor="pointer"
+                onClick={() => navigate('/withdraw-records')}
+                _hover={{ color: '#22C55E' }}
+                transition="color 0.2s"
+              >
+                <HiOutlineClipboardDocumentList size={16} />
+                <Text fontSize="xs">提现记录</Text>
+              </Flex>
             </Flex>
-          </ActionButton>
-        </MotionBox>
 
-        {/* 收益统计 */}
-        <SimpleGrid columns={2} gap="3">
-          <StatCard
-            label="累计收益"
-            value={stakingInfo.totalRewards}
-            unit="PFT"
-            icon={<HiOutlineSparkles size={18} />}
-            color="accent.orange"
-            delay={0.1}
-          />
-          <StatCard
-            label="每日收益"
-            value={stakingInfo.dailyRewards}
-            unit="PFT"
-            icon={<HiOutlineCalendarDays size={18} />}
-            color="accent.cyan"
-            delay={0.15}
-          />
-          <StatCard
-            label="年化收益率"
-            value={stakingInfo.apr}
-            unit="%"
-            subValue="APR"
-            icon={<HiOutlineArrowTrendingUp size={18} />}
-            delay={0.2}
-          />
-          <StatCard
-            label="收益周期"
-            value="24"
-            unit="小时"
-            subValue="每日结算"
-            icon={<HiOutlineClock size={18} />}
-            delay={0.25}
-          />
-        </SimpleGrid>
+            <Flex direction="column" align="center" mb="4">
+              <Text fontSize="3xl" fontWeight="bold" color="white">
+                ${totalEarnings.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+              </Text>
+              <HStack gap={2} mt="2">
+                <Text fontSize="sm" color="whiteAlpha.500">
+                  可提现:
+                </Text>
+                <Text fontSize="sm" fontWeight="bold" color="#22C55E">
+                  {userAssets?.picBalance.toFixed(2) || '0.00'} PIC
+                </Text>
+              </HStack>
+            </Flex>
+
+            <ActionButton
+              variant="primary"
+              w="full"
+              onClick={() => setShowWithdrawModal(true)}
+              disabled={(userAssets?.picBalance || 0) <= 0}
+            >
+              <HStack gap={2}>
+                <HiOutlineBanknotes size={20} />
+                <Text>立即提现</Text>
+              </HStack>
+            </ActionButton>
+          </MotionBox>
+        </GradientBorderCard>
+
+        {/* 节点等级信息 */}
+        <MotionBox
+          bg="#17171C"
+          borderRadius="xl"
+          p="4"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <Flex justify="space-between" align="center">
+            <HStack gap={3}>
+              <NodeBadge level={teamStats?.nodeLevel || 'P0'} size="lg" showName />
+            </HStack>
+            <VStack align="end" gap={0}>
+              <Text fontSize="sm" color="white">
+                级差 {nodeConfig.sharePercent}%
+              </Text>
+              <Text fontSize="xs" color="whiteAlpha.500">
+                全网 {nodeConfig.globalSharePercent}%
+              </Text>
+            </VStack>
+          </Flex>
+        </MotionBox>
 
         {/* 收益明细 */}
         <Box>
-          <Flex justify="space-between" align="center" mb="3">
-            <Text fontSize="sm" fontWeight="600" color="text.secondary">
-              收益记录
-            </Text>
-            <Text fontSize="xs" color="text.muted">
-              最近 30 天
-            </Text>
-          </Flex>
-
-          <VStack gap="2" align="stretch">
-            {mockRewardRecords.map((record, index) => (
-              <RewardRecordItem key={record.id} record={record} delay={index * 0.05} />
-            ))}
-          </VStack>
-        </Box>
-
-        {/* 收益说明 */}
-        <Box
-          bg="bg.card"
-          borderRadius="14px"
-          p="4"
-          border="1px solid"
-          borderColor="border.default"
-        >
-          <Text fontSize="sm" fontWeight="600" color="text.secondary" mb="3">
-            收益说明
+          <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600" mb="3">
+            收益明细
           </Text>
-          <VStack gap="2" align="stretch">
-            <RuleItem text="质押收益：每日根据质押量和 APR 计算" />
-            <RuleItem text="团队收益：根据直推和间接用户的质押量计算" />
-            <RuleItem text="活动奖励：参与平台活动获得的额外奖励" />
-            <RuleItem text="收益每日 UTC 0:00 结算，可随时领取" />
+          <VStack gap={2}>
+            {/* 静态收益 */}
+            <RewardTypeCard
+              type="static"
+              amount={earningsStats?.totalStaticEarned || 0}
+              todayAmount={earningsStats?.todayEarnings || 0}
+              description="基于算力的每日挖矿收益"
+              delay={0.15}
+              onClick={() => navigate('/rewards/static')}
+            />
+
+            {/* 推荐奖励 */}
+            <RewardTypeCard
+              type="referral"
+              amount={earningsStats?.totalReferralEarned || 0}
+              description={`一代 ${PAYFI_CONFIG.REFERRAL_L1_RATE * 100}% · 二代 ${PAYFI_CONFIG.REFERRAL_L2_RATE * 100}%`}
+              delay={0.2}
+              onClick={() => navigate('/rewards/referral')}
+            />
+
+            {/* 节点级差 */}
+            <RewardTypeCard
+              type="node"
+              amount={earningsStats?.totalNodeEarned || 0}
+              description={`当前等级 ${teamStats?.nodeLevel || 'P0'} 分成 ${nodeConfig.sharePercent}%`}
+              delay={0.25}
+              onClick={() => navigate('/rewards/node')}
+            />
+
+            {/* 平级奖励 */}
+            <RewardTypeCard
+              type="same_level"
+              amount={earningsStats?.totalSameLevelEarned || 0}
+              description={`同级下级节点奖励的 ${PAYFI_CONFIG.SAME_LEVEL_RATE * 100}%`}
+              delay={0.3}
+              onClick={() => navigate('/rewards/same_level')}
+            />
+
+            {/* 全网分成 */}
+            <RewardTypeCard
+              type="global"
+              amount={earningsStats?.totalGlobalEarned || 0}
+              description={`全网手续费加权分成 ${nodeConfig.globalSharePercent}%`}
+              delay={0.35}
+              onClick={() => navigate('/rewards/global')}
+            />
           </VStack>
         </Box>
+
+        {/* 底部间距 */}
+        <Box h="24" />
       </VStack>
+
+      {/* 提现弹窗 */}
+      {showWithdrawModal && (
+        <Box
+          position="fixed"
+          inset={0}
+          bg="blackAlpha.800"
+          zIndex={100}
+          display="flex"
+          alignItems="flex-end"
+          onClick={() => setShowWithdrawModal(false)}
+        >
+          <MotionBox
+            w="full"
+            bg="#17171C"
+            borderTopRadius="2xl"
+            p="5"
+            pb="8"
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            transition={{ type: 'spring', damping: 25 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Text fontSize="lg" fontWeight="bold" color="white" mb="4">
+              提现 PIC
+            </Text>
+
+            {/* 输入框 */}
+            <Box mb="4">
+              <Flex justify="space-between" mb="2">
+                <Text fontSize="sm" color="whiteAlpha.600">提现数量</Text>
+                <Text
+                  fontSize="sm"
+                  color="#D811F0"
+                  cursor="pointer"
+                  onClick={() => setWithdrawAmount(userAssets?.picBalance.toString() || '')}
+                >
+                  全部 {userAssets?.picBalance.toFixed(2)}
+                </Text>
+              </Flex>
+              <Input
+                type="number"
+                placeholder="输入提现数量"
+                value={withdrawAmount}
+                onChange={(e) => setWithdrawAmount(e.target.value)}
+                bg="whiteAlpha.50"
+                border="1px solid"
+                borderColor="whiteAlpha.200"
+                borderRadius="xl"
+                color="white"
+                fontSize="lg"
+                h="12"
+                _placeholder={{ color: 'whiteAlpha.400' }}
+                _focus={{
+                  borderColor: '#D811F0',
+                  boxShadow: '0 0 0 1px #D811F0',
+                }}
+              />
+            </Box>
+
+            {/* 提现预估 */}
+            {withdrawPicAmount > 0 && (
+              <Box bg="whiteAlpha.50" borderRadius="lg" p="3" mb="4">
+                <SimpleGrid columns={2} gap={3}>
+                  <Box>
+                    <Text fontSize="xs" color="whiteAlpha.500">提现价值</Text>
+                    <Text fontSize="sm" color="white">${withdrawUsdtValue.toFixed(2)}</Text>
+                  </Box>
+                  <Box>
+                    <Text fontSize="xs" color="whiteAlpha.500">手续费 (3%)</Text>
+                    <Text fontSize="sm" color="red.400">-${withdrawFee.toFixed(2)}</Text>
+                  </Box>
+                  <Box>
+                    <Text fontSize="xs" color="whiteAlpha.500">即时到账 (80%)</Text>
+                    <Text fontSize="sm" color="#22C55E">${instantAmount.toFixed(2)}</Text>
+                  </Box>
+                  <Box>
+                    <Text fontSize="xs" color="whiteAlpha.500">线性释放 (20%)</Text>
+                    <Text fontSize="sm" color="#EAB308">${linearAmount.toFixed(2)}</Text>
+                  </Box>
+                </SimpleGrid>
+                <Text fontSize="xs" color="whiteAlpha.400" mt="2">
+                  线性部分将在 {PAYFI_CONFIG.LINEAR_RELEASE_DAYS} 天内逐步释放
+                </Text>
+              </Box>
+            )}
+
+            {/* 提现按钮 */}
+            <ActionButton
+              variant="primary"
+              w="full"
+              onClick={handleWithdraw}
+              disabled={!withdrawPicAmount || withdrawPicAmount > (userAssets?.picBalance || 0) || isProcessing}
+            >
+              {isProcessing ? '处理中...' : '确认提现'}
+            </ActionButton>
+          </MotionBox>
+        </Box>
+      )}
     </Box>
   )
 }
 
-interface RewardRecordItemProps {
-  record: RewardRecord
-  delay: number
-}
-
-function RewardRecordItem({ record, delay }: RewardRecordItemProps) {
-  const typeConfig = {
-    staking: {
-      label: '质押收益',
-      color: 'accent.green',
-      icon: <HiOutlineSparkles size={16} />,
-      bg: 'rgba(16, 185, 129, 0.15)',
-    },
-    team: {
-      label: '团队收益',
-      color: 'accent.cyan',
-      icon: <HiOutlineGift size={16} />,
-      bg: 'rgba(34, 211, 238, 0.15)',
-    },
-    bonus: {
-      label: '活动奖励',
-      color: 'accent.orange',
-      icon: <HiOutlineGift size={16} />,
-      bg: 'rgba(245, 158, 11, 0.15)',
-    },
-  }
-
-  const config = typeConfig[record.type]
-
+// 收益类型卡片组件
+function RewardTypeCard({
+  type,
+  amount,
+  todayAmount,
+  description,
+  delay = 0,
+  onClick,
+}: {
+  type: RewardType
+  amount: number
+  todayAmount?: number
+  description: string
+  delay?: number
+  onClick?: () => void
+}) {
   return (
     <MotionBox
-      bg="bg.card"
-      borderRadius="12px"
-      p="3"
-      border="1px solid"
-      borderColor="border.default"
+      w="full"
+      bg="#17171C"
+      borderRadius="xl"
+      p="4"
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.3, delay }}
+      transition={{ delay }}
+      cursor={onClick ? 'pointer' : 'default'}
+      onClick={onClick}
+      _hover={onClick ? { bg: '#1f1f26' } : undefined}
     >
+      <Flex justify="space-between" align="center" mb="2">
+        <HStack gap={2}>
+          {REWARD_ICONS[type]}
+          <Text fontSize="sm" fontWeight="medium" color="white">
+            {REWARD_TYPE_NAMES[type]}
+          </Text>
+        </HStack>
+        <HStack gap={2}>
+          <Text fontSize="lg" fontWeight="bold" color={REWARD_COLORS[type]}>
+            ${amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          </Text>
+          {onClick && (
+            <Box color="whiteAlpha.400">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </Box>
+          )}
+        </HStack>
+      </Flex>
       <Flex justify="space-between" align="center">
-        <Flex align="center" gap="3">
-          <Flex
-            w="36px"
-            h="36px"
-            borderRadius="10px"
-            bg={config.bg}
-            align="center"
-            justify="center"
-            color={config.color}
-          >
-            {config.icon}
-          </Flex>
-          <Box>
-            <Text fontSize="sm" fontWeight="600" color="text.primary">
-              {config.label}
-            </Text>
-            <Text fontSize="xs" color="text.muted">
-              {record.date}
-            </Text>
-          </Box>
-        </Flex>
-        <Text fontSize="sm" fontWeight="600" color={config.color}>
-          +{record.amount} PFT
+        <Text fontSize="xs" color="whiteAlpha.500">
+          {description}
         </Text>
+        {todayAmount !== undefined && todayAmount > 0 && (
+          <Text fontSize="xs" color="#22C55E">
+            今日 +${todayAmount.toFixed(2)}
+          </Text>
+        )}
       </Flex>
     </MotionBox>
-  )
-}
-
-function RuleItem({ text }: { text: string }) {
-  return (
-    <Flex align="flex-start" gap="2">
-      <Box
-        w="4px"
-        h="4px"
-        borderRadius="full"
-        bg="brand.primary"
-        mt="2"
-        flexShrink={0}
-      />
-      <Text fontSize="xs" color="text.muted" lineHeight="1.5">
-        {text}
-      </Text>
-    </Flex>
   )
 }

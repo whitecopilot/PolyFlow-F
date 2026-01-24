@@ -1,5 +1,5 @@
 import { http, createConfig } from 'wagmi'
-import { polygon, polygonAmoy, mainnet } from 'wagmi/chains'
+import { bsc, bscTestnet } from 'wagmi/chains'
 import { injected, walletConnect, coinbaseWallet } from 'wagmi/connectors'
 
 // WalletConnect projectId - 生产环境需替换为自己的 projectId
@@ -7,16 +7,15 @@ import { injected, walletConnect, coinbaseWallet } from 'wagmi/connectors'
 const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'demo-project-id'
 
 export const config = createConfig({
-  chains: [polygon, polygonAmoy, mainnet],
+  chains: [bsc, bscTestnet],
   connectors: [
     injected(),
     walletConnect({ projectId }),
     coinbaseWallet({ appName: 'PolyFlow' }),
   ],
   transports: {
-    [polygon.id]: http(),
-    [polygonAmoy.id]: http(),
-    [mainnet.id]: http(),
+    [bsc.id]: http(),
+    [bscTestnet.id]: http(),
   },
 })
 

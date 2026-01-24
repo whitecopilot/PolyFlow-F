@@ -1,3 +1,5 @@
 export { MobileLayout } from './MobileLayout'
+export { SecondaryLayout } from './SecondaryLayout'
 export { BottomNav } from './BottomNav'
 export { ProtectedRoute } from './ProtectedRoute'
+export { SecondaryPageHeader } from './SecondaryPageHeader'

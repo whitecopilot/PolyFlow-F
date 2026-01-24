@@ -6,6 +6,8 @@ import {
   HiHome,
   HiOutlineCube,
   HiCube,
+  HiOutlineWallet,
+  HiWallet,
   HiOutlineChartBar,
   HiChartBar,
   HiOutlineUserGroup,
@@ -23,7 +25,8 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { path: '/', label: '首页', icon: HiOutlineHome, activeIcon: HiHome },
-  { path: '/staking', label: '质押', icon: HiOutlineCube, activeIcon: HiCube },
+  { path: '/nft', label: 'NFT', icon: HiOutlineCube, activeIcon: HiCube },
+  { path: '/assets', label: '资产', icon: HiOutlineWallet, activeIcon: HiWallet },
   { path: '/rewards', label: '收益', icon: HiOutlineChartBar, activeIcon: HiChartBar },
   { path: '/team', label: '团队', icon: HiOutlineUserGroup, activeIcon: HiUserGroup },
 ]
@@ -42,12 +45,10 @@ export function BottomNav() {
       maxW="430px"
       bg="rgba(17, 17, 19, 0.95)"
       backdropFilter="blur(20px)"
-      borderTop="1px solid"
-      borderColor="border.subtle"
       pb="env(safe-area-inset-bottom)"
       zIndex="50"
     >
-      <Flex justify="space-around" align="center" h="64px" px="4">
+      <Flex justify="space-around" align="center" h="68px" px="4">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path
           const Icon = isActive ? item.activeIcon : item.icon
@@ -63,7 +64,8 @@ export function BottomNav() {
               gap="1"
               p="2"
               borderRadius="12px"
-              minW="60px"
+              minW="50px"
+              position="relative"
               whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.15 }}
             >
@@ -84,7 +86,7 @@ export function BottomNav() {
               {isActive && (
                 <MotionBox
                   position="absolute"
-                  bottom="12px"
+                  bottom="0"
                   h="3px"
                   w="20px"
                   bg="brand.primary"

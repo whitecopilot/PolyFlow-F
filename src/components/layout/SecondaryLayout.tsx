@@ -1,10 +1,9 @@
-// 一级页面布局 - 带底部导航栏
+// 二级页面布局 - 无底部导航栏
 
 import { Box, Flex } from '@chakra-ui/react'
 import { Outlet } from 'react-router-dom'
-import { BottomNav } from './BottomNav'
 
-export function MobileLayout() {
+export function SecondaryLayout() {
   return (
     <Flex
       direction="column"
@@ -14,11 +13,9 @@ export function MobileLayout() {
       bg="bg.canvas"
       position="relative"
     >
-      {/* 内容区域：顶部预留 header 空间，底部预留 nav 空间 */}
-      <Box flex="1" pt="72px" pb="84px" overflowY="auto">
+      <Box flex="1" pt="56px" overflowY="auto">
         <Outlet />
       </Box>
-      <BottomNav />
     </Flex>
   )
 }

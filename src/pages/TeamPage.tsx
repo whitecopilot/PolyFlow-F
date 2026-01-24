@@ -1,330 +1,321 @@
-import { useState } from 'react'
-import { Box, Flex, Text, VStack, SimpleGrid } from '@chakra-ui/react'
+// 团队页面 - 节点帝国
+
+import { useEffect } from 'react'
+import { Box, Flex, Text, VStack, HStack, SimpleGrid } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { PageHeader, ActionButton, StatCard } from '../components/common'
-import { useStakingStore, type TeamMember } from '../stores/stakingStore'
+import {
+  PageHeader,
+  ActionButton,
+  GradientBorderCard,
+  NodeBadge,
+} from '../components/common'
+import { usePayFiStore } from '../stores/payfiStore'
+import { NODE_LEVEL_CONFIGS, getNodeConfig, getNextNodeLevel } from '../mocks/payfiConfig'
 import {
   HiOutlineUserGroup,
   HiOutlineUserPlus,
   HiOutlineTrophy,
-  HiOutlineCurrencyDollar,
   HiOutlineChartBar,
+  HiOutlineArrowTrendingUp,
+  HiOutlineCheckCircle,
+  HiOutlineXCircle,
+  HiOutlineChevronRight,
 } from 'react-icons/hi2'
 
 const MotionBox = motion.create(Box)
 
 export function TeamPage() {
   const navigate = useNavigate()
-  const { teamStats, teamMembers } = useStakingStore()
-  const [activeTab, setActiveTab] = useState<'all' | 'direct'>('all')
+  const {
+    teamStats,
+    fetchTeamStats,
+  } = usePayFiStore()
 
-  const filteredMembers = activeTab === 'direct'
-    ? teamMembers.filter((m) => m.level === 1)
-    : teamMembers
+  useEffect(() => {
+    fetchTeamStats()
+  }, [fetchTeamStats])
+
+  const currentNodeConfig = getNodeConfig(teamStats?.nodeLevel || 'P0')
+  const nextNodeConfig = getNextNodeLevel(teamStats?.nodeLevel || 'P0')
+
+  // 计算升级进度
+  const smallAreaProgress = nextNodeConfig && teamStats
+    ? Math.min((teamStats.smallAreaPerf / 10000 / nextNodeConfig.smallAreaReq) * 100, 100)
+    : 100
+
+  const totalPerfProgress = nextNodeConfig && teamStats
+    ? Math.min((teamStats.teamPerformance / 10000 / nextNodeConfig.totalReq) * 100, 100)
+    : 100
 
   return (
-    <Box>
-      <PageHeader title="团队" />
+    <Box minH="100vh" bg="black">
+      <PageHeader title="我的团队" />
 
       <VStack gap="5" p="4" align="stretch">
-        {/* 团队等级卡片 */}
-        <MotionBox
-          bg="linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(217, 70, 239, 0.1) 100%)"
-          borderRadius="20px"
-          p="5"
-          border="1px solid"
-          borderColor="rgba(139, 92, 246, 0.3)"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Flex justify="space-between" align="flex-start" mb="4">
-            <Box>
-              <Text fontSize="sm" color="text.muted" mb="1">
-                团队等级
-              </Text>
-              <Flex align="baseline" gap="2">
-                <Text
-                  fontSize="3xl"
-                  fontWeight="700"
-                  color="accent.purple"
-                  fontFamily="heading"
-                >
-                  {teamStats.rank}
+        {/* 节点等级卡片 */}
+        <GradientBorderCard glowIntensity="high">
+          <MotionBox
+            p="5"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <Flex justify="space-between" align="flex-start" mb="4">
+              <VStack align="start" gap={2}>
+                <Text fontSize="sm" color="whiteAlpha.600">
+                  🏛️ 节点等级
                 </Text>
-              </Flex>
-            </Box>
-            <Flex
-              w="48px"
-              h="48px"
-              borderRadius="14px"
-              bg="rgba(139, 92, 246, 0.2)"
-              align="center"
-              justify="center"
-            >
-              <HiOutlineTrophy size={24} color="#8B5CF6" />
+                <NodeBadge
+                  level={teamStats?.nodeLevel || 'P0'}
+                  size="lg"
+                  showName
+                />
+              </VStack>
+              <VStack align="end" gap={0}>
+                <Text fontSize="sm" color="white">
+                  级差 {currentNodeConfig.sharePercent}%
+                </Text>
+                <Text fontSize="xs" color="whiteAlpha.500">
+                  全网 {currentNodeConfig.globalSharePercent}%
+                </Text>
+              </VStack>
             </Flex>
-          </Flex>
 
-          <Flex gap="4">
-            <Box flex="1">
-              <Text fontSize="xs" color="text.muted">
-                团队总人数
-              </Text>
-              <Text fontSize="md" fontWeight="600" color="text.primary">
-                {teamStats.totalMembers} 人
-              </Text>
-            </Box>
-            <Box flex="1">
-              <Text fontSize="xs" color="text.muted">
-                直推人数
-              </Text>
-              <Text fontSize="md" fontWeight="600" color="accent.cyan">
-                {teamStats.directMembers} 人
-              </Text>
-            </Box>
-          </Flex>
-        </MotionBox>
+            {/* 升级提示 */}
+            {nextNodeConfig && (
+              <Box
+                bg="whiteAlpha.50"
+                borderRadius="lg"
+                p="3"
+              >
+                <Text fontSize="xs" color="whiteAlpha.600" mb="2">
+                  升级到 {nextNodeConfig.level} 还需:
+                </Text>
+                <SimpleGrid columns={2} gap={3}>
+                  <Box>
+                    <Text fontSize="xs" color="whiteAlpha.500">小区业绩</Text>
+                    <Text fontSize="sm" color={smallAreaProgress >= 100 ? '#22C55E' : 'white'}>
+                      {(teamStats?.smallAreaPerf || 0) / 10000}万 / {nextNodeConfig.smallAreaReq}万
+                    </Text>
+                  </Box>
+                  <Box>
+                    <Text fontSize="xs" color="whiteAlpha.500">总业绩</Text>
+                    <Text fontSize="sm" color={totalPerfProgress >= 100 ? '#22C55E' : 'white'}>
+                      {(teamStats?.teamPerformance || 0) / 10000}万 / {nextNodeConfig.totalReq}万
+                    </Text>
+                  </Box>
+                </SimpleGrid>
+              </Box>
+            )}
+          </MotionBox>
+        </GradientBorderCard>
 
-        {/* 团队数据统计 */}
-        <SimpleGrid columns={2} gap="3">
-          <StatCard
-            label="团队业绩"
-            value={teamStats.teamVolume}
-            unit="PFT"
-            icon={<HiOutlineChartBar size={18} />}
-            color="accent.orange"
-            delay={0.1}
-          />
-          <StatCard
-            label="团队收益"
-            value={teamStats.teamRewards}
-            unit="PFT"
-            icon={<HiOutlineCurrencyDollar size={18} />}
-            color="accent.green"
-            delay={0.15}
-          />
-        </SimpleGrid>
-
-        {/* 邀请入口 */}
+        {/* 邀请入口 - 放在卡片和业绩统计之间 */}
         <ActionButton
-          w="100%"
+          w="full"
           variant="primary"
           onClick={() => navigate('/invite')}
         >
-          <Flex align="center" gap="2">
+          <HStack gap={2}>
             <HiOutlineUserPlus size={18} />
             <Text>邀请好友</Text>
-          </Flex>
+          </HStack>
         </ActionButton>
 
-        {/* 团队成员 */}
+        {/* 业绩统计 */}
         <Box>
-          <Flex justify="space-between" align="center" mb="3">
-            <Text fontSize="sm" fontWeight="600" color="text.secondary">
-              团队成员
-            </Text>
-            <Flex gap="2">
-              <FilterTab
-                active={activeTab === 'all'}
-                onClick={() => setActiveTab('all')}
-                label="全部"
-              />
-              <FilterTab
-                active={activeTab === 'direct'}
-                onClick={() => setActiveTab('direct')}
-                label="直推"
-              />
-            </Flex>
-          </Flex>
+          <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600" mb="3">
+            业绩统计
+          </Text>
+          <SimpleGrid columns={2} gap="3">
+            <MotionBox
+              bg="#17171C"
+              borderRadius="xl"
+              p="4"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <HStack gap={2} mb={2}>
+                <HiOutlineChartBar size={16} color="#D811F0" />
+                <Text fontSize="xs" color="whiteAlpha.600">团队总业绩</Text>
+              </HStack>
+              <Text fontSize="xl" fontWeight="bold" color="white">
+                ${(teamStats?.teamPerformance || 0).toLocaleString()}
+              </Text>
+            </MotionBox>
 
-          {filteredMembers.length > 0 ? (
-            <VStack gap="2" align="stretch">
-              {filteredMembers.map((member, index) => (
-                <TeamMemberItem key={member.address} member={member} delay={index * 0.05} />
-              ))}
-            </VStack>
-          ) : (
-            <EmptyState />
-          )}
+            <MotionBox
+              bg="#17171C"
+              borderRadius="xl"
+              p="4"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+            >
+              <HStack gap={2} mb={2}>
+                <HiOutlineArrowTrendingUp size={16} color="#22C55E" />
+                <Text fontSize="xs" color="whiteAlpha.600">小区业绩</Text>
+              </HStack>
+              <Text fontSize="xl" fontWeight="bold" color="white">
+                ${(teamStats?.smallAreaPerf || 0).toLocaleString()}
+              </Text>
+            </MotionBox>
+
+            <MotionBox
+              bg="#17171C"
+              borderRadius="xl"
+              p="4"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <HStack gap={2} mb={2}>
+                <HiOutlineTrophy size={16} color="#EAB308" />
+                <Text fontSize="xs" color="whiteAlpha.600">最大单线</Text>
+              </HStack>
+              <Text fontSize="xl" fontWeight="bold" color="white">
+                ${(teamStats?.maxLinePerf || 0).toLocaleString()}
+              </Text>
+            </MotionBox>
+
+            <MotionBox
+              bg="#17171C"
+              borderRadius="xl"
+              p="4"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+              cursor="pointer"
+              onClick={() => navigate('/team-members')}
+              _hover={{ bg: '#1f1f26' }}
+            >
+              <Flex justify="space-between" align="flex-start">
+                <Box>
+                  <HStack gap={2} mb={2}>
+                    <HiOutlineUserGroup size={16} color="#06B6D4" />
+                    <Text fontSize="xs" color="whiteAlpha.600">团队人数</Text>
+                  </HStack>
+                  <Text fontSize="xl" fontWeight="bold" color="white">
+                    {teamStats?.teamCount || 0}
+                    <Text as="span" fontSize="sm" color="whiteAlpha.500" ml={1}>
+                      直推 {teamStats?.directCount || 0}
+                    </Text>
+                  </Text>
+                </Box>
+                <Box color="whiteAlpha.400" mt="1">
+                  <HiOutlineChevronRight size={16} />
+                </Box>
+              </Flex>
+            </MotionBox>
+          </SimpleGrid>
         </Box>
+
+        {/* 等级条件 */}
+        {nextNodeConfig && (
+          <Box>
+            <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600" mb="3">
+              {nextNodeConfig.level} 升级条件
+            </Text>
+            <MotionBox
+              bg="#17171C"
+              borderRadius="xl"
+              p="4"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <VStack gap={3} align="stretch">
+                <Flex justify="space-between" align="center">
+                  <HStack gap={2}>
+                    {smallAreaProgress >= 100 ? (
+                      <HiOutlineCheckCircle size={18} color="#22C55E" />
+                    ) : (
+                      <HiOutlineXCircle size={18} color="#71717A" />
+                    )}
+                    <Text fontSize="sm" color="white">
+                      小区业绩 ≥ {nextNodeConfig.smallAreaReq}万
+                    </Text>
+                  </HStack>
+                  <Text fontSize="sm" color={smallAreaProgress >= 100 ? '#22C55E' : 'whiteAlpha.500'}>
+                    {(teamStats?.smallAreaPerf || 0) / 10000}万
+                  </Text>
+                </Flex>
+
+                <Flex justify="space-between" align="center">
+                  <HStack gap={2}>
+                    {totalPerfProgress >= 100 ? (
+                      <HiOutlineCheckCircle size={18} color="#22C55E" />
+                    ) : (
+                      <HiOutlineXCircle size={18} color="#71717A" />
+                    )}
+                    <Text fontSize="sm" color="white">
+                      总业绩 ≥ {nextNodeConfig.totalReq}万
+                    </Text>
+                  </HStack>
+                  <Text fontSize="sm" color={totalPerfProgress >= 100 ? '#22C55E' : 'whiteAlpha.500'}>
+                    {(teamStats?.teamPerformance || 0) / 10000}万
+                  </Text>
+                </Flex>
+
+                {nextNodeConfig.level === 'P9' && (
+                  <Flex justify="space-between" align="center">
+                    <HStack gap={2}>
+                      <HiOutlineXCircle size={18} color="#71717A" />
+                      <Text fontSize="sm" color="white">
+                        团队内 ≥ 2 个 P8
+                      </Text>
+                    </HStack>
+                    <Text fontSize="sm" color="whiteAlpha.500">
+                      0 个
+                    </Text>
+                  </Flex>
+                )}
+              </VStack>
+            </MotionBox>
+          </Box>
+        )}
 
         {/* 等级说明 */}
-        <Box
-          bg="bg.card"
-          borderRadius="14px"
-          p="4"
-          border="1px solid"
-          borderColor="border.default"
-        >
-          <Text fontSize="sm" fontWeight="600" color="text.secondary" mb="3">
-            团队等级说明
+        <Box>
+          <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600" mb="3">
+            节点等级说明
           </Text>
-          <VStack gap="3" align="stretch">
-            <RankItem rank="Bronze" requirement="直推 5 人" bonus="5%" />
-            <RankItem rank="Silver" requirement="直推 10 人，团队 50 人" bonus="8%" />
-            <RankItem rank="Gold" requirement="直推 20 人，团队 200 人" bonus="12%" />
-            <RankItem rank="Platinum" requirement="直推 50 人，团队 1000 人" bonus="18%" />
-            <RankItem rank="Diamond" requirement="直推 100 人，团队 5000 人" bonus="25%" />
-          </VStack>
+          <MotionBox
+            bg="#17171C"
+            borderRadius="xl"
+            p="4"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <VStack gap={2} align="stretch">
+              {NODE_LEVEL_CONFIGS.slice(1).map((config) => (
+                <Flex key={config.level} justify="space-between" align="center">
+                  <HStack gap={2}>
+                    <NodeBadge level={config.level} size="sm" />
+                    <Text fontSize="xs" color="whiteAlpha.600">
+                      小区{config.smallAreaReq}万
+                    </Text>
+                  </HStack>
+                  <HStack gap={3}>
+                    <Text fontSize="xs" color="#D811F0">
+                      级差 {config.sharePercent}%
+                    </Text>
+                    <Text fontSize="xs" color="whiteAlpha.500">
+                      全网 {config.globalSharePercent}%
+                    </Text>
+                  </HStack>
+                </Flex>
+              ))}
+            </VStack>
+          </MotionBox>
         </Box>
+
+        {/* 底部间距 */}
+        <Box h="24" />
       </VStack>
     </Box>
   )
 }
 
-interface FilterTabProps {
-  active: boolean
-  onClick: () => void
-  label: string
-}
-
-function FilterTab({ active, onClick, label }: FilterTabProps) {
-  return (
-    <Box
-      px="3"
-      py="1"
-      borderRadius="8px"
-      bg={active ? 'brand.primary' : 'transparent'}
-      color={active ? 'white' : 'text.muted'}
-      fontSize="xs"
-      fontWeight="600"
-      cursor="pointer"
-      transition="all 0.2s"
-      onClick={onClick}
-    >
-      {label}
-    </Box>
-  )
-}
-
-interface TeamMemberItemProps {
-  member: TeamMember
-  delay: number
-}
-
-function TeamMemberItem({ member, delay }: TeamMemberItemProps) {
-  const levelColors = ['accent.cyan', 'accent.green', 'accent.orange']
-  const levelLabels = ['直推', '2级', '3级']
-
-  return (
-    <MotionBox
-      bg="bg.card"
-      borderRadius="12px"
-      p="3"
-      border="1px solid"
-      borderColor="border.default"
-      initial={{ opacity: 0, x: -10 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.3, delay }}
-    >
-      <Flex justify="space-between" align="center">
-        <Flex align="center" gap="3">
-          <Flex
-            w="40px"
-            h="40px"
-            borderRadius="10px"
-            bg="bg.input"
-            align="center"
-            justify="center"
-          >
-            <HiOutlineUserGroup size={20} color="#A1A1AA" />
-          </Flex>
-          <Box>
-            <Text fontSize="sm" fontWeight="600" color="text.primary">
-              {member.shortAddress}
-            </Text>
-            <Flex align="center" gap="2">
-              <Text
-                fontSize="10px"
-                px="1.5"
-                py="0.5"
-                borderRadius="4px"
-                bg={`rgba(${levelColors[member.level - 1]}, 0.2)`}
-                color={levelColors[member.level - 1]}
-                fontWeight="600"
-              >
-                {levelLabels[member.level - 1] || `${member.level}级`}
-              </Text>
-              <Text fontSize="xs" color="text.muted">
-                贡献 {member.contribution} PFT
-              </Text>
-            </Flex>
-          </Box>
-        </Flex>
-        <Text fontSize="xs" color="text.muted">
-          {formatDate(member.joinedAt)}
-        </Text>
-      </Flex>
-    </MotionBox>
-  )
-}
-
-function EmptyState() {
-  return (
-    <Flex
-      direction="column"
-      align="center"
-      justify="center"
-      py="8"
-      bg="bg.card"
-      borderRadius="14px"
-      border="1px dashed"
-      borderColor="border.default"
-    >
-      <HiOutlineUserGroup size={32} color="#71717A" />
-      <Text fontSize="sm" color="text.muted" mt="2">
-        暂无团队成员
-      </Text>
-      <Text fontSize="xs" color="text.disabled" mt="1">
-        邀请好友加入你的团队
-      </Text>
-    </Flex>
-  )
-}
-
-interface RankItemProps {
-  rank: string
-  requirement: string
-  bonus: string
-}
-
-function RankItem({ rank, requirement, bonus }: RankItemProps) {
-  const rankColors: Record<string, string> = {
-    Bronze: 'rgba(205, 127, 50, 0.8)',
-    Silver: 'rgba(192, 192, 192, 0.8)',
-    Gold: 'rgba(255, 215, 0, 0.8)',
-    Platinum: 'rgba(229, 228, 226, 0.8)',
-    Diamond: 'rgba(185, 242, 255, 0.8)',
-  }
-
-  return (
-    <Flex justify="space-between" align="center">
-      <Flex align="center" gap="2">
-        <Box
-          w="8px"
-          h="8px"
-          borderRadius="full"
-          bg={rankColors[rank] || '#71717A'}
-        />
-        <Text fontSize="xs" color="text.primary" fontWeight="500">
-          {rank}
-        </Text>
-      </Flex>
-      <Text fontSize="xs" color="text.muted" flex="1" textAlign="center">
-        {requirement}
-      </Text>
-      <Text fontSize="xs" color="accent.green" fontWeight="600">
-        +{bonus}
-      </Text>
-    </Flex>
-  )
-}
-
-function formatDate(timestamp: number): string {
-  const date = new Date(timestamp)
-  const month = date.getMonth() + 1
-  const day = date.getDate()
-  return `${month}/${day}`
-}
