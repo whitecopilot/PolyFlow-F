@@ -1,6 +1,17 @@
 // 等级徽章组件 - NFT 和节点等级显示
 
-import { Box, Text, HStack } from '@chakra-ui/react'
+import { Box, HStack, Text } from '@chakra-ui/react'
+import {
+  Crown,
+  Cube,
+  Diamond,
+  DiamondsFour,
+  Hexagon,
+  Octagon,
+  Pentagon,
+  Star,
+  Trophy,
+} from '@phosphor-icons/react'
 import type { NFTLevel, NodeLevel } from '../../types/payfi'
 
 // NFT 等级徽章
@@ -86,20 +97,20 @@ interface NodeBadgeProps {
   showName?: boolean
 }
 
-const NODE_COLORS: Record<NodeLevel, { bg: string; border: string; icon: string }> = {
-  P0: { bg: '#2D3748', border: '#4A5568', icon: '' },
-  P1: { bg: '#2C5282', border: '#3182CE', icon: '🔹' },
-  P2: { bg: '#9C4221', border: '#DD6B20', icon: '🔸' },
-  P3: { bg: '#6B7280', border: '#9CA3AF', icon: '⬥' },
-  P4: { bg: '#B7791F', border: '#ECC94B', icon: '⭐' },
-  P5: { bg: '#5B21B6', border: '#8B5CF6', icon: '💎' },
-  P6: { bg: '#0891B2', border: '#22D3EE', icon: '💠' },
-  P7: { bg: '#BE185D', border: '#F472B6', icon: '🔶' },
-  P8: { bg: '#7C3AED', border: '#A78BFA', icon: '👑' },
+const NODE_COLORS: Record<NodeLevel, { bg: string; border: string; Icon: React.ComponentType<{ size?: number; weight?: 'thin' | 'light' | 'regular' | 'bold' | 'fill' | 'duotone' }> | null }> = {
+  P0: { bg: '#2D3748', border: '#4A5568', Icon: null },
+  P1: { bg: '#2C5282', border: '#3182CE', Icon: DiamondsFour },
+  P2: { bg: '#9C4221', border: '#DD6B20', Icon: Hexagon },
+  P3: { bg: '#6B7280', border: '#9CA3AF', Icon: Octagon },
+  P4: { bg: '#B7791F', border: '#ECC94B', Icon: Star },
+  P5: { bg: '#5B21B6', border: '#8B5CF6', Icon: Diamond },
+  P6: { bg: '#0891B2', border: '#22D3EE', Icon: Cube },
+  P7: { bg: '#BE185D', border: '#F472B6', Icon: Pentagon },
+  P8: { bg: '#7C3AED', border: '#A78BFA', Icon: Crown },
   P9: {
     bg: 'linear-gradient(135deg, #F59E0B 0%, #EF4444 50%, #8B5CF6 100%)',
     border: '#FCD34D',
-    icon: '🏆',
+    Icon: Trophy,
   },
 }
 
@@ -142,7 +153,7 @@ export function NodeBadge({ level, size = 'md', showName = false }: NodeBadgePro
       transition="transform 0.2s"
       _hover={{ transform: 'scale(1.05)' }}
     >
-      {colors.icon && <Text fontSize={styles.iconSize}>{colors.icon}</Text>}
+      {colors.Icon && <colors.Icon size={parseInt(styles.iconSize)} weight="fill" />}
       <Text fontSize={styles.fontSize} fontWeight="bold" color="white">
         {level}
       </Text>

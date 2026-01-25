@@ -1,27 +1,29 @@
 // NFT 页面 - 等级殿堂
 
-import { Box, Flex, Text, VStack, HStack, SimpleGrid } from '@chakra-ui/react'
+import { Box, Flex, HStack, SimpleGrid, Text, VStack } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import {
-  PageHeader,
+  HiOutlineArrowUp,
+  HiOutlineBolt,
+  HiOutlineCheck,
+  HiOutlineCube,
+  HiOutlineLockClosed,
+  HiOutlinePlay,
+  HiOutlineShieldCheck,
+  HiOutlineSparkles,
+  HiOutlineShoppingCart,
+} from 'react-icons/hi2'
+import { Sparkle, Trophy } from '@phosphor-icons/react'
+import {
   ActionButton,
   GradientBorderCard,
   NFTBadge,
+  PageHeader,
 } from '../components/common'
+import { NFT_LEVEL_CONFIGS, calculateUpgradeCost, getNFTConfig } from '../mocks/payfiConfig'
 import { usePayFiStore } from '../stores/payfiStore'
-import { NFT_LEVEL_CONFIGS, getNFTConfig, calculateUpgradeCost } from '../mocks/payfiConfig'
 import type { NFTLevel } from '../types/payfi'
-import {
-  HiOutlineSparkles,
-  HiOutlineBolt,
-  HiOutlineShieldCheck,
-  HiOutlineArrowUp,
-  HiOutlineCheck,
-  HiOutlineLockClosed,
-  HiOutlineCube,
-  HiOutlinePlay,
-} from 'react-icons/hi2'
 
 const MotionBox = motion.create(Box)
 
@@ -112,9 +114,10 @@ export function NFTPage() {
           >
             <HStack justify="space-between" align="center">
               <VStack align="start" gap={1}>
-                <Text fontSize="sm" color="whiteAlpha.600">
-                  ✨ 当前等级
-                </Text>
+                <HStack gap={1}>
+                  <Sparkle size={14} weight="fill" color="#D811F0" />
+                  <Text fontSize="sm" color="whiteAlpha.600">当前等级</Text>
+                </HStack>
                 {currentLevel ? (
                   <HStack gap={2}>
                     <NFTBadge level={currentLevel} size="lg" showName />
@@ -132,7 +135,7 @@ export function NFTPage() {
                     算力系数 {currentConfig.coefficient}x
                   </Text>
                   <Text fontSize="xs" color="whiteAlpha.500">
-                    出局倍数 {currentConfig.nftExitMultiplier}x
+                    矿池倍数 {currentConfig.nftExitMultiplier}x
                   </Text>
                 </VStack>
               )}
@@ -231,13 +234,7 @@ export function NFTPage() {
                         <HStack gap={1.5}>
                           <Box w="1.5" h="1.5" borderRadius="full" bg="#FBBF24" />
                           <Text fontSize="xs" color="whiteAlpha.700">
-                            质押后才能获得<Text as="span" color="#FBBF24" fontWeight="600">静态挖矿收益</Text>
-                          </Text>
-                        </HStack>
-                        <HStack gap={1.5}>
-                          <Box w="1.5" h="1.5" borderRadius="full" bg="#FBBF24" />
-                          <Text fontSize="xs" color="whiteAlpha.700">
-                            未质押也可获得<Text as="span" color="#22C55E" fontWeight="600">PID 线性释放</Text>
+                            质押后才能获得<Text as="span" color="#FBBF24" fontWeight="600">PIC挖矿收益</Text>
                           </Text>
                         </HStack>
                         <HStack gap={1.5}>
@@ -368,9 +365,12 @@ export function NFTPage() {
                 <HStack justify="space-between" mb="4">
                   <VStack align="start" gap={1}>
                     <HStack gap={2}>
-                      <Text fontSize="xl" fontWeight="bold" color="white">
-                        🏆 {selectedConfig.level}
-                      </Text>
+                      <HStack gap={1}>
+                        <Trophy size={20} weight="fill" color="#ECC94B" />
+                        <Text fontSize="xl" fontWeight="bold" color="white">
+                          {selectedConfig.level}
+                        </Text>
+                      </HStack>
                       <Text fontSize="lg" color="whiteAlpha.700">
                         {selectedConfig.name}
                       </Text>
@@ -395,11 +395,6 @@ export function NFTPage() {
                     <Text fontSize="lg" fontWeight="bold" color="white">
                       ${selectedConfig.price.toLocaleString()}
                     </Text>
-                    {currentLevel && (
-                      <Text fontSize="xs" color="#D811F0">
-                        补差价 ${upgradeCost.toLocaleString()}
-                      </Text>
-                    )}
                   </Box>
 
                   <Box bg="whiteAlpha.50" borderRadius="lg" p="3">
@@ -425,13 +420,13 @@ export function NFTPage() {
                   <Box bg="whiteAlpha.50" borderRadius="lg" p="3">
                     <HStack gap={1} mb={1}>
                       <HiOutlineShieldCheck size={12} color="#22C55E" />
-                      <Text fontSize="xs" color="whiteAlpha.500">出局倍数</Text>
+                      <Text fontSize="xs" color="whiteAlpha.500">矿池倍数</Text>
                     </HStack>
                     <Text fontSize="lg" fontWeight="bold" color="white">
                       NFT {selectedConfig.nftExitMultiplier}x
                     </Text>
                     <Text fontSize="xs" color="whiteAlpha.500">
-                      销毁 {selectedConfig.burnExitMultiplier}x
+                      销毁PIC {selectedConfig.burnExitMultiplier}x
                     </Text>
                   </Box>
                 </SimpleGrid>
@@ -464,7 +459,18 @@ export function NFTPage() {
                   onClick={handlePurchaseOrUpgrade}
                   disabled={isProcessing}
                 >
-                  {isProcessing ? '处理中...' : currentLevel ? `🚀 升级到 ${selectedConfig.level}` : `🛒 购买 ${selectedConfig.level}`}
+                  <HStack gap={2} justify="center">
+                    {isProcessing ? (
+                      <Text>处理中...</Text>
+                    ) : currentLevel ? (
+                      <Text>升级到 {selectedConfig.level}</Text>
+                    ) : (
+                      <>
+                        <HiOutlineShoppingCart size={18} />
+                        <Text>购买 {selectedConfig.level}</Text>
+                      </>
+                    )}
+                  </HStack>
                 </ActionButton>
               </Box>
             </GradientBorderCard>

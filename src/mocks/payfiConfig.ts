@@ -1,6 +1,6 @@
 // PayFi 系统配置常量和配置表
 
-import type { NFTLevelConfig, NodeLevelConfig, NodeLevel } from '../types/payfi';
+import type { NFTLevelConfig, NodeLevel, NodeLevelConfig } from '../types/payfi';
 
 // 系统参数配置
 export const PAYFI_CONFIG = {
@@ -132,11 +132,11 @@ export function calculateUpgradeCost(currentLevel: string | null, targetLevel: s
 
 // 奖励类型显示名称
 export const REWARD_TYPE_NAMES: Record<string, string> = {
-  static: '静态收益',
-  referral: '推荐奖励',
+  static: '挖矿收益',
+  referral: '邀请奖励',
   node: '节点奖励',
-  same_level: '平级奖励',
-  global: '全网分成',
+  same_level: '协助奖励',
+  global: '空投奖励',
 };
 
 // 奖励类型图标

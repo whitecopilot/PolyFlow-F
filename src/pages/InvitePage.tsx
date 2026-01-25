@@ -1,21 +1,20 @@
-import { useState, useRef, useCallback, useMemo } from 'react'
-import { Box, Flex, Text, VStack, Input } from '@chakra-ui/react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { Box, Flex, Input, Text, VStack } from '@chakra-ui/react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { QRCodeSVG } from 'qrcode.react'
-import { SecondaryPageHeader } from '../components/layout'
-import { ActionButton, PolyFlowLogo } from '../components/common'
-import { usePayFiStore } from '../stores/payfiStore'
-import { PAYFI_CONFIG } from '../mocks/payfiConfig'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import {
-  HiOutlineLink,
-  HiOutlineClipboardDocument,
-  HiOutlineShare,
-  HiOutlineQrCode,
-  HiOutlineCheckCircle,
-  HiOutlineGift,
-  HiXMark,
   HiArrowDownTray,
+  HiOutlineCheckCircle,
+  HiOutlineClipboardDocument,
+  HiOutlineGift,
+  HiOutlineLink,
+  HiOutlineQrCode,
+  HiOutlineShare,
+  HiXMark,
 } from 'react-icons/hi2'
+import { ActionButton, PolyFlowLogo } from '../components/common'
+import { SecondaryPageHeader } from '../components/layout'
+import { usePayFiStore } from '../stores/payfiStore'
 
 const MotionBox = motion.create(Box)
 
@@ -106,15 +105,15 @@ export function InvitePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Flex justify="space-between" align="flex-start" mb="4">
-            <Box>
-              <Text fontSize="sm" color="text.muted" mb="1">
-                邀请奖励
-              </Text>
-              <Text fontSize="lg" fontWeight="600" color="text.primary">
-                邀请好友，共享收益
-              </Text>
-            </Box>
+          <Flex justify="space-between" align="center">
+            <Text
+              fontSize="xl"
+              fontWeight="700"
+              color="text.primary"
+              letterSpacing="tight"
+            >
+              Pay with Crypto Earn the Future
+            </Text>
             <Flex
               w="48px"
               h="48px"
@@ -126,17 +125,6 @@ export function InvitePage() {
               <HiOutlineGift size={24} color="#D946EF" />
             </Flex>
           </Flex>
-
-          <VStack gap="2" align="stretch">
-            <RewardItem
-              icon={<HiOutlineGift size={16} />}
-              text={`直推用户静态收益，获得 ${PAYFI_CONFIG.REFERRAL_L1_RATE * 100}% 推荐奖励`}
-            />
-            <RewardItem
-              icon={<HiOutlineGift size={16} />}
-              text={`二代用户静态收益，获得 ${PAYFI_CONFIG.REFERRAL_L2_RATE * 100}% 推荐奖励`}
-            />
-          </VStack>
         </MotionBox>
 
         {/* 邀请码 */}
@@ -283,35 +271,8 @@ export function InvitePage() {
           <VStack gap="2" align="stretch">
             <RuleItem text="1. 分享您的专属邀请链接给好友" />
             <RuleItem text="2. 好友通过链接注册并连接钱包" />
-            <RuleItem text="3. 好友完成质押后，您即可获得收益加成" />
-            <RuleItem text="4. 收益加成永久有效，实时结算" />
-          </VStack>
-        </Box>
-
-        {/* 常见问题 */}
-        <Box
-          bg="bg.card"
-          borderRadius="14px"
-          p="4"
-          border="1px solid"
-          borderColor="border.default"
-        >
-          <Text fontSize="sm" fontWeight="600" color="text.secondary" mb="3">
-            常见问题
-          </Text>
-          <VStack gap="4" align="stretch">
-            <FAQItem
-              question="推荐奖励如何计算？"
-              answer="直推用户每日静态收益的 10% 作为您的推荐奖励，二代用户为 5%，实时计算并累计。"
-            />
-            <FAQItem
-              question="邀请人数有上限吗？"
-              answer="没有上限，您可以邀请任意数量的好友加入，团队业绩越高，节点等级越高。"
-            />
-            <FAQItem
-              question="推荐奖励以什么形式发放？"
-              answer="推荐奖励以 PIC 形式累计，可在收益页面进行提现，提现时 80% 即时到账，20% 线性释放。"
-            />
+            <RuleItem text="3. 好友完成质押后，您即可获得奖励" />
+            <RuleItem text="4. 奖励永久有效，实时结算" />
           </VStack>
         </Box>
       </VStack>
@@ -487,22 +448,6 @@ export function InvitePage() {
   )
 }
 
-interface RewardItemProps {
-  icon: React.ReactNode
-  text: string
-}
-
-function RewardItem({ icon, text }: RewardItemProps) {
-  return (
-    <Flex align="center" gap="2">
-      <Box color="accent.pink">{icon}</Box>
-      <Text fontSize="xs" color="text.secondary">
-        {text}
-      </Text>
-    </Flex>
-  )
-}
-
 function RuleItem({ text }: { text: string }) {
   return (
     <Flex align="flex-start" gap="2">
@@ -518,23 +463,5 @@ function RuleItem({ text }: { text: string }) {
         {text}
       </Text>
     </Flex>
-  )
-}
-
-interface FAQItemProps {
-  question: string
-  answer: string
-}
-
-function FAQItem({ question, answer }: FAQItemProps) {
-  return (
-    <Box>
-      <Text fontSize="sm" fontWeight="600" color="text.primary" mb="1">
-        {question}
-      </Text>
-      <Text fontSize="xs" color="text.muted" lineHeight="1.6">
-        {answer}
-      </Text>
-    </Box>
   )
 }

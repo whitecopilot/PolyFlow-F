@@ -1,27 +1,27 @@
 // 资产页面 - 数字金库（一级页面）
 
-import { Box, Flex, Text, VStack, HStack, Input, SimpleGrid } from '@chakra-ui/react'
+import { Box, Flex, HStack, Input, SimpleGrid, Text, VStack } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import {
-  PageHeader,
-  ActionButton,
-  GradientBorderCard,
-  ProgressBar,
-} from '../components/common'
-import { usePayFiStore } from '../stores/payfiStore'
-import { getNFTConfig, PAYFI_CONFIG } from '../mocks/payfiConfig'
-import {
-  HiOutlineFire,
-  HiOutlineLockClosed,
   HiOutlineArrowPath,
-  HiOutlineSparkles,
   HiOutlineBolt,
-  HiOutlineShieldCheck,
   HiOutlineCalendarDays,
   HiOutlineClipboardDocumentList,
+  HiOutlineFire,
+  HiOutlineLockClosed,
+  HiOutlineShieldCheck,
+  HiOutlineSparkles,
 } from 'react-icons/hi2'
+import { useNavigate } from 'react-router-dom'
+import {
+  ActionButton,
+  GradientBorderCard,
+  PageHeader,
+  ProgressBar,
+} from '../components/common'
+import { getNFTConfig, PAYFI_CONFIG } from '../mocks/payfiConfig'
+import { usePayFiStore } from '../stores/payfiStore'
 
 const MotionBox = motion.create(Box)
 
@@ -80,7 +80,7 @@ export function AssetsPage() {
   }
 
   // 快捷金额按钮
-  const quickAmounts = [100, 200, 500, 1000]
+  const quickAmounts = [100, 500, 1000, 3000, 10000]
 
   return (
     <Box minH="100vh" bg="black">
@@ -105,7 +105,7 @@ export function AssetsPage() {
                   <HiOutlineSparkles size={18} color="#292FE1" />
                 </Box>
                 <Text fontSize="md" fontWeight="600" color="white">
-                  PID 权益代币
+                  PID
                 </Text>
               </HStack>
               <Text fontSize="xs" color="whiteAlpha.500">
@@ -180,7 +180,7 @@ export function AssetsPage() {
                 <HiOutlineFire size={18} color="#D811F0" />
               </Box>
               <Text fontSize="md" fontWeight="600" color="white">
-                PIC 流通代币
+                PIC
               </Text>
             </HStack>
             <Text fontSize="xs" color="whiteAlpha.500">
@@ -420,7 +420,7 @@ export function AssetsPage() {
                 !isValidBurnAmount || isProcessing || !userAssets?.currentNFTLevel
               }
             >
-              {isProcessing ? '处理中...' : '🔥 确认销毁'}
+              {isProcessing ? '处理中...' : '确认销毁'}
             </ActionButton>
 
             {!userAssets?.currentNFTLevel && (

@@ -1,25 +1,26 @@
 // PayFi 首页 - 资产驾驶舱
 
-import { Box, Flex, Text, SimpleGrid, VStack, HStack } from '@chakra-ui/react'
+import { Box, Flex, HStack, SimpleGrid, Text, VStack } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
-import { useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import {
-  PageHeader,
-  StatCard,
-  GradientBorderCard,
-  PriceCompact,
-  NFTBadge,
-  ProgressBar,
-} from '../components/common'
-import { usePayFiStore } from '../stores/payfiStore'
-import {
-  HiOutlineGift,
-  HiOutlineUserPlus,
   HiOutlineArrowTrendingUp,
   HiOutlineBolt,
+  HiOutlineGift,
   HiOutlineShieldCheck,
+  HiOutlineUserPlus,
 } from 'react-icons/hi2'
+import { useNavigate } from 'react-router-dom'
+import {
+  GradientBorderCard,
+  NFTBadge,
+  PageHeader,
+  PolyFlowLogo,
+  PriceCompact,
+  ProgressBar,
+  StatCard,
+} from '../components/common'
+import { usePayFiStore } from '../stores/payfiStore'
 
 const MotionBox = motion.create(Box)
 const MotionFlex = motion.create(Flex)
@@ -30,7 +31,6 @@ export function HomePage() {
     priceInfo,
     userAssets,
     earningsStats,
-    teamStats,
     systemStats,
     fetchAllData,
   } = usePayFiStore()
@@ -63,8 +63,9 @@ export function HomePage() {
             <Flex justify="space-between" align="flex-start" mb="4">
               <Box>
                 <HStack gap={2} mb="1">
+                  <PolyFlowLogo size={16} colorMode="gradient" />
                   <Text fontSize="sm" color="whiteAlpha.600">
-                    💎 总资产价值
+                    总资产价值
                   </Text>
                   {userAssets?.currentNFTLevel && (
                     <NFTBadge level={userAssets.currentNFTLevel} size="sm" />
@@ -98,25 +99,33 @@ export function HomePage() {
               />
             </HStack>
 
-            {/* 资产明细 */}
-            <SimpleGrid columns={3} gap={3}>
-              <Box>
-                <Text fontSize="xs" color="whiteAlpha.500">PID 可用</Text>
-                <Text fontSize="sm" fontWeight="600" color="white">
-                  {userAssets?.pidBalance.toFixed(2) || '0.00'}
-                </Text>
+            {/* 资产明细 - PID/PIC 可用与锁仓分开显示 */}
+            <SimpleGrid columns={2} gap={3}>
+              {/* PID 可用/锁仓 */}
+              <Box bg="whiteAlpha.50" borderRadius="lg" p={2}>
+                <Text fontSize="xs" color="whiteAlpha.500" mb={1}>PID 可用 / 锁仓</Text>
+                <HStack gap={2}>
+                  <Text fontSize="sm" fontWeight="600" color="white">
+                    {userAssets?.pidBalance.toFixed(2) || '0.00'}
+                  </Text>
+                  <Text fontSize="xs" color="whiteAlpha.400">/</Text>
+                  <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600">
+                    {userAssets?.pidTotalLocked.toFixed(2) || '0.00'}
+                  </Text>
+                </HStack>
               </Box>
-              <Box>
-                <Text fontSize="xs" color="whiteAlpha.500">PIC 可用</Text>
-                <Text fontSize="sm" fontWeight="600" color="white">
-                  {userAssets?.picBalance.toFixed(2) || '0.00'}
-                </Text>
-              </Box>
-              <Box>
-                <Text fontSize="xs" color="whiteAlpha.500">PID 锁仓</Text>
-                <Text fontSize="sm" fontWeight="600" color="whiteAlpha.700">
-                  {userAssets?.pidTotalLocked.toFixed(2) || '0.00'}
-                </Text>
+              {/* PIC 可用/锁仓 */}
+              <Box bg="whiteAlpha.50" borderRadius="lg" p={2}>
+                <Text fontSize="xs" color="whiteAlpha.500" mb={1}>PIC 可用 / 锁仓</Text>
+                <HStack gap={2}>
+                  <Text fontSize="sm" fontWeight="600" color="white">
+                    {userAssets?.picBalance.toFixed(2) || '0.00'}
+                  </Text>
+                  <Text fontSize="xs" color="whiteAlpha.400">/</Text>
+                  <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600">
+                    0.00
+                  </Text>
+                </HStack>
               </Box>
             </SimpleGrid>
           </MotionBox>
@@ -134,11 +143,20 @@ export function HomePage() {
           >
             <HStack gap={1} mb={1}>
               <HiOutlineBolt size={14} color="#292FE1" />
-              <Text fontSize="xs" color="whiteAlpha.600">总算力</Text>
+              <Text fontSize="xs" color="whiteAlpha.600">算力值</Text>
             </HStack>
             <Text fontSize="lg" fontWeight="bold" color="white">
               {userAssets?.totalPower.toLocaleString() || '0'}
             </Text>
+            <HStack gap={1} mt={1}>
+              <Text fontSize="2xs" color="whiteAlpha.400">
+                NFT {userAssets?.powerFromNFT.toLocaleString() || '0'}
+              </Text>
+              <Text fontSize="2xs" color="whiteAlpha.300">+</Text>
+              <Text fontSize="2xs" color="whiteAlpha.400">
+                销毁 {userAssets?.powerFromBurn.toLocaleString() || '0'}
+              </Text>
+            </HStack>
           </MotionBox>
 
           <MotionBox
@@ -220,7 +238,7 @@ export function HomePage() {
           </Text>
           <SimpleGrid columns={2} gap="3">
             <StatCard
-              label="静态收益"
+              label="挖矿收益"
               value={`$${earningsStats?.totalStaticEarned.toLocaleString() || '0'}`}
               subValue="累计"
               icon={<HiOutlineBolt size={18} />}
@@ -228,7 +246,7 @@ export function HomePage() {
               delay={0.1}
             />
             <StatCard
-              label="推荐奖励"
+              label="邀请奖励"
               value={`$${earningsStats?.totalReferralEarned.toLocaleString() || '0'}`}
               subValue="累计"
               icon={<HiOutlineUserPlus size={18} />}
@@ -244,11 +262,10 @@ export function HomePage() {
               delay={0.2}
             />
             <StatCard
-              label="团队人数"
-              value={teamStats?.teamCount.toString() || '0'}
-              unit="人"
-              subValue={`直推 ${teamStats?.directCount || 0} 人`}
-              icon={<HiOutlineUserPlus size={18} />}
+              label="空投奖励"
+              value={`$${earningsStats?.totalGlobalEarned.toLocaleString() || '0'}`}
+              subValue="累计"
+              icon={<HiOutlineGift size={18} />}
               color="#EAB308"
               delay={0.25}
             />
@@ -284,9 +301,6 @@ export function HomePage() {
               <Box>
                 <Text fontSize="sm" fontWeight="600" color="white">
                   邀请好友
-                </Text>
-                <Text fontSize="xs" color="whiteAlpha.500">
-                  分享链接赚取推荐奖励
                 </Text>
               </Box>
             </Flex>

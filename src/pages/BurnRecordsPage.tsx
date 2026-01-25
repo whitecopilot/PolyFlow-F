@@ -1,11 +1,11 @@
 // 销毁记录页面 - 二级页面
 
-import { Box, Flex, Text, VStack, HStack } from '@chakra-ui/react'
+import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import { useEffect } from 'react'
+import { HiOutlineFire } from 'react-icons/hi2'
 import { SecondaryPageHeader } from '../components/layout'
 import { usePayFiStore } from '../stores/payfiStore'
-import { HiOutlineFire } from 'react-icons/hi2'
 
 const MotionBox = motion.create(Box)
 
@@ -71,10 +71,10 @@ export function BurnRecordsPage() {
                 </HStack>
                 <VStack align="end" gap={0}>
                   <Text fontSize="sm" fontWeight="600" color="#22C55E">
-                    +{record.powerAdded.toLocaleString()} 算力
+                    +{record.powerAdded.toLocaleString()} 算力值
                   </Text>
                   <Text fontSize="xs" color="whiteAlpha.500">
-                    +${record.exitAdded.toLocaleString()} 额度
+                    +${record.exitAdded.toLocaleString()} 矿池量
                   </Text>
                 </VStack>
               </Flex>
@@ -85,7 +85,7 @@ export function BurnRecordsPage() {
                   <Text fontSize="sm" color="white">${record.usdtValue.toFixed(2)}</Text>
                 </Box>
                 <Box>
-                  <Text fontSize="xs" color="whiteAlpha.400">出局倍数</Text>
+                  <Text fontSize="xs" color="whiteAlpha.400">矿池倍数</Text>
                   <Text fontSize="sm" color="white">{record.exitMultiplier}x</Text>
                 </Box>
               </HStack>

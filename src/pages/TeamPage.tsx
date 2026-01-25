@@ -1,27 +1,27 @@
 // 团队页面 - 节点帝国
 
-import { useEffect } from 'react'
-import { Box, Flex, Text, VStack, HStack, SimpleGrid } from '@chakra-ui/react'
+import { Box, Flex, HStack, SimpleGrid, Text, VStack } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
+import { useEffect } from 'react'
+import {
+  HiOutlineArrowTrendingUp,
+  HiOutlineChartBar,
+  HiOutlineCheckCircle,
+  HiOutlineChevronRight,
+  HiOutlineTrophy,
+  HiOutlineUserGroup,
+  HiOutlineUserPlus,
+  HiOutlineXCircle,
+} from 'react-icons/hi2'
 import { useNavigate } from 'react-router-dom'
 import {
-  PageHeader,
   ActionButton,
   GradientBorderCard,
   NodeBadge,
+  PageHeader,
 } from '../components/common'
+import { NODE_LEVEL_CONFIGS, getNextNodeLevel } from '../mocks/payfiConfig'
 import { usePayFiStore } from '../stores/payfiStore'
-import { NODE_LEVEL_CONFIGS, getNodeConfig, getNextNodeLevel } from '../mocks/payfiConfig'
-import {
-  HiOutlineUserGroup,
-  HiOutlineUserPlus,
-  HiOutlineTrophy,
-  HiOutlineChartBar,
-  HiOutlineArrowTrendingUp,
-  HiOutlineCheckCircle,
-  HiOutlineXCircle,
-  HiOutlineChevronRight,
-} from 'react-icons/hi2'
 
 const MotionBox = motion.create(Box)
 
@@ -36,7 +36,6 @@ export function TeamPage() {
     fetchTeamStats()
   }, [fetchTeamStats])
 
-  const currentNodeConfig = getNodeConfig(teamStats?.nodeLevel || 'P0')
   const nextNodeConfig = getNextNodeLevel(teamStats?.nodeLevel || 'P0')
 
   // 计算升级进度
@@ -50,7 +49,7 @@ export function TeamPage() {
 
   return (
     <Box minH="100vh" bg="black">
-      <PageHeader title="我的团队" />
+      <PageHeader title="我的" />
 
       <VStack gap="5" p="4" align="stretch">
         {/* 节点等级卡片 */}
@@ -70,14 +69,6 @@ export function TeamPage() {
                   size="lg"
                   showName
                 />
-              </VStack>
-              <VStack align="end" gap={0}>
-                <Text fontSize="sm" color="white">
-                  级差 {currentNodeConfig.sharePercent}%
-                </Text>
-                <Text fontSize="xs" color="whiteAlpha.500">
-                  全网 {currentNodeConfig.globalSharePercent}%
-                </Text>
               </VStack>
             </Flex>
 

@@ -1,27 +1,26 @@
 // 收益页面 - 收益矩阵
 
-import { Box, Flex, Text, VStack, HStack, Input, SimpleGrid } from '@chakra-ui/react'
+import { Box, Flex, HStack, Input, SimpleGrid, Text, VStack } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import {
-  PageHeader,
-  ActionButton,
-  GradientBorderCard,
-  NodeBadge,
-} from '../components/common'
-import { usePayFiStore } from '../stores/payfiStore'
-import { REWARD_TYPE_NAMES, PAYFI_CONFIG, getNodeConfig } from '../mocks/payfiConfig'
-import type { RewardType } from '../types/payfi'
+import { useEffect, useState } from 'react'
 import {
   HiOutlineBanknotes,
   HiOutlineBolt,
-  HiOutlineUserGroup,
   HiOutlineBuildingLibrary,
-  HiOutlineScale,
-  HiOutlineGlobeAlt,
   HiOutlineClipboardDocumentList,
+  HiOutlineGlobeAlt,
+  HiOutlineScale,
+  HiOutlineUserGroup,
 } from 'react-icons/hi2'
+import { useNavigate } from 'react-router-dom'
+import {
+  ActionButton,
+  GradientBorderCard,
+  PageHeader
+} from '../components/common'
+import { PAYFI_CONFIG, REWARD_TYPE_NAMES, getNodeConfig } from '../mocks/payfiConfig'
+import { usePayFiStore } from '../stores/payfiStore'
+import type { RewardType } from '../types/payfi'
 
 const MotionBox = motion.create(Box)
 
@@ -151,14 +150,14 @@ export function RewardsPage() {
             >
               <HStack gap={2}>
                 <HiOutlineBanknotes size={20} />
-                <Text>立即提现</Text>
+                <Text>立即提取</Text>
               </HStack>
             </ActionButton>
           </MotionBox>
         </GradientBorderCard>
 
         {/* 节点等级信息 */}
-        <MotionBox
+        {/* <MotionBox
           bg="#17171C"
           borderRadius="xl"
           p="4"
@@ -179,7 +178,7 @@ export function RewardsPage() {
               </Text>
             </VStack>
           </Flex>
-        </MotionBox>
+        </MotionBox> */}
 
         {/* 收益明细 */}
         <Box>

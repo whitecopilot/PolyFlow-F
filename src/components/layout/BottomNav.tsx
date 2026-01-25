@@ -1,18 +1,18 @@
 import { Box, Flex, Text } from '@chakra-ui/react'
-import { useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
-  HiOutlineHome,
-  HiHome,
-  HiOutlineCube,
-  HiCube,
-  HiOutlineWallet,
-  HiWallet,
-  HiOutlineChartBar,
   HiChartBar,
+  HiCube,
+  HiHome,
+  HiOutlineChartBar,
+  HiOutlineCube,
+  HiOutlineHome,
   HiOutlineUserGroup,
+  HiOutlineWallet,
   HiUserGroup,
+  HiWallet,
 } from 'react-icons/hi2'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 const MotionBox = motion.create(Box)
 
@@ -28,7 +28,7 @@ const navItems: NavItem[] = [
   { path: '/nft', label: 'NFT', icon: HiOutlineCube, activeIcon: HiCube },
   { path: '/assets', label: '资产', icon: HiOutlineWallet, activeIcon: HiWallet },
   { path: '/rewards', label: '收益', icon: HiOutlineChartBar, activeIcon: HiChartBar },
-  { path: '/team', label: '团队', icon: HiOutlineUserGroup, activeIcon: HiUserGroup },
+  { path: '/team', label: '我的', icon: HiOutlineUserGroup, activeIcon: HiUserGroup },
 ]
 
 export function BottomNav() {
