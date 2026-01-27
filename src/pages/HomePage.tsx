@@ -169,7 +169,7 @@ export function HomePage() {
           >
             <HStack gap={1} mb={1}>
               <HiOutlineShieldCheck size={14} color="#D811F0" />
-              <Text fontSize="xs" color="whiteAlpha.600">出局额度</Text>
+              <Text fontSize="xs" color="whiteAlpha.600">矿池量</Text>
             </HStack>
             <Text fontSize="lg" fontWeight="bold" color="white">
               ${userAssets?.totalExitLimit.toLocaleString() || '0'}
@@ -186,7 +186,7 @@ export function HomePage() {
           >
             <HStack gap={1} mb={1}>
               <HiOutlineArrowTrendingUp size={14} color="#22C55E" />
-              <Text fontSize="xs" color="whiteAlpha.600">日化率</Text>
+              <Text fontSize="xs" color="whiteAlpha.600">产出率</Text>
             </HStack>
             <Text fontSize="lg" fontWeight="bold" color="#22C55E">
               {((systemStats?.dailyRate || 0) * 100).toFixed(2)}%
@@ -216,7 +216,7 @@ export function HomePage() {
           <ProgressBar
             value={userAssets?.earnedRewards || 0}
             max={userAssets?.totalExitLimit || 1}
-            label="出局进度"
+            label="矿池进度"
             colorScheme="gradient"
             height={6}
           />

@@ -156,30 +156,6 @@ export function RewardsPage() {
           </MotionBox>
         </GradientBorderCard>
 
-        {/* 节点等级信息 */}
-        {/* <MotionBox
-          bg="#17171C"
-          borderRadius="xl"
-          p="4"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <Flex justify="space-between" align="center">
-            <HStack gap={3}>
-              <NodeBadge level={teamStats?.nodeLevel || 'P0'} size="lg" showName />
-            </HStack>
-            <VStack align="end" gap={0}>
-              <Text fontSize="sm" color="white">
-                级差 {nodeConfig.sharePercent}%
-              </Text>
-              <Text fontSize="xs" color="whiteAlpha.500">
-                全网 {nodeConfig.globalSharePercent}%
-              </Text>
-            </VStack>
-          </Flex>
-        </MotionBox> */}
-
         {/* 收益明细 */}
         <Box>
           <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600" mb="3">
@@ -191,7 +167,7 @@ export function RewardsPage() {
               type="static"
               amount={earningsStats?.totalStaticEarned || 0}
               todayAmount={earningsStats?.todayEarnings || 0}
-              description="基于算力的每日挖矿收益"
+              // description="基于算力的每日挖矿收益"
               delay={0.15}
               onClick={() => navigate('/rewards/static')}
             />
@@ -200,7 +176,7 @@ export function RewardsPage() {
             <RewardTypeCard
               type="referral"
               amount={earningsStats?.totalReferralEarned || 0}
-              description={`一代 ${PAYFI_CONFIG.REFERRAL_L1_RATE * 100}% · 二代 ${PAYFI_CONFIG.REFERRAL_L2_RATE * 100}%`}
+              // description={`一代 ${PAYFI_CONFIG.REFERRAL_L1_RATE * 100}% · 二代 ${PAYFI_CONFIG.REFERRAL_L2_RATE * 100}%`}
               delay={0.2}
               onClick={() => navigate('/rewards/referral')}
             />
@@ -209,7 +185,7 @@ export function RewardsPage() {
             <RewardTypeCard
               type="node"
               amount={earningsStats?.totalNodeEarned || 0}
-              description={`当前等级 ${teamStats?.nodeLevel || 'P0'} 分成 ${nodeConfig.sharePercent}%`}
+              // description={`当前等级 ${teamStats?.nodeLevel || 'P0'} 分成 ${nodeConfig.sharePercent}%`}
               delay={0.25}
               onClick={() => navigate('/rewards/node')}
             />
@@ -218,7 +194,7 @@ export function RewardsPage() {
             <RewardTypeCard
               type="same_level"
               amount={earningsStats?.totalSameLevelEarned || 0}
-              description={`同级下级节点奖励的 ${PAYFI_CONFIG.SAME_LEVEL_RATE * 100}%`}
+              // description={`同级下级节点奖励的 ${PAYFI_CONFIG.SAME_LEVEL_RATE * 100}%`}
               delay={0.3}
               onClick={() => navigate('/rewards/same_level')}
             />
@@ -227,7 +203,7 @@ export function RewardsPage() {
             <RewardTypeCard
               type="global"
               amount={earningsStats?.totalGlobalEarned || 0}
-              description={`全网手续费加权分成 ${nodeConfig.globalSharePercent}%`}
+              // description={`全网手续费加权分成 ${nodeConfig.globalSharePercent}%`}
               delay={0.35}
               onClick={() => navigate('/rewards/global')}
             />
@@ -345,14 +321,14 @@ function RewardTypeCard({
   type,
   amount,
   todayAmount,
-  description,
+  // description,
   delay = 0,
   onClick,
 }: {
   type: RewardType
   amount: number
   todayAmount?: number
-  description: string
+  // description: string
   delay?: number
   onClick?: () => void
 }) {
@@ -391,7 +367,7 @@ function RewardTypeCard({
       </Flex>
       <Flex justify="space-between" align="center">
         <Text fontSize="xs" color="whiteAlpha.500">
-          {description}
+          {/* {description} */}
         </Text>
         {todayAmount !== undefined && todayAmount > 0 && (
           <Text fontSize="xs" color="#22C55E">

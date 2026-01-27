@@ -1,13 +1,13 @@
 // 团队成员页面 - 二级页面
 
-import { Box, Flex, Text, VStack, HStack } from '@chakra-ui/react'
+import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
-import { useState, useEffect } from 'react'
-import { SecondaryPageHeader } from '../components/layout'
+import { useEffect, useState } from 'react'
+import { HiOutlineUserGroup } from 'react-icons/hi2'
 import { CombinedBadges } from '../components/common'
+import { SecondaryPageHeader } from '../components/layout'
 import { usePayFiStore } from '../stores/payfiStore'
 import type { TeamMember } from '../types/payfi'
-import { HiOutlineUserGroup } from 'react-icons/hi2'
 
 const MotionBox = motion.create(Box)
 
@@ -62,10 +62,7 @@ export function TeamMembersPage() {
             </HStack>
             <VStack align="end" gap={0}>
               <Text fontSize="sm" color="#D811F0">
-                直推 {directCount} 人
-              </Text>
-              <Text fontSize="xs" color="whiteAlpha.500">
-                间推 {(teamStats?.teamCount || teamMembers.length) - directCount} 人
+                邀请 {directCount} 人
               </Text>
             </VStack>
           </Flex>
@@ -81,7 +78,7 @@ export function TeamMembersPage() {
           <FilterTab
             active={activeTab === 'direct'}
             onClick={() => setActiveTab('direct')}
-            label={`直推 (${directCount})`}
+            label={`邀请 (${directCount})`}
           />
         </HStack>
 
@@ -168,7 +165,7 @@ function TeamMemberItem({ member, delay }: TeamMemberItemProps) {
               />
               {member.isDirectReferral && (
                 <Text fontSize="10px" color="#D811F0" fontWeight="600">
-                  直推
+                  邀请
                 </Text>
               )}
             </HStack>

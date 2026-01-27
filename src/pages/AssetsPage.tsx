@@ -280,7 +280,7 @@ export function AssetsPage() {
             <HStack gap={2}>
               <HiOutlineFire size={18} color="#D811F0" />
               <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600">
-                销毁 PIC 增加算力
+                销毁 PIC 增加矿池
               </Text>
             </HStack>
             {/* 销毁记录入口 */}

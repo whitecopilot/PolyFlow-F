@@ -364,10 +364,7 @@ export function InvitePage() {
                     textAlign="center"
                   >
                     <Text fontSize="lg" fontWeight="bold" color="white" mb="1">
-                      开启 Web3 收益之旅
-                    </Text>
-                    <Text fontSize="xs" color="whiteAlpha.700">
-                      质押 NFT，享受稳定收益
+                      开启 PayFi 收益之旅
                     </Text>
                   </Box>
 

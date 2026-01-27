@@ -20,7 +20,7 @@ import {
   NodeBadge,
   PageHeader,
 } from '../components/common'
-import { NODE_LEVEL_CONFIGS, getNextNodeLevel } from '../mocks/payfiConfig'
+import { getNextNodeLevel } from '../mocks/payfiConfig'
 import { usePayFiStore } from '../stores/payfiStore'
 
 const MotionBox = motion.create(Box)
@@ -146,7 +146,7 @@ export function TeamPage() {
             >
               <HStack gap={2} mb={2}>
                 <HiOutlineArrowTrendingUp size={16} color="#22C55E" />
-                <Text fontSize="xs" color="whiteAlpha.600">小区业绩</Text>
+                <Text fontSize="xs" color="whiteAlpha.600">竟升算力值</Text>
               </HStack>
               <Text fontSize="xl" fontWeight="bold" color="white">
                 ${(teamStats?.smallAreaPerf || 0).toLocaleString()}
@@ -163,7 +163,7 @@ export function TeamPage() {
             >
               <HStack gap={2} mb={2}>
                 <HiOutlineTrophy size={16} color="#EAB308" />
-                <Text fontSize="xs" color="whiteAlpha.600">最大单线</Text>
+                <Text fontSize="xs" color="whiteAlpha.600">日新增算力值</Text>
               </HStack>
               <Text fontSize="xl" fontWeight="bold" color="white">
                 ${(teamStats?.maxLinePerf || 0).toLocaleString()}
@@ -185,12 +185,12 @@ export function TeamPage() {
                 <Box>
                   <HStack gap={2} mb={2}>
                     <HiOutlineUserGroup size={16} color="#06B6D4" />
-                    <Text fontSize="xs" color="whiteAlpha.600">团队人数</Text>
+                    <Text fontSize="xs" color="whiteAlpha.600">社区人数</Text>
                   </HStack>
                   <Text fontSize="xl" fontWeight="bold" color="white">
                     {teamStats?.teamCount || 0}
                     <Text as="span" fontSize="sm" color="whiteAlpha.500" ml={1}>
-                      直推 {teamStats?.directCount || 0}
+                      邀请 {teamStats?.directCount || 0}
                     </Text>
                   </Text>
                 </Box>
@@ -225,7 +225,7 @@ export function TeamPage() {
                       <HiOutlineXCircle size={18} color="#71717A" />
                     )}
                     <Text fontSize="sm" color="white">
-                      小区业绩 ≥ {nextNodeConfig.smallAreaReq}万
+                      竟升算力值 ≥ {nextNodeConfig.smallAreaReq}万
                     </Text>
                   </HStack>
                   <Text fontSize="sm" color={smallAreaProgress >= 100 ? '#22C55E' : 'whiteAlpha.500'}>
@@ -241,7 +241,7 @@ export function TeamPage() {
                       <HiOutlineXCircle size={18} color="#71717A" />
                     )}
                     <Text fontSize="sm" color="white">
-                      总业绩 ≥ {nextNodeConfig.totalReq}万
+                      总算力值 ≥ {nextNodeConfig.totalReq}万
                     </Text>
                   </HStack>
                   <Text fontSize="sm" color={totalPerfProgress >= 100 ? '#22C55E' : 'whiteAlpha.500'}>
@@ -266,42 +266,6 @@ export function TeamPage() {
             </MotionBox>
           </Box>
         )}
-
-        {/* 等级说明 */}
-        <Box>
-          <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600" mb="3">
-            节点等级说明
-          </Text>
-          <MotionBox
-            bg="#17171C"
-            borderRadius="xl"
-            p="4"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <VStack gap={2} align="stretch">
-              {NODE_LEVEL_CONFIGS.slice(1).map((config) => (
-                <Flex key={config.level} justify="space-between" align="center">
-                  <HStack gap={2}>
-                    <NodeBadge level={config.level} size="sm" />
-                    <Text fontSize="xs" color="whiteAlpha.600">
-                      小区{config.smallAreaReq}万
-                    </Text>
-                  </HStack>
-                  <HStack gap={3}>
-                    <Text fontSize="xs" color="#D811F0">
-                      级差 {config.sharePercent}%
-                    </Text>
-                    <Text fontSize="xs" color="whiteAlpha.500">
-                      全网 {config.globalSharePercent}%
-                    </Text>
-                  </HStack>
-                </Flex>
-              ))}
-            </VStack>
-          </MotionBox>
-        </Box>
 
         {/* 底部间距 */}
         <Box h="24" />

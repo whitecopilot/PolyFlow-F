@@ -115,16 +115,16 @@ const NODE_COLORS: Record<NodeLevel, { bg: string; border: string; Icon: React.C
 }
 
 const NODE_NAMES: Record<NodeLevel, string> = {
-  P0: '普通用户',
-  P1: '初级节点',
-  P2: '铜牌节点',
-  P3: '银牌节点',
-  P4: '金牌节点',
-  P5: '白金节点',
-  P6: '钻石节点',
-  P7: '皇冠节点',
-  P8: '至尊节点',
-  P9: '传奇节点',
+  P0: '节点',
+  P1: '节点',
+  P2: '节点',
+  P3: '节点',
+  P4: '节点',
+  P5: '节点',
+  P6: '节点',
+  P7: '节点',
+  P8: '节点',
+  P9: '节点',
 }
 
 export function NodeBadge({ level, size = 'md', showName = false }: NodeBadgeProps) {
