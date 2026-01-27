@@ -4,12 +4,14 @@ import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import { useEffect } from 'react'
 import { HiOutlineFire } from 'react-icons/hi2'
+import { useTranslation } from 'react-i18next'
 import { SecondaryPageHeader } from '../components/layout'
 import { usePayFiStore } from '../stores/payfiStore'
 
 const MotionBox = motion.create(Box)
 
 export function BurnRecordsPage() {
+  const { t } = useTranslation()
   const { burnRecords, fetchAllData } = usePayFiStore()
 
   useEffect(() => {
@@ -21,7 +23,7 @@ export function BurnRecordsPage() {
 
   return (
     <Box minH="100vh" bg="black">
-      <SecondaryPageHeader title="销毁记录" />
+      <SecondaryPageHeader title={t('burn_records.title')} />
 
       <VStack gap="3" p="4" align="stretch">
         {burnRecords.length === 0 ? (
@@ -34,7 +36,7 @@ export function BurnRecordsPage() {
           >
             <HiOutlineFire size={48} />
             <Text mt="4" fontSize="sm">
-              暂无销毁记录
+              {t('burn_records.no_records')}
             </Text>
           </Flex>
         ) : (
@@ -71,21 +73,21 @@ export function BurnRecordsPage() {
                 </HStack>
                 <VStack align="end" gap={0}>
                   <Text fontSize="sm" fontWeight="600" color="#22C55E">
-                    +{record.powerAdded.toLocaleString()} 算力值
+                    +{record.powerAdded.toLocaleString()} {t('burn_records.power_value')}
                   </Text>
                   <Text fontSize="xs" color="whiteAlpha.500">
-                    +${record.exitAdded.toLocaleString()} 矿池量
+                    +${record.exitAdded.toLocaleString()} {t('burn_records.pool_amount')}
                   </Text>
                 </VStack>
               </Flex>
 
               <HStack gap={4} mt="3" pt="3" borderTop="1px solid" borderColor="whiteAlpha.100">
                 <Box>
-                  <Text fontSize="xs" color="whiteAlpha.400">USDT 价值</Text>
+                  <Text fontSize="xs" color="whiteAlpha.400">{t('burn_records.usdt_value')}</Text>
                   <Text fontSize="sm" color="white">${record.usdtValue.toFixed(2)}</Text>
                 </Box>
                 <Box>
-                  <Text fontSize="xs" color="whiteAlpha.400">矿池倍数</Text>
+                  <Text fontSize="xs" color="whiteAlpha.400">{t('burn_records.pool_multiplier')}</Text>
                   <Text fontSize="sm" color="white">{record.exitMultiplier}x</Text>
                 </Box>
               </HStack>

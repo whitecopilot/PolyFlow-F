@@ -1,5 +1,6 @@
 // PayFi 系统配置常量和配置表
 
+import i18n from '../i18n/config';
 import type { NFTLevelConfig, NodeLevel, NodeLevelConfig } from '../types/payfi';
 
 // 系统参数配置
@@ -147,3 +148,18 @@ export const REWARD_TYPE_ICONS: Record<string, string> = {
   same_level: '⚖️',
   global: '🌐',
 };
+
+// 获取 NFT 等级名称（翻译）
+export function getNFTLevelName(level: string): string {
+  return i18n.t(`nft_level.${level}`) || level;
+}
+
+// 获取节点等级名称（翻译）
+export function getNodeLevelName(level: NodeLevel): string {
+  return i18n.t(`node_level.${level}`) || level;
+}
+
+// 获取奖励类型名称（翻译）
+export function getRewardTypeName(type: string): string {
+  return i18n.t(`reward_type.${type}`) || type;
+}

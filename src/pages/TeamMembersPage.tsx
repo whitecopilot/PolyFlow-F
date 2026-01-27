@@ -4,6 +4,7 @@ import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { HiOutlineUserGroup } from 'react-icons/hi2'
+import { useTranslation } from 'react-i18next'
 import { CombinedBadges } from '../components/common'
 import { SecondaryPageHeader } from '../components/layout'
 import { usePayFiStore } from '../stores/payfiStore'
@@ -12,6 +13,7 @@ import type { TeamMember } from '../types/payfi'
 const MotionBox = motion.create(Box)
 
 export function TeamMembersPage() {
+  const { t } = useTranslation()
   const { teamStats, teamMembers, fetchTeamMembers } = usePayFiStore()
   const [activeTab, setActiveTab] = useState<'all' | 'direct'>('all')
 
@@ -28,7 +30,7 @@ export function TeamMembersPage() {
 
   return (
     <Box minH="100vh" bg="black">
-      <SecondaryPageHeader title="团队成员" />
+      <SecondaryPageHeader title={t('team_members.title')} />
 
       <VStack gap="4" p="4" align="stretch">
         {/* 统计摘要 */}
@@ -53,16 +55,16 @@ export function TeamMembersPage() {
               </Flex>
               <Box>
                 <Text fontSize="sm" color="whiteAlpha.600">
-                  团队人数
+                  {t('team_members.team_count')}
                 </Text>
                 <Text fontSize="xl" fontWeight="bold" color="white">
-                  {teamStats?.teamCount || teamMembers.length} 人
+                  {teamStats?.teamCount || teamMembers.length} {t('team_members.people')}
                 </Text>
               </Box>
             </HStack>
             <VStack align="end" gap={0}>
               <Text fontSize="sm" color="#D811F0">
-                邀请 {directCount} 人
+                {t('team_members.invite_count', { count: directCount })}
               </Text>
             </VStack>
           </Flex>
@@ -73,24 +75,26 @@ export function TeamMembersPage() {
           <FilterTab
             active={activeTab === 'all'}
             onClick={() => setActiveTab('all')}
-            label={`全部 (${teamStats?.teamCount || teamMembers.length})`}
+            label={`${t('team_members.all')} (${teamStats?.teamCount || teamMembers.length})`}
           />
           <FilterTab
             active={activeTab === 'direct'}
             onClick={() => setActiveTab('direct')}
-            label={`邀请 (${directCount})`}
+            label={`${t('team_members.invite')} (${directCount})`}
           />
         </HStack>
 
         {/* 成员列表 */}
-        {filteredMembers.length > 0 ? (
-          <VStack gap={3} align="stretch">
-            {filteredMembers.map((member, index) => (
-              <TeamMemberItem key={member.id} member={member} delay={index * 0.02} />
-            ))}
-          </VStack>
-        ) : (
+        {filteredMembers.length === 0 ? (
           <EmptyState activeTab={activeTab} />
+        ) : (
+          <VStack gap={2} align="stretch">
+            {filteredMembers
+              .filter((member) => member && member.address) // 过滤掉空数据
+              .map((member, index) => (
+                <TeamMemberItem key={member.id} member={member} delay={index * 0.03} />
+              ))}
+          </VStack>
         )}
 
         {/* 底部间距 */}
@@ -132,6 +136,11 @@ interface TeamMemberItemProps {
 }
 
 function TeamMemberItem({ member, delay }: TeamMemberItemProps) {
+  // 确保成员数据有效
+  if (!member || !member.address) {
+    return null
+  }
+
   return (
     <MotionBox
       bg="#17171C"
@@ -150,11 +159,12 @@ function TeamMemberItem({ member, delay }: TeamMemberItemProps) {
             bg="whiteAlpha.100"
             align="center"
             justify="center"
+            flexShrink={0}
           >
             <HiOutlineUserGroup size={22} color="#71717A" />
           </Flex>
-          <Box>
-            <Text fontSize="sm" fontWeight="600" color="white">
+          <Box flex="1" minW="0">
+            <Text fontSize="sm" fontWeight="600" color="white" truncate>
               {member.address}
             </Text>
             <HStack gap={2} mt={1}>
@@ -165,18 +175,18 @@ function TeamMemberItem({ member, delay }: TeamMemberItemProps) {
               />
               {member.isDirectReferral && (
                 <Text fontSize="10px" color="#D811F0" fontWeight="600">
-                  邀请
+                  {/* {t('team_members.invite')} */}
                 </Text>
               )}
             </HStack>
           </Box>
         </HStack>
-        <VStack align="end" gap={0}>
+        <VStack align="end" gap={0} flexShrink={0}>
           <Text fontSize="sm" fontWeight="600" color="#22C55E">
-            ${member.performance.toLocaleString()}
+            ${member.performance?.toLocaleString() || '0'}
           </Text>
           <Text fontSize="xs" color="whiteAlpha.500">
-            {formatDate(member.joinedAt)}
+            {member.joinedAt ? formatDate(member.joinedAt) : '-'}
           </Text>
         </VStack>
       </Flex>
@@ -185,6 +195,7 @@ function TeamMemberItem({ member, delay }: TeamMemberItemProps) {
 }
 
 function EmptyState({ activeTab }: { activeTab: 'all' | 'direct' }) {
+  const { t } = useTranslation()
   return (
     <Flex
       direction="column"
@@ -195,10 +206,10 @@ function EmptyState({ activeTab }: { activeTab: 'all' | 'direct' }) {
     >
       <HiOutlineUserGroup size={48} />
       <Text mt="4" fontSize="sm">
-        {activeTab === 'direct' ? '暂无直推成员' : '暂无团队成员'}
+        {activeTab === 'direct' ? t('team_members.no_direct') : t('team_members.no_members')}
       </Text>
       <Text fontSize="xs" color="whiteAlpha.300" mt="1">
-        邀请好友加入你的团队
+        {t('team_members.invite_friends')}
       </Text>
     </Flex>
   )

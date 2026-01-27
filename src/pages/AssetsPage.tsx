@@ -14,6 +14,7 @@ import {
   HiOutlineSparkles,
 } from 'react-icons/hi2'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   ActionButton,
   GradientBorderCard,
@@ -26,6 +27,7 @@ import { usePayFiStore } from '../stores/payfiStore'
 const MotionBox = motion.create(Box)
 
 export function AssetsPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const {
     userAssets,
@@ -70,10 +72,10 @@ export function AssetsPage() {
       if (success) {
         setBurnAmount('')
       } else {
-        setBurnError('销毁失败，请重试')
+        setBurnError(t('assets.burn_failed'))
       }
     } catch {
-      setBurnError('销毁失败，请重试')
+      setBurnError(t('assets.burn_failed'))
     } finally {
       setIsProcessing(false)
     }
@@ -85,7 +87,7 @@ export function AssetsPage() {
   return (
     <Box minH="100vh" bg="black">
       {/* 一级页面顶部导航 */}
-      <PageHeader title="我的资产" />
+      <PageHeader title={t('assets.title')} />
 
       <VStack gap="5" p="4" align="stretch">
         {/* PID 卡片 */}
@@ -118,7 +120,7 @@ export function AssetsPage() {
                 <HStack gap={1} mb={1}>
                   <HiOutlineLockClosed size={12} color="#71717A" />
                   <Text fontSize="xs" color="whiteAlpha.500">
-                    锁仓
+                    {t('assets.locked')}
                   </Text>
                 </HStack>
                 <Text fontSize="lg" fontWeight="bold" color="whiteAlpha.600">
@@ -129,7 +131,7 @@ export function AssetsPage() {
                 <HStack gap={1} mb={1}>
                   <HiOutlineArrowPath size={12} color="#22C55E" />
                   <Text fontSize="xs" color="whiteAlpha.500">
-                    已释放
+                    {t('assets.released')}
                   </Text>
                 </HStack>
                 <Text fontSize="lg" fontWeight="bold" color="#22C55E">
@@ -140,7 +142,7 @@ export function AssetsPage() {
                 <HStack gap={1} mb={1}>
                   <HiOutlineSparkles size={12} color="#292FE1" />
                   <Text fontSize="xs" color="whiteAlpha.500">
-                    可用
+                    {t('assets.available')}
                   </Text>
                 </HStack>
                 <Text fontSize="lg" fontWeight="bold" color="white">
@@ -204,7 +206,7 @@ export function AssetsPage() {
             <HStack gap={2} mb="3">
               <HiOutlineCalendarDays size={18} color="#292FE1" />
               <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600">
-                PID 释放计划
+                {t('assets.pid_release_plans')}
               </Text>
             </HStack>
 
@@ -220,10 +222,10 @@ export function AssetsPage() {
               >
                 <Flex justify="space-between" mb="3">
                   <Text fontSize="sm" color="whiteAlpha.700">
-                    📅 释放进度
+                    📅 {t('assets.release_progress')}
                   </Text>
                   <Text fontSize="sm" color="white" fontWeight="medium">
-                    {plan.monthsCompleted}/{plan.monthsTotal} 月
+                    {plan.monthsCompleted}/{plan.monthsTotal} {t('assets.months')}
                   </Text>
                 </Flex>
 
@@ -238,7 +240,7 @@ export function AssetsPage() {
                 <SimpleGrid columns={2} gap={3} mt="3">
                   <Box>
                     <Text fontSize="xs" color="whiteAlpha.500">
-                      总量
+                      {t('assets.total_amount')}
                     </Text>
                     <Text fontSize="sm" fontWeight="medium" color="white">
                       {plan.totalAmount.toFixed(2)} PID
@@ -246,7 +248,7 @@ export function AssetsPage() {
                   </Box>
                   <Box>
                     <Text fontSize="xs" color="whiteAlpha.500">
-                      已释放
+                      {t('assets.released')}
                     </Text>
                     <Text fontSize="sm" fontWeight="medium" color="#22C55E">
                       {plan.releasedAmount.toFixed(2)} PID
@@ -254,7 +256,7 @@ export function AssetsPage() {
                   </Box>
                   <Box>
                     <Text fontSize="xs" color="whiteAlpha.500">
-                      每日释放
+                      {t('assets.daily_release')}
                     </Text>
                     <Text fontSize="sm" fontWeight="medium" color="white">
                       {plan.dailyAmount.toFixed(4)} PID
@@ -262,7 +264,7 @@ export function AssetsPage() {
                   </Box>
                   <Box>
                     <Text fontSize="xs" color="whiteAlpha.500">
-                      每月比例
+                      {t('assets.monthly_rate')}
                     </Text>
                     <Text fontSize="sm" fontWeight="medium" color="white">
                       {(PAYFI_CONFIG.PID_MONTHLY_RATE * 100).toFixed(0)}%
@@ -280,7 +282,7 @@ export function AssetsPage() {
             <HStack gap={2}>
               <HiOutlineFire size={18} color="#D811F0" />
               <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600">
-                销毁 PIC 增加矿池
+                {t('assets.burn_pic_title')}
               </Text>
             </HStack>
             {/* 销毁记录入口 */}
@@ -294,7 +296,7 @@ export function AssetsPage() {
               transition="color 0.2s"
             >
               <HiOutlineClipboardDocumentList size={16} />
-              <Text fontSize="xs">记录</Text>
+              <Text fontSize="xs">{t('assets.records')}</Text>
             </Flex>
           </Flex>
 
@@ -309,11 +311,11 @@ export function AssetsPage() {
             {/* 输入框 */}
             <Box mb="3">
               <Text fontSize="xs" color="whiteAlpha.500" mb="2">
-                销毁数量（PIC）
+                {t('assets.burn_amount_label')}
               </Text>
               <Input
                 type="number"
-                placeholder="输入销毁数量"
+                placeholder={t('assets.enter_burn_amount')}
                 value={burnAmount}
                 onChange={(e) => {
                   setBurnAmount(e.target.value)
@@ -335,7 +337,7 @@ export function AssetsPage() {
               />
               <Flex justify="space-between" mt="1">
                 <Text fontSize="xs" color="whiteAlpha.400">
-                  可用: {userAssets?.picBalance.toFixed(2) || '0.00'} PIC
+                  {t('assets.available')}: {userAssets?.picBalance.toFixed(2) || '0.00'} PIC
                 </Text>
                 {burnAmount && (
                   <Text
@@ -343,7 +345,7 @@ export function AssetsPage() {
                     color={isValidBurnAmount ? '#22C55E' : 'red.400'}
                   >
                     ≈ ${burnUsdtValue.toFixed(2)}{' '}
-                    {!isValidBurnAmount && burnUsdtValue > 0 && '(必须是100U整数倍)'}
+                    {!isValidBurnAmount && burnUsdtValue > 0 && `(${t('assets.must_be_100u')})`}
                   </Text>
                 )}
               </Flex>
@@ -371,14 +373,14 @@ export function AssetsPage() {
             {isValidBurnAmount && (
               <Box bg="rgba(216, 17, 240, 0.1)" borderRadius="lg" p="3" mb="4">
                 <Text fontSize="xs" color="whiteAlpha.600" mb="2">
-                  预计增加
+                  {t('assets.estimated_increase')}
                 </Text>
                 <SimpleGrid columns={2} gap={3}>
                   <HStack>
                     <HiOutlineBolt size={16} color="#292FE1" />
                     <Box>
                       <Text fontSize="xs" color="whiteAlpha.500">
-                        算力
+                        {t('assets.power')}
                       </Text>
                       <Text fontSize="md" fontWeight="bold" color="white">
                         +{estimatedPowerAdded.toLocaleString()}
@@ -389,7 +391,7 @@ export function AssetsPage() {
                     <HiOutlineShieldCheck size={16} color="#22C55E" />
                     <Box>
                       <Text fontSize="xs" color="whiteAlpha.500">
-                        出局额度
+                        {t('assets.exit_limit')}
                       </Text>
                       <Text fontSize="md" fontWeight="bold" color="white">
                         +${estimatedExitAdded.toLocaleString()}
@@ -398,7 +400,7 @@ export function AssetsPage() {
                   </HStack>
                 </SimpleGrid>
                 <Text fontSize="xs" color="whiteAlpha.400" mt="2">
-                  当前等级 {userAssets?.currentNFTLevel || 'N/A'} 销毁倍数:{' '}
+                  {t('assets.current_level')} {userAssets?.currentNFTLevel || 'N/A'} {t('assets.burn_multiplier')}:{' '}
                   {burnMultiplier}x
                 </Text>
               </Box>
@@ -420,12 +422,12 @@ export function AssetsPage() {
                 !isValidBurnAmount || isProcessing || !userAssets?.currentNFTLevel
               }
             >
-              {isProcessing ? '处理中...' : '确认销毁'}
+              {isProcessing ? t('assets.processing') : t('assets.confirm_burn')}
             </ActionButton>
 
             {!userAssets?.currentNFTLevel && (
               <Text fontSize="xs" color="whiteAlpha.400" textAlign="center" mt="2">
-                需要先购买 NFT 才能销毁 PIC
+                {t('assets.need_nft_to_burn')}
               </Text>
             )}
           </MotionBox>

@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { HiBars3, HiCheck, HiOutlineWallet, HiXMark } from 'react-icons/hi2'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
-import { PolyFlowLogo } from './PolyFlowLogo'
+import { PolyFlowLogo } from '../common/PolyFlowLogo'
 import { LANGUAGES } from '../../i18n/config'
 
 const MotionBox = motion.create(Box)

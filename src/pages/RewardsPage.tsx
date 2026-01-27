@@ -13,12 +13,13 @@ import {
   HiOutlineUserGroup,
 } from 'react-icons/hi2'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   ActionButton,
   GradientBorderCard,
   PageHeader
 } from '../components/common'
-import { PAYFI_CONFIG, REWARD_TYPE_NAMES, getNodeConfig } from '../mocks/payfiConfig'
+import { PAYFI_CONFIG, getRewardTypeName } from '../mocks/payfiConfig'
 import { usePayFiStore } from '../stores/payfiStore'
 import type { RewardType } from '../types/payfi'
 
@@ -42,12 +43,12 @@ const REWARD_COLORS: Record<RewardType, string> = {
 }
 
 export function RewardsPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const {
     userAssets,
     priceInfo,
     earningsStats,
-    teamStats,
     withdraw,
     fetchEarningsStats,
   } = usePayFiStore()
@@ -56,17 +57,56 @@ export function RewardsPage() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [showWithdrawModal, setShowWithdrawModal] = useState(false)
 
+  // 新增：Token 类型和来源选择
+  const [tokenType, setTokenType] = useState<'PIC' | 'PID'>('PIC')
+  const [withdrawSource, setWithdrawSource] = useState<'balance' | 'released'>('balance')
+
   useEffect(() => {
     fetchEarningsStats()
   }, [fetchEarningsStats])
 
-  // 计算提现预估
-  const withdrawPicAmount = parseFloat(withdrawAmount) || 0
-  const withdrawUsdtValue = withdrawPicAmount * (priceInfo?.picPrice || 0)
-  const withdrawFee = withdrawUsdtValue * PAYFI_CONFIG.WITHDRAW_FEE_RATE
-  const netAmount = withdrawUsdtValue - withdrawFee
-  const instantAmount = netAmount * PAYFI_CONFIG.INSTANT_RELEASE_RATE
-  const linearAmount = netAmount * (1 - PAYFI_CONFIG.INSTANT_RELEASE_RATE)
+  // 计算提现预估 - 根据不同类型和来源
+  const withdrawTokenAmount = parseFloat(withdrawAmount) || 0
+
+  // 获取可用余额
+  const getAvailableBalance = () => {
+    if (!userAssets) return 0
+    if (tokenType === 'PIC') {
+      if (withdrawSource === 'balance') {
+        return userAssets.picBalance || 0
+      } else {
+        // 释放余额从提现记录的线性释放部分计算
+        return 0 // 简化处理，实际应从 withdrawRecords 计算
+      }
+    } else {
+      return userAssets.pidBalance || 0
+    }
+  }
+
+  const availableBalance = getAvailableBalance()
+
+  // 计算价值和费用
+  const withdrawUsdtValue = withdrawTokenAmount * (tokenType === 'PIC' ? (priceInfo?.picPrice || 0) : (priceInfo?.pidPrice || 0))
+
+  // 计算手续费和到账金额
+  let hasFee = false
+  let instantAmount = 0
+  let linearAmount = 0
+
+  if (tokenType === 'PIC' && withdrawSource === 'balance') {
+    // PIC 余额提现：有手续费，80% 立即 + 20% 线性
+    hasFee = true
+    const feeRate = 0.03
+    const fee = withdrawUsdtValue * feeRate
+    const netAmount = withdrawUsdtValue - fee
+    instantAmount = netAmount * 0.80
+    linearAmount = netAmount * 0.20
+  } else {
+    // PID 提现或 PIC 释放提现：无手续费，100% 到账
+    hasFee = false
+    instantAmount = withdrawUsdtValue
+    linearAmount = 0
+  }
 
   // 处理提现
   const handleWithdraw = async () => {
@@ -75,6 +115,8 @@ export function RewardsPage() {
     setIsProcessing(true)
     try {
       const amount = parseFloat(withdrawAmount)
+      // 注意：这里需要调用后端 API，传递 tokenType 和 source 参数
+      // 暂时使用现有的 withdraw 方法，只支持 PIC
       const success = await withdraw(amount)
       if (success) {
         setWithdrawAmount('')
@@ -83,6 +125,14 @@ export function RewardsPage() {
     } finally {
       setIsProcessing(false)
     }
+  }
+
+  // 重置选择
+  const handleOpenModal = () => {
+    setWithdrawAmount('')
+    setTokenType('PIC')
+    setWithdrawSource('balance')
+    setShowWithdrawModal(true)
   }
 
   // 总收益
@@ -95,11 +145,11 @@ export function RewardsPage() {
     : 0
 
   // 节点配置
-  const nodeConfig = getNodeConfig(teamStats?.nodeLevel || 'P0')
+  // const nodeConfig = getNodeConfig(teamStats?.nodeLevel || 'P0')
 
   return (
     <Box minH="100vh" bg="black">
-      <PageHeader title="我的收益" />
+      <PageHeader title={t('rewards.title')} />
 
       <VStack gap="5" p="4" align="stretch">
         {/* 收益总览卡片 */}
@@ -109,10 +159,10 @@ export function RewardsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            {/* 标题行带提现记录入口 */}
+            {/* 标题行带rewards.withdraw_records入口 */}
             <Flex justify="space-between" align="center" mb="3">
               <Text fontSize="sm" color="whiteAlpha.600">
-                累计收益
+                {t('rewards.cumulative_earnings')}
               </Text>
               <Flex
                 align="center"
@@ -124,7 +174,7 @@ export function RewardsPage() {
                 transition="color 0.2s"
               >
                 <HiOutlineClipboardDocumentList size={16} />
-                <Text fontSize="xs">提现记录</Text>
+                <Text fontSize="xs">{t('rewards.withdraw_records')}</Text>
               </Flex>
             </Flex>
 
@@ -134,7 +184,7 @@ export function RewardsPage() {
               </Text>
               <HStack gap={2} mt="2">
                 <Text fontSize="sm" color="whiteAlpha.500">
-                  可提现:
+                  {t('rewards.withdrawable')}
                 </Text>
                 <Text fontSize="sm" fontWeight="bold" color="#22C55E">
                   {userAssets?.picBalance.toFixed(2) || '0.00'} PIC
@@ -145,21 +195,21 @@ export function RewardsPage() {
             <ActionButton
               variant="primary"
               w="full"
-              onClick={() => setShowWithdrawModal(true)}
+              onClick={handleOpenModal}
               disabled={(userAssets?.picBalance || 0) <= 0}
             >
               <HStack gap={2}>
                 <HiOutlineBanknotes size={20} />
-                <Text>立即提取</Text>
+                <Text>{t('rewards.withdraw_now')}</Text>
               </HStack>
             </ActionButton>
           </MotionBox>
         </GradientBorderCard>
 
-        {/* 收益明细 */}
+        {/* rewards.earnings_details */}
         <Box>
           <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600" mb="3">
-            收益明细
+            {t('rewards.earnings_details')}
           </Text>
           <VStack gap={2}>
             {/* 静态收益 */}
@@ -237,25 +287,68 @@ export function RewardsPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <Text fontSize="lg" fontWeight="bold" color="white" mb="4">
-              提现 PIC
+              {tokenType === 'PIC' ? t('rewards.withdraw_pic') : t('rewards.withdraw_pid')}
             </Text>
+
+            {/* Token 类型选择 */}
+            <HStack gap="2" mb="4">
+              <TokenSelector
+                active={tokenType === 'PIC'}
+                onClick={() => {
+                  setTokenType('PIC')
+                  setWithdrawSource('balance')
+                  setWithdrawAmount('')
+                }}
+                label="PIC"
+              />
+              <TokenSelector
+                active={tokenType === 'PID'}
+                onClick={() => {
+                  setTokenType('PID')
+                  setWithdrawAmount('')
+                }}
+                label="PID"
+              />
+            </HStack>
+
+            {/* 来源选择 - 仅 PIC 时显示 */}
+            {tokenType === 'PIC' && (
+              <HStack gap="2" mb="4">
+                <SourceSelector
+                  active={withdrawSource === 'balance'}
+                  onClick={() => {
+                    setWithdrawSource('balance')
+                    setWithdrawAmount('')
+                  }}
+                  label={t('rewards.source_balance')}
+                />
+                <SourceSelector
+                  active={withdrawSource === 'released'}
+                  onClick={() => {
+                    setWithdrawSource('released')
+                    setWithdrawAmount('')
+                  }}
+                  label={t('rewards.source_released')}
+                />
+              </HStack>
+            )}
 
             {/* 输入框 */}
             <Box mb="4">
               <Flex justify="space-between" mb="2">
-                <Text fontSize="sm" color="whiteAlpha.600">提现数量</Text>
+                <Text fontSize="sm" color="whiteAlpha.600">{t('rewards.withdraw_amount')}</Text>
                 <Text
                   fontSize="sm"
                   color="#D811F0"
                   cursor="pointer"
-                  onClick={() => setWithdrawAmount(userAssets?.picBalance.toString() || '')}
+                  onClick={() => setWithdrawAmount(availableBalance.toString())}
                 >
-                  全部 {userAssets?.picBalance.toFixed(2)}
+                  {t('rewards.all')} {availableBalance.toFixed(2)}
                 </Text>
               </Flex>
               <Input
                 type="number"
-                placeholder="输入提现数量"
+                placeholder={t('rewards.enter_withdraw_amount')}
                 value={withdrawAmount}
                 onChange={(e) => setWithdrawAmount(e.target.value)}
                 bg="whiteAlpha.50"
@@ -265,7 +358,8 @@ export function RewardsPage() {
                 color="white"
                 fontSize="lg"
                 h="12"
-                _placeholder={{ color: 'whiteAlpha.400' }}
+                px="4"
+                _placeholder={{ color: 'whiteAlpha.400', paddingLeft: '16px' }}
                 _focus={{
                   borderColor: '#D811F0',
                   boxShadow: '0 0 0 1px #D811F0',
@@ -274,29 +368,49 @@ export function RewardsPage() {
             </Box>
 
             {/* 提现预估 */}
-            {withdrawPicAmount > 0 && (
+            {withdrawTokenAmount > 0 && (
               <Box bg="whiteAlpha.50" borderRadius="lg" p="3" mb="4">
                 <SimpleGrid columns={2} gap={3}>
                   <Box>
-                    <Text fontSize="xs" color="whiteAlpha.500">提现价值</Text>
+                    <Text fontSize="xs" color="whiteAlpha.500">{t('rewards.withdraw_value')}</Text>
                     <Text fontSize="sm" color="white">${withdrawUsdtValue.toFixed(2)}</Text>
                   </Box>
+
+                  {hasFee ? (
+                    <Box>
+                      <Text fontSize="xs" color="whiteAlpha.500">{t('rewards.withdraw_fee')}</Text>
+                      <Text fontSize="sm" color="red.400">-{(withdrawUsdtValue * 0.03).toFixed(2)} USDT</Text>
+                    </Box>
+                  ) : (
+                    <Box>
+                      <Text fontSize="xs" color="whiteAlpha.500">{t('rewards.withdraw_fee')}</Text>
+                      <Text fontSize="sm" color="#22C55E">{t('rewards.no_fee')}</Text>
+                    </Box>
+                  )}
+
                   <Box>
-                    <Text fontSize="xs" color="whiteAlpha.500">手续费 (3%)</Text>
-                    <Text fontSize="sm" color="red.400">-${withdrawFee.toFixed(2)}</Text>
+                    <Text fontSize="xs" color="whiteAlpha.500">{t('rewards.instant_release')}</Text>
+                    <Text fontSize="sm" color="#22C55E">${instantAmount.toFixed(2)} USDT</Text>
                   </Box>
-                  <Box>
-                    <Text fontSize="xs" color="whiteAlpha.500">即时到账 (80%)</Text>
-                    <Text fontSize="sm" color="#22C55E">${instantAmount.toFixed(2)}</Text>
-                  </Box>
-                  <Box>
-                    <Text fontSize="xs" color="whiteAlpha.500">线性释放 (20%)</Text>
-                    <Text fontSize="sm" color="#EAB308">${linearAmount.toFixed(2)}</Text>
-                  </Box>
+
+                  {linearAmount > 0 ? (
+                    <Box>
+                      <Text fontSize="xs" color="whiteAlpha.500">{t('rewards.linear_release')}</Text>
+                      <Text fontSize="sm" color="#EAB308">${linearAmount.toFixed(2)} USDT</Text>
+                    </Box>
+                  ) : (
+                    <Box>
+                      <Text fontSize="xs" color="whiteAlpha.500">{t('rewards.linear_release')}</Text>
+                      <Text fontSize="sm" color="#22C55E">{t('rewards.full_release')}</Text>
+                    </Box>
+                  )}
                 </SimpleGrid>
-                <Text fontSize="xs" color="whiteAlpha.400" mt="2">
-                  线性部分将在 {PAYFI_CONFIG.LINEAR_RELEASE_DAYS} 天内逐步释放
-                </Text>
+
+                {tokenType === 'PIC' && withdrawSource === 'balance' && (
+                  <Text fontSize="xs" color="whiteAlpha.400" mt="2">
+                    {t('rewards.linear_release_notice')} {PAYFI_CONFIG.LINEAR_RELEASE_DAYS} {t('rewards.releases_days')}
+                  </Text>
+                )}
               </Box>
             )}
 
@@ -305,13 +419,67 @@ export function RewardsPage() {
               variant="primary"
               w="full"
               onClick={handleWithdraw}
-              disabled={!withdrawPicAmount || withdrawPicAmount > (userAssets?.picBalance || 0) || isProcessing}
+              disabled={!withdrawTokenAmount || withdrawTokenAmount > availableBalance || isProcessing}
             >
-              {isProcessing ? '处理中...' : '确认提现'}
+              {isProcessing ? t('common.processing') : t('rewards.confirm_withdraw')}
             </ActionButton>
           </MotionBox>
         </Box>
       )}
+    </Box>
+  )
+}
+
+// Token 类型选择器
+interface TokenSelectorProps {
+  active: boolean
+  onClick: () => void
+  label: string
+}
+
+function TokenSelector({ active, onClick, label }: TokenSelectorProps) {
+  return (
+    <Box
+      px="4"
+      py="2"
+      borderRadius="full"
+      bg={active ? '#292FE1' : 'whiteAlpha.100'}
+      color={active ? 'white' : 'whiteAlpha.600'}
+      fontSize="sm"
+      fontWeight="600"
+      cursor="pointer"
+      transition="all 0.2s"
+      onClick={onClick}
+      _hover={!active ? { bg: 'whiteAlpha.200' } : undefined}
+    >
+      {label}
+    </Box>
+  )
+}
+
+// 来源选择器
+interface SourceSelectorProps {
+  active: boolean
+  onClick: () => void
+  label: string
+}
+
+function SourceSelector({ active, onClick, label }: SourceSelectorProps) {
+  return (
+    <Box
+      px="4"
+      py="2"
+      borderRadius="full"
+      bg={active ? '#22C55E' : 'whiteAlpha.100'}
+      color={active ? 'white' : 'whiteAlpha.600'}
+      fontSize="sm"
+      fontWeight="600"
+      cursor="pointer"
+      transition="all 0.2s"
+      onClick={onClick}
+      _hover={!active ? { bg: 'whiteAlpha.200' } : undefined}
+    >
+      {label}
     </Box>
   )
 }
@@ -349,7 +517,7 @@ function RewardTypeCard({
         <HStack gap={2}>
           {REWARD_ICONS[type]}
           <Text fontSize="sm" fontWeight="medium" color="white">
-            {REWARD_TYPE_NAMES[type]}
+            {getRewardTypeName(type)}
           </Text>
         </HStack>
         <HStack gap={2}>
@@ -371,7 +539,7 @@ function RewardTypeCard({
         </Text>
         {todayAmount !== undefined && todayAmount > 0 && (
           <Text fontSize="xs" color="#22C55E">
-            今日 +${todayAmount.toFixed(2)}
+            today +${todayAmount.toFixed(2)}
           </Text>
         )}
       </Flex>

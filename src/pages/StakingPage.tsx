@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Box, Flex, Text, VStack, Input, SimpleGrid } from '@chakra-ui/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { PageHeader, ActionButton, StatCard, NFTImage } from '../components/common'
 import { useStakingStore, type NFTItem } from '../stores/stakingStore'
 import {
@@ -17,6 +18,7 @@ const MotionFlex = motion.create(Flex)
 type TabType = 'token' | 'nft'
 
 export function StakingPage() {
+  const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const initialTab = searchParams.get('tab') === 'nft' ? 'nft' : 'token'
   const [activeTab, setActiveTab] = useState<TabType>(initialTab)
@@ -88,7 +90,7 @@ export function StakingPage() {
 
   return (
     <Box>
-      <PageHeader title="质押" />
+      <PageHeader title={t('staking.title')} />
 
       <VStack gap="5" p="4" align="stretch">
         {/* Tab 切换 */}
@@ -103,28 +105,28 @@ export function StakingPage() {
             active={activeTab === 'token'}
             onClick={() => setActiveTab('token')}
             icon={<HiOutlineBanknotes size={18} />}
-            label="Token 质押"
+            label={t('staking.token_staking')}
           />
           <TabButton
             active={activeTab === 'nft'}
             onClick={() => setActiveTab('nft')}
             icon={<HiOutlineCube size={18} />}
-            label="NFT 质押"
+            label={t('staking.nft_staking')}
           />
         </Flex>
 
         {/* 质押概览 */}
         <SimpleGrid columns={2} gap="3">
           <StatCard
-            label="已质押 Token"
+            label={t('staking.staked_token')}
             value={stakingInfo.tokenStaked}
             unit="PFT"
             delay={0.1}
           />
           <StatCard
-            label="已质押 NFT"
+            label={t('staking.staked_nft')}
             value={stakingInfo.nftStaked.toString()}
-            unit="个"
+            unit={t('staking.units')}
             delay={0.15}
           />
         </SimpleGrid>
@@ -225,6 +227,7 @@ function TokenStakingPanel({
   onUnstake,
   isProcessing,
 }: TokenStakingPanelProps) {
+  const { t } = useTranslation()
   const setMaxAmount = () => {
     onAmountChange(balance)
   }
@@ -241,11 +244,11 @@ function TokenStakingPanel({
       >
         <Flex justify="space-between" align="center" mb="3">
           <Text fontSize="sm" color="text.muted">
-            质押数量
+            {t('staking.stake_amount')}
           </Text>
           <Flex align="center" gap="1">
             <Text fontSize="xs" color="text.muted">
-              可用:
+              {t('staking.available')}
             </Text>
             <Text fontSize="xs" color="text.secondary" fontWeight="600">
               {parseFloat(balance).toLocaleString()} PFT
@@ -284,7 +287,7 @@ function TokenStakingPanel({
             onClick={setMaxAmount}
           >
             <Text fontSize="xs" color="brand.primary" fontWeight="600">
-              MAX
+              {t('staking.max')}
             </Text>
           </Flex>
         </Flex>
@@ -299,7 +302,7 @@ function TokenStakingPanel({
           align="center"
         >
           <Text fontSize="sm" color="text.secondary">
-            预估年化收益
+            {t('staking.estimated_apr')}
           </Text>
           <Text fontSize="lg" fontWeight="700" color="accent.green">
             {apr}% APR
@@ -318,7 +321,7 @@ function TokenStakingPanel({
         >
           <Flex align="center" gap="2">
             <HiOutlineBanknotes size={18} />
-            <Text>质押</Text>
+            <Text>{t('staking.stake_button')}</Text>
           </Flex>
         </ActionButton>
         <ActionButton
@@ -330,7 +333,7 @@ function TokenStakingPanel({
         >
           <Flex align="center" gap="2">
             <HiOutlineArrowPath size={18} />
-            <Text>取消质押</Text>
+            <Text>{t('staking.unstake_button')}</Text>
           </Flex>
         </ActionButton>
       </Flex>
@@ -344,12 +347,12 @@ function TokenStakingPanel({
         borderColor="border.default"
       >
         <Text fontSize="sm" fontWeight="600" color="text.secondary" mb="3">
-          质押说明
+          {t('staking.stake_instructions')}
         </Text>
         <VStack gap="2" align="stretch">
-          <RuleItem text="质押即时生效，收益每日结算" />
-          <RuleItem text="取消质押无锁定期，可随时提取" />
-          <RuleItem text="持有 NFT 可获得额外收益加成" />
+          <RuleItem text={t('staking.stake_rule_1')} />
+          <RuleItem text={t('staking.stake_rule_2')} />
+          <RuleItem text={t('staking.stake_rule_3')} />
         </VStack>
       </Box>
     </VStack>
@@ -375,17 +378,18 @@ function NFTStakingPanel({
   onUnstake,
   isProcessing,
 }: NFTStakingPanelProps) {
+  const { t } = useTranslation()
   return (
     <VStack gap="5" align="stretch">
       {/* 可质押的 NFT */}
       <Box>
         <Flex justify="space-between" align="center" mb="3">
           <Text fontSize="sm" fontWeight="600" color="text.secondary">
-            可质押 NFT ({unstakedNFTs.length})
+            {t('staking.available_nfts')} ({unstakedNFTs.length})
           </Text>
           {selectedNFTs.length > 0 && (
             <Text fontSize="xs" color="brand.primary">
-              已选 {selectedNFTs.length} 个
+              {t('staking.selected_count', { count: selectedNFTs.length })}
             </Text>
           )}
         </Flex>
@@ -403,7 +407,7 @@ function NFTStakingPanel({
             ))}
           </SimpleGrid>
         ) : (
-          <EmptyState text="暂无可质押的 NFT" />
+          <EmptyState text={t('staking.no_available_nfts')} />
         )}
 
         {selectedNFTs.length > 0 && (
@@ -414,7 +418,7 @@ function NFTStakingPanel({
             onClick={onStake}
             loading={isProcessing}
           >
-            质押选中的 {selectedNFTs.length} 个 NFT
+            {t('staking.stake_selected', { count: selectedNFTs.length })}
           </ActionButton>
         )}
       </Box>
@@ -422,7 +426,7 @@ function NFTStakingPanel({
       {/* 已质押的 NFT */}
       <Box>
         <Text fontSize="sm" fontWeight="600" color="text.secondary" mb="3">
-          已质押 NFT ({stakedNFTs.length})
+          {t('staking.staked_nfts')} ({stakedNFTs.length})
         </Text>
 
         {stakedNFTs.length > 0 ? (
@@ -438,7 +442,7 @@ function NFTStakingPanel({
             ))}
           </VStack>
         ) : (
-          <EmptyState text="暂无质押中的 NFT" />
+          <EmptyState text={t('staking.no_staked_nfts')} />
         )}
       </Box>
 
@@ -451,12 +455,12 @@ function NFTStakingPanel({
         borderColor="border.default"
       >
         <Text fontSize="sm" fontWeight="600" color="text.secondary" mb="3">
-          NFT 质押说明
+          {t('staking.nft_staking_instructions')}
         </Text>
         <VStack gap="2" align="stretch">
-          <RuleItem text="NFT 作为身份凭证，提供额外收益加成" />
-          <RuleItem text="不同等级 NFT 收益加成不同" />
-          <RuleItem text="质押期间 NFT 不可转让" />
+          <RuleItem text={t('staking.nft_stake_rule_1')} />
+          <RuleItem text={t('staking.nft_stake_rule_2')} />
+          <RuleItem text={t('staking.nft_stake_rule_3')} />
         </VStack>
       </Box>
     </VStack>
@@ -532,6 +536,7 @@ interface StakedNFTItemProps {
 }
 
 function StakedNFTItem({ nft, onUnstake, isProcessing, delay }: StakedNFTItemProps) {
+  const { t } = useTranslation()
   const stakeDays = nft.stakedAt
     ? Math.floor((Date.now() - nft.stakedAt) / 86400000)
     : 0
@@ -571,7 +576,7 @@ function StakedNFTItem({ nft, onUnstake, isProcessing, delay }: StakedNFTItemPro
           {nft.name}
         </Text>
         <Text fontSize="xs" color="text.muted">
-          已质押 {stakeDays} 天
+          {t('staking.staked_days', { days: stakeDays })}
         </Text>
       </Box>
       <ActionButton
@@ -582,7 +587,7 @@ function StakedNFTItem({ nft, onUnstake, isProcessing, delay }: StakedNFTItemPro
         onClick={onUnstake}
         loading={isProcessing}
       >
-        取消
+        {t('staking.cancel')}
       </ActionButton>
     </MotionFlex>
   )

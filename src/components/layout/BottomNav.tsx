@@ -13,6 +13,7 @@ import {
   HiWallet,
 } from 'react-icons/hi2'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 const MotionBox = motion.create(Box)
 
@@ -23,17 +24,18 @@ interface NavItem {
   activeIcon: React.ElementType
 }
 
-const navItems: NavItem[] = [
-  { path: '/', label: '首页', icon: HiOutlineHome, activeIcon: HiHome },
-  { path: '/nft', label: 'NFT', icon: HiOutlineCube, activeIcon: HiCube },
-  { path: '/assets', label: '资产', icon: HiOutlineWallet, activeIcon: HiWallet },
-  { path: '/rewards', label: '收益', icon: HiOutlineChartBar, activeIcon: HiChartBar },
-  { path: '/team', label: '我的', icon: HiOutlineUserGroup, activeIcon: HiUserGroup },
-]
-
 export function BottomNav() {
+  const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
+
+  const navItems: NavItem[] = [
+    { path: '/', label: t('nav.home'), icon: HiOutlineHome, activeIcon: HiHome },
+    { path: '/nft', label: t('nav.nft'), icon: HiOutlineCube, activeIcon: HiCube },
+    { path: '/assets', label: t('nav.assets'), icon: HiOutlineWallet, activeIcon: HiWallet },
+    { path: '/rewards', label: t('nav.rewards'), icon: HiOutlineChartBar, activeIcon: HiChartBar },
+    { path: '/team', label: t('nav.team'), icon: HiOutlineUserGroup, activeIcon: HiUserGroup },
+  ]
 
   return (
     <Box

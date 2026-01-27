@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Box, Flex, Text, VStack, SimpleGrid } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { PageHeader, ActionButton, NFTImage } from '../components/common'
 import { useStakingStore } from '../stores/stakingStore'
 import {
@@ -76,6 +77,7 @@ const nftTiers: NFTTier[] = [
 ]
 
 export function MintPage() {
+  const { t } = useTranslation()
   const [selectedTier, setSelectedTier] = useState<string | null>(null)
   const [isMinting, setIsMinting] = useState(false)
   const { tokenBalance, setNFTs, nfts } = useStakingStore()
@@ -87,7 +89,7 @@ export function MintPage() {
     if (!tier) return
 
     if (parseFloat(tokenBalance) < parseFloat(tier.price)) {
-      alert('余额不足')
+      alert(t('mint.alert_insufficient'))
       return
     }
 
@@ -112,7 +114,7 @@ export function MintPage() {
 
   return (
     <Box>
-      <PageHeader title="NFT 铸造" />
+      <PageHeader title={t('mint.title')} />
 
       <VStack gap="5" p="4" align="stretch">
         {/* 说明卡片 */}
@@ -132,7 +134,7 @@ export function MintPage() {
                 PolyFlow NFT
               </Text>
               <Text fontSize="lg" fontWeight="600" color="text.primary">
-                铸造专属身份凭证
+                {t('mint.subtitle')}
               </Text>
             </Box>
             <Flex
@@ -147,7 +149,7 @@ export function MintPage() {
             </Flex>
           </Flex>
           <Text fontSize="xs" color="text.muted" lineHeight="1.6">
-            NFT 是您在 PolyFlow 平台的身份凭证，持有不同等级 NFT 可获得对应的收益加成和专属权益。
+            {t('mint.description')}
           </Text>
         </MotionBox>
 
@@ -162,7 +164,7 @@ export function MintPage() {
           borderColor="border.default"
         >
           <Text fontSize="sm" color="text.muted">
-            可用余额
+            {t('mint.available_balance')}
           </Text>
           <Text fontSize="sm" fontWeight="600" color="text.primary">
             {parseFloat(tokenBalance).toLocaleString()} PFT
@@ -172,7 +174,7 @@ export function MintPage() {
         {/* NFT 等级选择 */}
         <Box>
           <Text fontSize="sm" fontWeight="600" color="text.secondary" mb="3">
-            选择 NFT 等级
+            {t('mint.select_tier')}
           </Text>
 
           <VStack gap="3" align="stretch">
@@ -202,7 +204,7 @@ export function MintPage() {
           >
             <Flex justify="space-between" align="center" mb="4">
               <Text fontSize="sm" fontWeight="600" color="text.primary">
-                铸造确认
+                {t('mint.confirm_mint')}
               </Text>
               <Text fontSize="sm" color="text.muted">
                 {selected.name} NFT
@@ -212,7 +214,7 @@ export function MintPage() {
             <SimpleGrid columns={2} gap="3" mb="4">
               <Box>
                 <Text fontSize="xs" color="text.muted">
-                  价格
+                  {t('mint.price')}
                 </Text>
                 <Text fontSize="md" fontWeight="600" color="text.primary">
                   {selected.price} PFT
@@ -220,7 +222,7 @@ export function MintPage() {
               </Box>
               <Box>
                 <Text fontSize="xs" color="text.muted">
-                  收益加成
+                  {t('mint.reward_boost')}
                 </Text>
                 <Text fontSize="md" fontWeight="600" color="accent.green">
                   +{selected.boost}
@@ -233,18 +235,18 @@ export function MintPage() {
               variant="primary"
               onClick={handleMint}
               loading={isMinting}
-              loadingText="铸造中..."
+              loadingText={t('mint.minting')}
               disabled={parseFloat(tokenBalance) < parseFloat(selected.price)}
             >
               <Flex align="center" gap="2">
                 <HiOutlineCube size={18} />
-                <Text>确认铸造</Text>
+                <Text>{t('mint.confirm_mint_button')}</Text>
               </Flex>
             </ActionButton>
 
             {parseFloat(tokenBalance) < parseFloat(selected.price) && (
               <Text fontSize="xs" color="error" textAlign="center" mt="2">
-                余额不足，需要 {selected.price} PFT
+                {t('mint.insufficient_need', { price: selected.price })}
               </Text>
             )}
           </MotionBox>
@@ -259,13 +261,13 @@ export function MintPage() {
           borderColor="border.default"
         >
           <Text fontSize="sm" fontWeight="600" color="text.secondary" mb="3">
-            铸造说明
+            {t('mint.mint_instructions')}
           </Text>
           <VStack gap="2" align="stretch">
-            <RuleItem text="NFT 铸造后立即生效，可用于质押获取加成" />
-            <RuleItem text="同一地址可持有多个不同等级 NFT" />
-            <RuleItem text="收益加成以最高等级 NFT 为准" />
-            <RuleItem text="NFT 可在二级市场自由交易" />
+            <RuleItem text={t('mint.rule_1')} />
+            <RuleItem text={t('mint.rule_2')} />
+            <RuleItem text={t('mint.rule_3')} />
+            <RuleItem text={t('mint.rule_4')} />
           </VStack>
         </Box>
       </VStack>
@@ -281,6 +283,7 @@ interface NFTTierCardProps {
 }
 
 function NFTTierCard({ tier, selected, onSelect, delay }: NFTTierCardProps) {
+  const { t } = useTranslation()
   const progress = (tier.minted / tier.supply) * 100
   const remaining = tier.supply - tier.minted
 
@@ -349,7 +352,7 @@ function NFTTierCard({ tier, selected, onSelect, delay }: NFTTierCardProps) {
           <Box mb="1">
             <Flex justify="space-between" mb="1">
               <Text fontSize="10px" color="text.muted">
-                剩余 {remaining.toLocaleString()}
+                {t('mint.remaining')} {remaining.toLocaleString()}
               </Text>
               <Text fontSize="10px" color="text.muted">
                 {progress.toFixed(1)}%
@@ -377,7 +380,7 @@ function NFTTierCard({ tier, selected, onSelect, delay }: NFTTierCardProps) {
       {selected && (
         <Box mt="4" pt="3" borderTop="1px solid" borderColor="border.default">
           <Text fontSize="xs" color="text.muted" mb="2">
-            权益包含：
+            {t('mint.benefits_included')}
           </Text>
           <Flex gap="2" flexWrap="wrap">
             {tier.benefits.map((benefit, i) => (

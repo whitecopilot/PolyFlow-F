@@ -4,9 +4,10 @@ import { Box, Flex, Text, VStack, HStack } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import { useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { SecondaryPageHeader } from '../components/layout'
 import { usePayFiStore } from '../stores/payfiStore'
-import { REWARD_TYPE_NAMES } from '../mocks/payfiConfig'
+import { getRewardTypeName } from '../mocks/payfiConfig'
 import type { RewardType } from '../types/payfi'
 import {
   HiOutlineBolt,
@@ -36,6 +37,7 @@ const REWARD_COLORS: Record<RewardType, string> = {
 }
 
 export function RewardListPage() {
+  const { t } = useTranslation()
   const { type } = useParams<{ type: string }>()
   const navigate = useNavigate()
   const { rewardRecords, fetchRewardRecords } = usePayFiStore()
@@ -60,9 +62,11 @@ export function RewardListPage() {
   // 计算总收益
   const totalAmount = filteredRecords.reduce((sum, record) => sum + record.usdtValue, 0)
 
+  const rewardTypeName = getRewardTypeName(rewardType)
+
   return (
     <Box minH="100vh" bg="black">
-      <SecondaryPageHeader title={REWARD_TYPE_NAMES[rewardType]} />
+      <SecondaryPageHeader title={rewardTypeName} />
 
       <VStack gap="4" p="4" align="stretch">
         {/* 总收益统计 */}
@@ -87,7 +91,7 @@ export function RewardListPage() {
               </Flex>
               <Box>
                 <Text fontSize="sm" color="whiteAlpha.600">
-                  累计{REWARD_TYPE_NAMES[rewardType]}
+                  {t('reward_list.total_reward', { type: rewardTypeName })}
                 </Text>
                 <Text fontSize="xl" fontWeight="bold" color={REWARD_COLORS[rewardType]}>
                   ${totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
@@ -95,7 +99,7 @@ export function RewardListPage() {
               </Box>
             </HStack>
             <Text fontSize="sm" color="whiteAlpha.500">
-              共 {filteredRecords.length} 笔
+              {t('reward_list.total_records', { count: filteredRecords.length })}
             </Text>
           </Flex>
         </MotionBox>
@@ -111,7 +115,7 @@ export function RewardListPage() {
           >
             {REWARD_ICONS[rewardType]}
             <Text mt="4" fontSize="sm">
-              暂无{REWARD_TYPE_NAMES[rewardType]}记录
+              {t('reward_list.no_records', { type: rewardTypeName })}
             </Text>
           </Flex>
         ) : (
@@ -137,7 +141,7 @@ export function RewardListPage() {
                     </Text>
                     {record.sourceAddress && (
                       <Text fontSize="xs" color="whiteAlpha.400" mt="1">
-                        来自 {record.sourceAddress}
+                        {t('reward_list.from')} {record.sourceAddress}
                       </Text>
                     )}
                   </Box>

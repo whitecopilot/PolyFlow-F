@@ -3,6 +3,7 @@
 import { Box, Flex, Text, VStack, HStack } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { SecondaryPageHeader } from '../components/layout'
 import { ProgressBar } from '../components/common'
 import { usePayFiStore } from '../stores/payfiStore'
@@ -15,6 +16,7 @@ import {
 const MotionBox = motion.create(Box)
 
 export function WithdrawRecordsPage() {
+  const { t } = useTranslation()
   const { withdrawRecords, fetchWithdrawRecords } = usePayFiStore()
 
   useEffect(() => {
@@ -28,7 +30,7 @@ export function WithdrawRecordsPage() {
 
   return (
     <Box minH="100vh" bg="black">
-      <SecondaryPageHeader title="提现记录" />
+      <SecondaryPageHeader title={t('withdraw_records.title')} />
 
       <VStack gap="4" p="4" align="stretch">
         {/* 提现统计 */}
@@ -53,7 +55,7 @@ export function WithdrawRecordsPage() {
               </Flex>
               <Box>
                 <Text fontSize="sm" color="whiteAlpha.600">
-                  累计提现
+                  {t('withdraw_records.total_withdrawn')}
                 </Text>
                 <Text fontSize="xl" fontWeight="bold" color="#22C55E">
                   {totalWithdrawn.toFixed(2)} PIC
@@ -62,11 +64,11 @@ export function WithdrawRecordsPage() {
             </HStack>
             <VStack align="end" gap={0}>
               <Text fontSize="xs" color="whiteAlpha.500">
-                已完成 {completedCount} 笔
+                {t('withdraw_records.completed_count', { count: completedCount })}
               </Text>
               {processingCount > 0 && (
                 <Text fontSize="xs" color="#EAB308">
-                  释放中 {processingCount} 笔
+                  {t('withdraw_records.releasing_count', { count: processingCount })}
                 </Text>
               )}
             </VStack>
@@ -84,7 +86,7 @@ export function WithdrawRecordsPage() {
           >
             <HiOutlineBanknotes size={48} />
             <Text mt="4" fontSize="sm">
-              暂无提现记录
+              {t('withdraw_records.no_records')}
             </Text>
           </Flex>
         ) : (
@@ -115,7 +117,7 @@ export function WithdrawRecordsPage() {
                     fontSize="sm"
                     color={record.status === 'completed' ? '#22C55E' : '#EAB308'}
                   >
-                    {record.status === 'completed' ? '已完成' : '释放中'}
+                    {record.status === 'completed' ? t('withdraw_records.completed') : t('withdraw_records.releasing')}
                   </Text>
                 </Flex>
 
@@ -124,7 +126,7 @@ export function WithdrawRecordsPage() {
                     <ProgressBar
                       value={record.linearReleased}
                       max={record.linearAmount}
-                      label="线性释放进度"
+                      label={t('withdraw_records.linear_progress')}
                       height={6}
                       colorScheme="yellow"
                       showPercentage
@@ -134,15 +136,15 @@ export function WithdrawRecordsPage() {
 
                 <HStack gap={4} pt="2" borderTop="1px solid" borderColor="whiteAlpha.100">
                   <Box>
-                    <Text fontSize="xs" color="whiteAlpha.400">即时到账</Text>
+                    <Text fontSize="xs" color="whiteAlpha.400">{t('withdraw_records.instant_release')}</Text>
                     <Text fontSize="sm" color="#22C55E">${record.instantAmount.toFixed(2)}</Text>
                   </Box>
                   <Box>
-                    <Text fontSize="xs" color="whiteAlpha.400">线性释放</Text>
+                    <Text fontSize="xs" color="whiteAlpha.400">{t('withdraw_records.linear_release')}</Text>
                     <Text fontSize="sm" color="#EAB308">${record.linearAmount.toFixed(2)}</Text>
                   </Box>
                   <Box flex={1} textAlign="right">
-                    <Text fontSize="xs" color="whiteAlpha.400">提现时间</Text>
+                    <Text fontSize="xs" color="whiteAlpha.400">{t('withdraw_records.withdraw_time')}</Text>
                     <Text fontSize="sm" color="whiteAlpha.600">
                       {new Date(record.createdAt).toLocaleDateString()}
                     </Text>

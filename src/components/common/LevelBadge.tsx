@@ -12,6 +12,7 @@ import {
   Star,
   Trophy,
 } from '@phosphor-icons/react'
+import { useTranslation } from 'react-i18next'
 import type { NFTLevel, NodeLevel } from '../../types/payfi'
 
 // NFT 等级徽章
@@ -42,11 +43,13 @@ const NFT_NAMES: Record<string, string> = {
 }
 
 export function NFTBadge({ level, size = 'md', showName = false }: NFTBadgeProps) {
+  const { t } = useTranslation()
+  
   if (!level) {
     return (
       <Box px={size === 'sm' ? 2 : 3} py={size === 'sm' ? 0.5 : 1} bg="whiteAlpha.100" borderRadius="full">
         <Text fontSize={size === 'sm' ? 'xs' : 'sm'} color="whiteAlpha.500">
-          无
+          {t('nft.level_badge.none')}
         </Text>
       </Box>
     )
@@ -115,21 +118,22 @@ const NODE_COLORS: Record<NodeLevel, { bg: string; border: string; Icon: React.C
 }
 
 const NODE_NAMES: Record<NodeLevel, string> = {
-  P0: '节点',
-  P1: '节点',
-  P2: '节点',
-  P3: '节点',
-  P4: '节点',
-  P5: '节点',
-  P6: '节点',
-  P7: '节点',
-  P8: '节点',
-  P9: '节点',
+  P0: 'node',
+  P1: 'node',
+  P2: 'node',
+  P3: 'node',
+  P4: 'node',
+  P5: 'node',
+  P6: 'node',
+  P7: 'node',
+  P8: 'node',
+  P9: 'node',
 }
 
 export function NodeBadge({ level, size = 'md', showName = false }: NodeBadgeProps) {
+  const { t } = useTranslation()
   const colors = NODE_COLORS[level]
-  const name = NODE_NAMES[level]
+  const name = t(`node_level.${level}`) || NODE_NAMES[level]
 
   const sizeStyles = {
     sm: { px: 2, py: 0.5, fontSize: 'xs', iconSize: '10px' },

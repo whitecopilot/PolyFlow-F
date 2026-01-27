@@ -16,6 +16,7 @@ import {
   WithdrawRecordsPage,
   TeamMembersPage,
 } from './pages'
+import { TestI18n } from './test-i18n'
 
 function App() {
   return (
@@ -23,6 +24,9 @@ function App() {
       <ChakraProvider value={system}>
         <BrowserRouter>
           <Routes>
+            {/* 测试路由 */}
+            <Route path="/test-i18n" element={<TestI18n />} />
+            
             {/* 公开路由 - 登录页 */}
             <Route path="/login" element={<LoginPage />} />
 

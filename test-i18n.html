@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>i18n Test</title>
+</head>
+<body>
+    <div id="app">
+        <h1 data-i18n="app.name">Loading...</h1>
+        <p data-i18n="nav.home">Loading...</p>
+        <p data-i18n="header.language">Loading...</p>
+    </div>
+    <div>
+        <button onclick="changeLanguage('en')">English</button>
+        <button onclick="changeLanguage('zh-Hans')">简体中文</button>
+        <button onclick="changeLanguage('zh-Hant')">繁體中文</button>
+        <button onclick="changeLanguage('ko')">한국어</button>
+        <button onclick="changeLanguage('ja')">日本語</button>
+    </div>
+    <div id="current-lang">Current: en</div>
+
+    <script type="module">
+        import i18n from './src/i18n/config.ts';
+        
+        window.changeLanguage = async (lang) => {
+            await i18n.changeLanguage(lang);
+            document.getElementById('current-lang').textContent = 'Current: ' + lang;
+            updateContent();
+        };
+        
+        function updateContent() {
+            document.querySelector('[data-i18n="app.name"]').textContent = i18n.t('app.name');
+            document.querySelector('[data-i18n="nav.home"]').textContent = i18n.t('nav.home');
+            document.querySelector('[data-i18n="header.language"]').textContent = i18n.t('header.language');
+        }
+        
+        // 初始化
+        updateContent();
+        console.log('i18n initialized with language:', i18n.language);
+    </script>
+</body>
+</html>

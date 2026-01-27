@@ -11,6 +11,7 @@ import {
   HiOutlineUserPlus,
 } from 'react-icons/hi2'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   GradientBorderCard,
   NFTBadge,
@@ -26,6 +27,7 @@ const MotionBox = motion.create(Box)
 const MotionFlex = motion.create(Flex)
 
 export function HomePage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const {
     priceInfo,
@@ -65,7 +67,7 @@ export function HomePage() {
                 <HStack gap={2} mb="1">
                   <PolyFlowLogo size={16} colorMode="gradient" />
                   <Text fontSize="sm" color="whiteAlpha.600">
-                    总资产价值
+                    {t('home.total_asset_value')}
                   </Text>
                   {userAssets?.currentNFTLevel && (
                     <NFTBadge level={userAssets.currentNFTLevel} size="sm" />
@@ -103,7 +105,7 @@ export function HomePage() {
             <SimpleGrid columns={2} gap={3}>
               {/* PID 可用/锁仓 */}
               <Box bg="whiteAlpha.50" borderRadius="lg" p={2}>
-                <Text fontSize="xs" color="whiteAlpha.500" mb={1}>PID 可用 / 锁仓</Text>
+                <Text fontSize="xs" color="whiteAlpha.500" mb={1}>{t('home.pid_available_locked')}</Text>
                 <HStack gap={2}>
                   <Text fontSize="sm" fontWeight="600" color="white">
                     {userAssets?.pidBalance.toFixed(2) || '0.00'}
@@ -116,7 +118,7 @@ export function HomePage() {
               </Box>
               {/* PIC 可用/锁仓 */}
               <Box bg="whiteAlpha.50" borderRadius="lg" p={2}>
-                <Text fontSize="xs" color="whiteAlpha.500" mb={1}>PIC 可用 / 锁仓</Text>
+                <Text fontSize="xs" color="whiteAlpha.500" mb={1}>{t('home.pic_available_locked')}</Text>
                 <HStack gap={2}>
                   <Text fontSize="sm" fontWeight="600" color="white">
                     {userAssets?.picBalance.toFixed(2) || '0.00'}
@@ -143,7 +145,7 @@ export function HomePage() {
           >
             <HStack gap={1} mb={1}>
               <HiOutlineBolt size={14} color="#292FE1" />
-              <Text fontSize="xs" color="whiteAlpha.600">算力值</Text>
+              <Text fontSize="xs" color="whiteAlpha.600">{t('home.power_value')}</Text>
             </HStack>
             <Text fontSize="lg" fontWeight="bold" color="white">
               {userAssets?.totalPower.toLocaleString() || '0'}
@@ -154,7 +156,7 @@ export function HomePage() {
               </Text>
               <Text fontSize="2xs" color="whiteAlpha.300">+</Text>
               <Text fontSize="2xs" color="whiteAlpha.400">
-                销毁 {userAssets?.powerFromBurn.toLocaleString() || '0'}
+                {t('home.cumulative')} {userAssets?.powerFromBurn.toLocaleString() || '0'}
               </Text>
             </HStack>
           </MotionBox>
@@ -169,7 +171,7 @@ export function HomePage() {
           >
             <HStack gap={1} mb={1}>
               <HiOutlineShieldCheck size={14} color="#D811F0" />
-              <Text fontSize="xs" color="whiteAlpha.600">矿池量</Text>
+              <Text fontSize="xs" color="whiteAlpha.600">{t('home.pool_amount')}</Text>
             </HStack>
             <Text fontSize="lg" fontWeight="bold" color="white">
               ${userAssets?.totalExitLimit.toLocaleString() || '0'}
@@ -186,7 +188,7 @@ export function HomePage() {
           >
             <HStack gap={1} mb={1}>
               <HiOutlineArrowTrendingUp size={14} color="#22C55E" />
-              <Text fontSize="xs" color="whiteAlpha.600">产出率</Text>
+              <Text fontSize="xs" color="whiteAlpha.600">{t('home.output_rate')}</Text>
             </HStack>
             <Text fontSize="lg" fontWeight="bold" color="#22C55E">
               {((systemStats?.dailyRate || 0) * 100).toFixed(2)}%
@@ -206,7 +208,7 @@ export function HomePage() {
           <Flex justify="space-between" align="center" mb="3">
             <HStack gap={2}>
               <HiOutlineGift size={18} color="#D811F0" />
-              <Text fontSize="sm" color="whiteAlpha.700">今日收益</Text>
+              <Text fontSize="sm" color="whiteAlpha.700">{t('home.today_earnings')}</Text>
             </HStack>
             <Text fontSize="xl" fontWeight="bold" color="#22C55E">
               +${earningsStats?.todayEarnings.toFixed(2) || '0.00'}
@@ -216,17 +218,17 @@ export function HomePage() {
           <ProgressBar
             value={userAssets?.earnedRewards || 0}
             max={userAssets?.totalExitLimit || 1}
-            label="矿池进度"
+            label={t('home.pool_progress')}
             colorScheme="gradient"
             height={6}
           />
 
           <Flex justify="space-between" mt="2">
             <Text fontSize="xs" color="whiteAlpha.500">
-              已领取: ${userAssets?.earnedRewards.toLocaleString() || '0'}
+              {t('home.claimed')}: ${userAssets?.earnedRewards.toLocaleString() || '0'}
             </Text>
             <Text fontSize="xs" color="whiteAlpha.500">
-              剩余: ${userAssets?.remainingLimit.toLocaleString() || '0'}
+              {t('home.remaining')}: ${userAssets?.remainingLimit.toLocaleString() || '0'}
             </Text>
           </Flex>
         </MotionBox>
@@ -234,37 +236,37 @@ export function HomePage() {
         {/* 收益数据 */}
         <Box>
           <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600" mb="3">
-            收益统计
+            {t('home.earnings_stats')}
           </Text>
           <SimpleGrid columns={2} gap="3">
             <StatCard
-              label="挖矿收益"
+              label={t('home.mining_rewards')}
               value={`$${earningsStats?.totalStaticEarned.toLocaleString() || '0'}`}
-              subValue="累计"
+              subValue={t('home.cumulative')}
               icon={<HiOutlineBolt size={18} />}
               color="#292FE1"
               delay={0.1}
             />
             <StatCard
-              label="邀请奖励"
+              label={t('home.invitation_rewards')}
               value={`$${earningsStats?.totalReferralEarned.toLocaleString() || '0'}`}
-              subValue="累计"
+              subValue={t('home.cumulative')}
               icon={<HiOutlineUserPlus size={18} />}
               color="#D811F0"
               delay={0.15}
             />
             <StatCard
-              label="节点奖励"
+              label={t('home.node_rewards')}
               value={`$${earningsStats?.totalNodeEarned.toLocaleString() || '0'}`}
-              subValue="累计"
+              subValue={t('home.cumulative')}
               icon={<HiOutlineGift size={18} />}
               color="#22C55E"
               delay={0.2}
             />
             <StatCard
-              label="空投奖励"
+              label={t('home.airdrop_rewards')}
               value={`$${earningsStats?.totalGlobalEarned.toLocaleString() || '0'}`}
-              subValue="累计"
+              subValue={t('home.cumulative')}
               icon={<HiOutlineGift size={18} />}
               color="#EAB308"
               delay={0.25}
@@ -300,7 +302,7 @@ export function HomePage() {
               </Flex>
               <Box>
                 <Text fontSize="sm" fontWeight="600" color="white">
-                  邀请好友
+                  {t('home.invite_friends')}
                 </Text>
               </Box>
             </Flex>

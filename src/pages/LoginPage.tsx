@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { HiOutlineWallet } from 'react-icons/hi2'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useConnect } from 'wagmi'
+import { useTranslation } from 'react-i18next'
 import { PolyFlowLogo } from '../components/common'
 import { useAuth } from '../hooks/useAuth'
 
@@ -11,6 +12,7 @@ const MotionBox = motion.create(Box)
 const MotionFlex = motion.create(Flex)
 
 export function LoginPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const { connectors, connect, isPending: isConnecting } = useConnect()
@@ -111,7 +113,7 @@ export function LoginPage() {
                 fontFamily="heading"
                 letterSpacing="tight"
               >
-                PolyFlow
+                {t('app.name')}
               </Text>
               <Text
                 fontSize="md"
@@ -121,8 +123,8 @@ export function LoginPage() {
                 lineHeight="1.6"
               >
                 {step === 'connect'
-                  ? 'NFT 质押平台，开启你的 Web3 收益之旅'
-                  : '请签名验证您的钱包所有权'}
+                  ? t('login.subtitle')
+                  : t('login.sign_message')}
               </Text>
             </VStack>
           </MotionFlex>
@@ -147,11 +149,11 @@ export function LoginPage() {
                 _active={{ transform: 'scale(0.98)' }}
                 onClick={handleConnect}
                 loading={isConnecting}
-                loadingText="连接中..."
+                loadingText={t('login.connecting')}
               >
                 <Flex align="center" gap="3">
                   <HiOutlineWallet size={22} />
-                  <Text>钱包登录</Text>
+                  <Text>{t('login.connect_wallet')}</Text>
                 </Flex>
               </Button>
 
@@ -161,7 +163,7 @@ export function LoginPage() {
                 textAlign="center"
                 mt="4"
               >
-                连接钱包即表示您同意我们的服务条款
+                {t('login.terms_notice')}
               </Text>
             </MotionBox>
           ) : (
@@ -192,16 +194,16 @@ export function LoginPage() {
                   </Flex>
                   <Box>
                     <Text fontSize="sm" fontWeight="600" color="text.primary">
-                      钱包已连接
+                      {t('login.wallet_connected')}
                     </Text>
                     <Text fontSize="xs" color="text.muted">
-                      请签名以验证所有权
+                      {t('login.sign_to_verify')}
                     </Text>
                   </Box>
                 </Flex>
 
                 <Text fontSize="xs" color="text.muted" lineHeight="1.6">
-                  签名消息不会产生任何 Gas 费用，仅用于验证您对钱包的所有权。
+                  {t('login.sign_notice')}
                 </Text>
               </Box>
 
@@ -217,11 +219,11 @@ export function LoginPage() {
                 _active={{ transform: 'scale(0.98)' }}
                 onClick={handleSign}
                 loading={isLoading}
-                loadingText="等待签名..."
+                loadingText={t('login.waiting_sign')}
               >
                 <Flex align="center" gap="3">
                   <HiOutlineWallet size={22} />
-                  <Text>签名登录</Text>
+                  <Text>{t('login.sign_to_login')}</Text>
                 </Flex>
               </Button>
 
@@ -237,7 +239,7 @@ export function LoginPage() {
                 _hover={{ color: 'text.primary' }}
                 onClick={() => setStep('connect')}
               >
-                使用其他钱包
+                {t('login.use_other_wallet')}
               </Button>
             </MotionBox>
           )}

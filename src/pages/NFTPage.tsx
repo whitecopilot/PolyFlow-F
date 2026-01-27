@@ -15,6 +15,7 @@ import {
   HiOutlineShoppingCart,
 } from 'react-icons/hi2'
 import { Sparkle, Trophy } from '@phosphor-icons/react'
+import { useTranslation } from 'react-i18next'
 import {
   ActionButton,
   GradientBorderCard,
@@ -28,6 +29,7 @@ import type { NFTLevel } from '../types/payfi'
 const MotionBox = motion.create(Box)
 
 export function NFTPage() {
+  const { t } = useTranslation()
   const {
     userAssets,
     priceInfo,
@@ -102,7 +104,7 @@ export function NFTPage() {
 
   return (
     <Box minH="100vh" bg="black">
-      <PageHeader title="NFT" />
+      <PageHeader title={t('nav.nft')} />
 
       <VStack gap="5" p="4" align="stretch">
         {/* 当前等级横幅 */}
@@ -116,7 +118,7 @@ export function NFTPage() {
               <VStack align="start" gap={1}>
                 <HStack gap={1}>
                   <Sparkle size={14} weight="fill" color="#D811F0" />
-                  <Text fontSize="sm" color="whiteAlpha.600">当前等级</Text>
+                  <Text fontSize="sm" color="whiteAlpha.600">{t('nft.current_level')}</Text>
                 </HStack>
                 {currentLevel ? (
                   <HStack gap={2}>
@@ -124,7 +126,7 @@ export function NFTPage() {
                   </HStack>
                 ) : (
                   <Text fontSize="lg" fontWeight="bold" color="whiteAlpha.400">
-                    未持有 NFT
+                    {t('nft.no_nft')}
                   </Text>
                 )}
               </VStack>
@@ -132,10 +134,10 @@ export function NFTPage() {
               {currentConfig && (
                 <VStack align="end" gap={0}>
                   <Text fontSize="xs" color="whiteAlpha.500">
-                    算力系数 {currentConfig.coefficient}x
+                    {t('nft.power_coefficient')} {currentConfig.coefficient}x
                   </Text>
                   <Text fontSize="xs" color="whiteAlpha.500">
-                    矿池倍数 {currentConfig.nftExitMultiplier}x
+                    {t('nft.pool_multiplier')} {currentConfig.nftExitMultiplier}x
                   </Text>
                 </VStack>
               )}
@@ -172,10 +174,10 @@ export function NFTPage() {
                     </Box>
                     <VStack align="start" gap={0}>
                       <Text fontSize="sm" fontWeight="600" color="white">
-                        质押挖矿
+                        {t('nft.stake_mining')}
                       </Text>
                       <Text fontSize="xs" color="whiteAlpha.500">
-                        质押 NFT 开启挖矿收益
+                        {t('nft.stake_to_mine')}
                       </Text>
                     </VStack>
                   </HStack>
@@ -191,7 +193,7 @@ export function NFTPage() {
                       fontWeight="bold"
                       color={userAssets?.nftStaked ? '#22C55E' : '#FBBF24'}
                     >
-                      {userAssets?.nftStaked ? '挖矿中' : '未质押'}
+                      {userAssets?.nftStaked ? t('nft.mining') : t('nft.not_staked')}
                     </Text>
                   </Box>
                 </HStack>
@@ -206,7 +208,7 @@ export function NFTPage() {
                     <SimpleGrid columns={2} gap={3}>
                       <VStack align="start" gap={0}>
                         <Text fontSize="xs" color="whiteAlpha.500">
-                          质押时间
+                          {t('nft.stake_time')}
                         </Text>
                         <Text fontSize="sm" fontWeight="600" color="white">
                           {formatStakeTime(userAssets.nftStakeTime)}
@@ -214,10 +216,10 @@ export function NFTPage() {
                       </VStack>
                       <VStack align="start" gap={0}>
                         <Text fontSize="xs" color="whiteAlpha.500">
-                          已质押天数
+                          {t('nft.staked_days')}
                         </Text>
                         <Text fontSize="sm" fontWeight="600" color="#22C55E">
-                          {getStakeDays(userAssets.nftStakeTime)} 天
+                          {getStakeDays(userAssets.nftStakeTime)} {t('nft.days')}
                         </Text>
                       </VStack>
                     </SimpleGrid>
@@ -234,13 +236,13 @@ export function NFTPage() {
                         <HStack gap={1.5}>
                           <Box w="1.5" h="1.5" borderRadius="full" bg="#FBBF24" />
                           <Text fontSize="xs" color="whiteAlpha.700">
-                            质押后才能获得<Text as="span" color="#FBBF24" fontWeight="600">PIC挖矿收益</Text>
+                            {t('nft.stake_notice_1')}
                           </Text>
                         </HStack>
                         <HStack gap={1.5}>
                           <Box w="1.5" h="1.5" borderRadius="full" bg="#FBBF24" />
                           <Text fontSize="xs" color="whiteAlpha.700">
-                            质押操作需要链上确认
+                            {t('nft.stake_notice_2')}
                           </Text>
                         </HStack>
                       </VStack>
@@ -256,11 +258,11 @@ export function NFTPage() {
                     >
                       <HStack gap={2} justify="center">
                         {isStaking ? (
-                          <Text>链上确认中...</Text>
+                          <Text>{t('nft.confirming_on_chain')}</Text>
                         ) : (
                           <>
                             <HiOutlinePlay size={16} />
-                            <Text>立即质押</Text>
+                            <Text>{t('nft.stake_now')}</Text>
                           </>
                         )}
                       </HStack>
@@ -379,7 +381,7 @@ export function NFTPage() {
                       <HStack gap={1}>
                         <HiOutlineArrowUp size={14} color="#22C55E" />
                         <Text fontSize="sm" color="#22C55E">
-                          从 {currentLevel} 升级
+                          {t('nft.upgrade_from', { from: currentLevel })}
                         </Text>
                       </HStack>
                     )}
@@ -390,7 +392,7 @@ export function NFTPage() {
                 <SimpleGrid columns={2} gap={3} mb="4">
                   <Box bg="whiteAlpha.50" borderRadius="lg" p="3">
                     <HStack gap={1} mb={1}>
-                      <Text fontSize="xs" color="whiteAlpha.500">价格</Text>
+                      <Text fontSize="xs" color="whiteAlpha.500">{t('nft.price')}</Text>
                     </HStack>
                     <Text fontSize="lg" fontWeight="bold" color="white">
                       ${selectedConfig.price.toLocaleString()}
@@ -400,7 +402,7 @@ export function NFTPage() {
                   <Box bg="whiteAlpha.50" borderRadius="lg" p="3">
                     <HStack gap={1} mb={1}>
                       <HiOutlineBolt size={12} color="#292FE1" />
-                      <Text fontSize="xs" color="whiteAlpha.500">基础算力</Text>
+                      <Text fontSize="xs" color="whiteAlpha.500">{t('nft.base_power')}</Text>
                     </HStack>
                     <Text fontSize="lg" fontWeight="bold" color="white">
                       {selectedConfig.power.toLocaleString()}
@@ -410,7 +412,7 @@ export function NFTPage() {
                   <Box bg="whiteAlpha.50" borderRadius="lg" p="3">
                     <HStack gap={1} mb={1}>
                       <HiOutlineSparkles size={12} color="#D811F0" />
-                      <Text fontSize="xs" color="whiteAlpha.500">算力系数</Text>
+                      <Text fontSize="xs" color="whiteAlpha.500">{t('nft.power_coefficient')}</Text>
                     </HStack>
                     <Text fontSize="lg" fontWeight="bold" color="white">
                       {selectedConfig.coefficient}x
@@ -420,13 +422,13 @@ export function NFTPage() {
                   <Box bg="whiteAlpha.50" borderRadius="lg" p="3">
                     <HStack gap={1} mb={1}>
                       <HiOutlineShieldCheck size={12} color="#22C55E" />
-                      <Text fontSize="xs" color="whiteAlpha.500">矿池倍数</Text>
+                      <Text fontSize="xs" color="whiteAlpha.500">{t('nft.pool_multiplier')}</Text>
                     </HStack>
                     <Text fontSize="lg" fontWeight="bold" color="white">
                       NFT {selectedConfig.nftExitMultiplier}x
                     </Text>
                     <Text fontSize="xs" color="whiteAlpha.500">
-                      销毁PIC {selectedConfig.burnExitMultiplier}x
+                      {t('nft.burn_pic')} {selectedConfig.burnExitMultiplier}x
                     </Text>
                   </Box>
                 </SimpleGrid>
@@ -440,13 +442,13 @@ export function NFTPage() {
                     mb="4"
                   >
                     <Text fontSize="xs" color="whiteAlpha.600" mb="1">
-                      预计获得 PID
+                      {t('nft.estimated_pid')}
                     </Text>
                     <Text fontSize="xl" fontWeight="bold" color="#292FE1">
                       {(upgradeCost / priceInfo.pidPrice).toFixed(2)} PID
                     </Text>
                     <Text fontSize="xs" color="whiteAlpha.500">
-                      当前 PID 价格: ${priceInfo.pidPrice.toFixed(4)}
+                      {t('nft.current_pid_price')}: ${priceInfo.pidPrice.toFixed(4)}
                     </Text>
                   </Box>
                 )}
@@ -461,13 +463,13 @@ export function NFTPage() {
                 >
                   <HStack gap={2} justify="center">
                     {isProcessing ? (
-                      <Text>处理中...</Text>
+                      <Text>{t('common.processing')}</Text>
                     ) : currentLevel ? (
-                      <Text>升级到 {selectedConfig.level}</Text>
+                      <Text>{t('nft.upgrade_to', { level: selectedConfig.level })}</Text>
                     ) : (
                       <>
                         <HiOutlineShoppingCart size={18} />
-                        <Text>购买 {selectedConfig.level}</Text>
+                        <Text>{t('nft.purchase_level', { level: selectedConfig.level })}</Text>
                       </>
                     )}
                   </HStack>
@@ -480,7 +482,7 @@ export function NFTPage() {
         {/* 等级列表 */}
         <Box>
           <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600" mb="3">
-            全部等级
+            {t('nft.all_levels')}
           </Text>
           <VStack gap={2}>
             {NFT_LEVEL_CONFIGS.map((config, index) => {
@@ -518,7 +520,7 @@ export function NFTPage() {
                           {config.name}
                         </Text>
                         <Text fontSize="xs" color="whiteAlpha.500">
-                          ${config.price.toLocaleString()} · 算力 {config.power}
+                          ${config.price.toLocaleString()} · {t('nft.power')} {config.power}
                         </Text>
                       </VStack>
                     </HStack>
@@ -532,7 +534,7 @@ export function NFTPage() {
                           borderRadius="full"
                         >
                           <Text fontSize="xs" color="white" fontWeight="bold">
-                            当前
+                            {t('nft.current')}
                           </Text>
                         </Box>
                       )}

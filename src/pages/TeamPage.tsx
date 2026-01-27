@@ -14,6 +14,7 @@ import {
   HiOutlineXCircle,
 } from 'react-icons/hi2'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   ActionButton,
   GradientBorderCard,
@@ -26,6 +27,7 @@ import { usePayFiStore } from '../stores/payfiStore'
 const MotionBox = motion.create(Box)
 
 export function TeamPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const {
     teamStats,
@@ -49,7 +51,7 @@ export function TeamPage() {
 
   return (
     <Box minH="100vh" bg="black">
-      <PageHeader title="我的" />
+      <PageHeader title={t('nav.team')} />
 
       <VStack gap="5" p="4" align="stretch">
         {/* 节点等级卡片 */}
@@ -62,7 +64,7 @@ export function TeamPage() {
             <Flex justify="space-between" align="flex-start" mb="4">
               <VStack align="start" gap={2}>
                 <Text fontSize="sm" color="whiteAlpha.600">
-                  🏛️ 节点等级
+                  🏛️ {t('team.node_level')}
                 </Text>
                 <NodeBadge
                   level={teamStats?.nodeLevel || 'P0'}
@@ -80,19 +82,19 @@ export function TeamPage() {
                 p="3"
               >
                 <Text fontSize="xs" color="whiteAlpha.600" mb="2">
-                  升级到 {nextNodeConfig.level} 还需:
+                  {t('team.upgrade_to', { level: nextNodeConfig.level })}
                 </Text>
                 <SimpleGrid columns={2} gap={3}>
                   <Box>
-                    <Text fontSize="xs" color="whiteAlpha.500">小区业绩</Text>
+                    <Text fontSize="xs" color="whiteAlpha.500">{t('team.small_area_perf')}</Text>
                     <Text fontSize="sm" color={smallAreaProgress >= 100 ? '#22C55E' : 'white'}>
-                      {(teamStats?.smallAreaPerf || 0) / 10000}万 / {nextNodeConfig.smallAreaReq}万
+                      {(teamStats?.smallAreaPerf || 0) / 10000}{t('team.ten_thousand')} / {nextNodeConfig.smallAreaReq}{t('team.ten_thousand')}
                     </Text>
                   </Box>
                   <Box>
-                    <Text fontSize="xs" color="whiteAlpha.500">总业绩</Text>
+                    <Text fontSize="xs" color="whiteAlpha.500">{t('team.total_perf')}</Text>
                     <Text fontSize="sm" color={totalPerfProgress >= 100 ? '#22C55E' : 'white'}>
-                      {(teamStats?.teamPerformance || 0) / 10000}万 / {nextNodeConfig.totalReq}万
+                      {(teamStats?.teamPerformance || 0) / 10000}{t('team.ten_thousand')} / {nextNodeConfig.totalReq}{t('team.ten_thousand')}
                     </Text>
                   </Box>
                 </SimpleGrid>
@@ -109,14 +111,14 @@ export function TeamPage() {
         >
           <HStack gap={2}>
             <HiOutlineUserPlus size={18} />
-            <Text>邀请好友</Text>
+            <Text>{t('home.invite_friends')}</Text>
           </HStack>
         </ActionButton>
 
         {/* 业绩统计 */}
         <Box>
           <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600" mb="3">
-            业绩统计
+            {t('team.performance_stats')}
           </Text>
           <SimpleGrid columns={2} gap="3">
             <MotionBox
@@ -129,7 +131,7 @@ export function TeamPage() {
             >
               <HStack gap={2} mb={2}>
                 <HiOutlineChartBar size={16} color="#D811F0" />
-                <Text fontSize="xs" color="whiteAlpha.600">团队总业绩</Text>
+                <Text fontSize="xs" color="whiteAlpha.600">{t('team.team_total_perf')}</Text>
               </HStack>
               <Text fontSize="xl" fontWeight="bold" color="white">
                 ${(teamStats?.teamPerformance || 0).toLocaleString()}
@@ -146,7 +148,7 @@ export function TeamPage() {
             >
               <HStack gap={2} mb={2}>
                 <HiOutlineArrowTrendingUp size={16} color="#22C55E" />
-                <Text fontSize="xs" color="whiteAlpha.600">竟升算力值</Text>
+                <Text fontSize="xs" color="whiteAlpha.600">{t('team.small_area_perf_value')}</Text>
               </HStack>
               <Text fontSize="xl" fontWeight="bold" color="white">
                 ${(teamStats?.smallAreaPerf || 0).toLocaleString()}
@@ -163,7 +165,7 @@ export function TeamPage() {
             >
               <HStack gap={2} mb={2}>
                 <HiOutlineTrophy size={16} color="#EAB308" />
-                <Text fontSize="xs" color="whiteAlpha.600">日新增算力值</Text>
+                <Text fontSize="xs" color="whiteAlpha.600">{t('team.daily_new_power')}</Text>
               </HStack>
               <Text fontSize="xl" fontWeight="bold" color="white">
                 ${(teamStats?.maxLinePerf || 0).toLocaleString()}
@@ -185,12 +187,12 @@ export function TeamPage() {
                 <Box>
                   <HStack gap={2} mb={2}>
                     <HiOutlineUserGroup size={16} color="#06B6D4" />
-                    <Text fontSize="xs" color="whiteAlpha.600">社区人数</Text>
+                    <Text fontSize="xs" color="whiteAlpha.600">{t('team.community_count')}</Text>
                   </HStack>
                   <Text fontSize="xl" fontWeight="bold" color="white">
                     {teamStats?.teamCount || 0}
                     <Text as="span" fontSize="sm" color="whiteAlpha.500" ml={1}>
-                      邀请 {teamStats?.directCount || 0}
+                      {t('team.invite')} {teamStats?.directCount || 0}
                     </Text>
                   </Text>
                 </Box>
@@ -206,7 +208,7 @@ export function TeamPage() {
         {nextNodeConfig && (
           <Box>
             <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600" mb="3">
-              {nextNodeConfig.level} 升级条件
+              {t('team.upgrade_requirements', { level: nextNodeConfig.level })}
             </Text>
             <MotionBox
               bg="#17171C"
@@ -225,11 +227,11 @@ export function TeamPage() {
                       <HiOutlineXCircle size={18} color="#71717A" />
                     )}
                     <Text fontSize="sm" color="white">
-                      竟升算力值 ≥ {nextNodeConfig.smallAreaReq}万
+                      {t('team.small_area_req', { req: nextNodeConfig.smallAreaReq })}
                     </Text>
                   </HStack>
                   <Text fontSize="sm" color={smallAreaProgress >= 100 ? '#22C55E' : 'whiteAlpha.500'}>
-                    {(teamStats?.smallAreaPerf || 0) / 10000}万
+                    {(teamStats?.smallAreaPerf || 0) / 10000}{t('team.ten_thousand')}
                   </Text>
                 </Flex>
 
@@ -241,11 +243,11 @@ export function TeamPage() {
                       <HiOutlineXCircle size={18} color="#71717A" />
                     )}
                     <Text fontSize="sm" color="white">
-                      总算力值 ≥ {nextNodeConfig.totalReq}万
+                      {t('team.total_req', { req: nextNodeConfig.totalReq })}
                     </Text>
                   </HStack>
                   <Text fontSize="sm" color={totalPerfProgress >= 100 ? '#22C55E' : 'whiteAlpha.500'}>
-                    {(teamStats?.teamPerformance || 0) / 10000}万
+                    {(teamStats?.teamPerformance || 0) / 10000}{t('team.ten_thousand')}
                   </Text>
                 </Flex>
 
@@ -254,11 +256,11 @@ export function TeamPage() {
                     <HStack gap={2}>
                       <HiOutlineXCircle size={18} color="#71717A" />
                       <Text fontSize="sm" color="white">
-                        团队内 ≥ 2 个 P8
+                        {t('team.p9_special_req')}
                       </Text>
                     </HStack>
                     <Text fontSize="sm" color="whiteAlpha.500">
-                      0 个
+                      0 {t('team.units')}
                     </Text>
                   </Flex>
                 )}
@@ -273,4 +275,3 @@ export function TeamPage() {
     </Box>
   )
 }
-

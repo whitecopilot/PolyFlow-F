@@ -12,6 +12,7 @@ import {
   HiOutlineShare,
   HiXMark,
 } from 'react-icons/hi2'
+import { useTranslation } from 'react-i18next'
 import { ActionButton, PolyFlowLogo } from '../components/common'
 import { SecondaryPageHeader } from '../components/layout'
 import { usePayFiStore } from '../stores/payfiStore'
@@ -19,6 +20,7 @@ import { usePayFiStore } from '../stores/payfiStore'
 const MotionBox = motion.create(Box)
 
 export function InvitePage() {
+  const { t } = useTranslation()
   const { inviteCode } = usePayFiStore()
   const [copied, setCopied] = useState<'code' | 'link' | null>(null)
   const [showPoster, setShowPoster] = useState(false)
@@ -85,13 +87,13 @@ export function InvitePage() {
     } catch (error) {
       console.error('生成海报失败:', error)
       // 降级：提示用户截图保存
-      alert('请长按海报截图保存')
+      alert(t('invite.screenshot_to_save'))
     }
-  }, [inviteCode])
+  }, [inviteCode, t])
 
   return (
     <Box minH="100vh" bg="black">
-      <SecondaryPageHeader title="邀请好友" />
+      <SecondaryPageHeader title={t('invite.title')} />
 
       <VStack gap="5" p="4" align="stretch">
         {/* 邀请奖励卡片 */}
@@ -112,7 +114,7 @@ export function InvitePage() {
               color="text.primary"
               letterSpacing="tight"
             >
-              Pay with Crypto Earn the Future
+              {t('invite.slogan')}
             </Text>
             <Flex
               w="48px"
@@ -140,7 +142,7 @@ export function InvitePage() {
         >
           <Flex justify="space-between" align="center" mb="3">
             <Text fontSize="sm" color="text.muted">
-              我的邀请码
+              {t('invite.my_invite_code')}
             </Text>
             <Flex
               align="center"
@@ -152,12 +154,12 @@ export function InvitePage() {
               {copied === 'code' ? (
                 <>
                   <HiOutlineCheckCircle size={14} />
-                  <Text fontSize="xs">已复制</Text>
+                  <Text fontSize="xs">{t('common.copied')}</Text>
                 </>
               ) : (
                 <>
                   <HiOutlineClipboardDocument size={14} />
-                  <Text fontSize="xs">复制</Text>
+                  <Text fontSize="xs">{t('common.copy')}</Text>
                 </>
               )}
             </Flex>
@@ -195,7 +197,7 @@ export function InvitePage() {
         >
           <Flex justify="space-between" align="center" mb="3">
             <Text fontSize="sm" color="text.muted">
-              邀请链接
+              {t('invite.invite_link')}
             </Text>
             <Flex
               align="center"
@@ -207,12 +209,12 @@ export function InvitePage() {
               {copied === 'link' ? (
                 <>
                   <HiOutlineCheckCircle size={14} />
-                  <Text fontSize="xs">已复制</Text>
+                  <Text fontSize="xs">{t('common.copied')}</Text>
                 </>
               ) : (
                 <>
                   <HiOutlineClipboardDocument size={14} />
-                  <Text fontSize="xs">复制</Text>
+                  <Text fontSize="xs">{t('common.copy')}</Text>
                 </>
               )}
             </Flex>
@@ -246,13 +248,13 @@ export function InvitePage() {
           <ActionButton flex="1" variant="primary" onClick={handleShare}>
             <Flex align="center" gap="2">
               <HiOutlineShare size={18} />
-              <Text>分享链接</Text>
+              <Text>{t('invite.share_link')}</Text>
             </Flex>
           </ActionButton>
           <ActionButton flex="1" variant="secondary" onClick={() => setShowPoster(true)}>
             <Flex align="center" gap="2">
               <HiOutlineQrCode size={18} />
-              <Text>生成海报</Text>
+              <Text>{t('invite.generate_poster')}</Text>
             </Flex>
           </ActionButton>
         </Flex>
@@ -266,13 +268,13 @@ export function InvitePage() {
           borderColor="border.default"
         >
           <Text fontSize="sm" fontWeight="600" color="text.secondary" mb="3">
-            邀请说明
+            {t('invite.invite_instructions')}
           </Text>
           <VStack gap="2" align="stretch">
-            <RuleItem text="1. 分享您的专属邀请链接给好友" />
-            <RuleItem text="2. 好友通过链接注册并连接钱包" />
-            <RuleItem text="3. 好友完成质押后，您即可获得奖励" />
-            <RuleItem text="4. 奖励永久有效，实时结算" />
+            <RuleItem text={t('invite.rule_1')} />
+            <RuleItem text={t('invite.rule_2')} />
+            <RuleItem text={t('invite.rule_3')} />
+            <RuleItem text={t('invite.rule_4')} />
           </VStack>
         </Box>
       </VStack>
@@ -364,7 +366,7 @@ export function InvitePage() {
                     textAlign="center"
                   >
                     <Text fontSize="lg" fontWeight="bold" color="white" mb="1">
-                      开启 PayFi 收益之旅
+                      {t('invite.poster_slogan')}
                     </Text>
                   </Box>
 
@@ -394,7 +396,7 @@ export function InvitePage() {
                   {/* 邀请码 */}
                   <VStack gap="1">
                     <Text fontSize="xs" color="whiteAlpha.500">
-                      邀请码
+                      {t('invite.invite_code')}
                     </Text>
                     <Text
                       fontSize="lg"
@@ -409,7 +411,7 @@ export function InvitePage() {
 
                   {/* 底部文案 */}
                   <Text fontSize="10px" color="whiteAlpha.400" textAlign="center">
-                    扫描二维码，加入 PolyFlow
+                    {t('invite.scan_to_join')}
                   </Text>
                 </VStack>
               </Box>
@@ -423,7 +425,7 @@ export function InvitePage() {
                 >
                   <Flex align="center" gap="2">
                     <HiXMark size={16} />
-                    <Text>关闭</Text>
+                    <Text>{t('common.close')}</Text>
                   </Flex>
                 </ActionButton>
                 <ActionButton
@@ -433,7 +435,7 @@ export function InvitePage() {
                 >
                   <Flex align="center" gap="2">
                     <HiArrowDownTray size={16} />
-                    <Text>保存海报</Text>
+                    <Text>{t('invite.save_poster')}</Text>
                   </Flex>
                 </ActionButton>
               </Flex>
