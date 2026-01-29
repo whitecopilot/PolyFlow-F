@@ -1,8 +1,32 @@
 // PayFi 经济系统状态管理
+// 此 Store 接入后端 API
 
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
+import {
+  payfiApi,
+  authApi,
+  nftApi,
+  withdrawApi,
+  burnApi,
+  userApi,
+  UserRelationType,
+  ApiError,
+} from '../api'
 import type {
+  PriceInfo as ApiPriceInfo,
+  NFTOrder,
+  WithdrawOrder as ApiWithdrawOrder,
+  BurnRecord as ApiBurnRecord,
+  UserRelation,
+  CreateWithdrawRequest,
+  CreateNFTOrderResponse,
+  UserNFTItem,
+  NFTHoldingStats,
+} from '../api/types'
+import type {
+  NFTLevel,
+  NodeLevel,
   PriceInfo,
   UserAssets,
   TeamStats,
@@ -13,73 +37,196 @@ import type {
   WithdrawRecord,
   TeamMember,
   SystemStats,
+} from '../types/payfi'
+
+// 重新导出类型供页面使用
+export type {
   NFTLevel,
-} from '../types/payfi';
-import {
-  getMockPriceInfo,
-  getMockUserAssets,
-  getMockTeamStats,
-  getMockEarningsStats,
-  getMockPIDReleasePlans,
-  getMockBurnRecords,
-  getMockRewardRecords,
-  getMockWithdrawRecords,
-  getMockTeamMembers,
-  getMockSystemStats,
-  simulateBurnPIC,
-  simulateWithdraw,
-} from '../mocks/payfiMockData';
-import { getNFTConfig, calculateUpgradeCost } from '../mocks/payfiConfig';
-
-interface PayFiState {
-  // 数据状态
-  priceInfo: PriceInfo | null;
-  userAssets: UserAssets | null;
-  teamStats: TeamStats | null;
-  earningsStats: EarningsStats | null;
-  pidReleasePlans: PIDReleasePlan[];
-  burnRecords: PICBurnRecord[];
-  rewardRecords: RewardRecord[];
-  withdrawRecords: WithdrawRecord[];
-  teamMembers: TeamMember[];
-  systemStats: SystemStats | null;
-
-  // 加载状态
-  isLoading: boolean;
-  error: string | null;
-
-  // 邀请信息
-  inviteCode: string;
-  inviteLink: string;
-
-  // Actions
-  fetchAllData: () => Promise<void>;
-  fetchPriceInfo: () => Promise<void>;
-  fetchUserAssets: () => Promise<void>;
-  fetchTeamStats: () => Promise<void>;
-  fetchEarningsStats: () => Promise<void>;
-  fetchPIDReleasePlans: () => Promise<void>;
-  fetchRewardRecords: () => Promise<void>;
-  fetchWithdrawRecords: () => Promise<void>;
-  fetchTeamMembers: () => Promise<void>;
-
-  // 业务操作
-  purchaseNFT: (level: NFTLevel) => Promise<boolean>;
-  upgradeNFT: (targetLevel: NFTLevel) => Promise<boolean>;
-  stakeNFT: () => Promise<boolean>;
-  unstakeNFT: () => Promise<boolean>;
-  burnPIC: (amount: number) => Promise<boolean>;
-  withdraw: (picAmount: number) => Promise<boolean>;
-  claimRewards: () => Promise<boolean>;
-
-  // 工具方法
-  setLoading: (loading: boolean) => void;
-  setError: (error: string | null) => void;
-  reset: () => void;
+  NodeLevel,
+  PriceInfo,
+  UserAssets,
+  TeamStats,
+  EarningsStats,
+  PIDReleasePlan,
+  PICBurnRecord,
+  RewardRecord,
+  WithdrawRecord,
+  TeamMember,
+  SystemStats,
 }
 
-// 模拟延迟
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+// Store 状态
+interface PayFiState {
+  // 数据状态
+  priceInfo: PriceInfo | null
+  userAssets: UserAssets | null
+  teamStats: TeamStats | null
+  earningsStats: EarningsStats | null
+  pidReleasePlans: PIDReleasePlan[]
+  burnRecords: PICBurnRecord[]
+  rewardRecords: RewardRecord[]
+  withdrawRecords: WithdrawRecord[]
+  teamMembers: TeamMember[]
+  systemStats: SystemStats | null
+  nftOrders: NFTOrder[]
+
+  // NFT 持有相关
+  nftHoldings: UserNFTItem[]
+  nftHoldingStats: NFTHoldingStats | null
+
+  // 加载状态
+  isLoading: boolean
+  error: string | null
+
+  // 邀请信息
+  inviteCode: string
+  inviteLink: string
+
+  // Actions - 数据获取
+  fetchHomeData: () => Promise<void>
+  fetchAllData: () => Promise<void>
+  fetchPriceInfo: () => Promise<void>
+  fetchUserAssets: () => Promise<void>
+  fetchTeamStats: () => Promise<void>
+  fetchEarningsStats: () => Promise<void>
+  fetchPIDReleasePlans: () => Promise<void>
+  fetchRewardRecords: () => Promise<void>
+  fetchWithdrawRecords: () => Promise<void>
+  fetchTeamMembers: () => Promise<void>
+  fetchInviteCode: () => Promise<void>
+  fetchNFTOrders: () => Promise<void>
+  fetchUserNFTList: (page?: number, pageSize?: number) => Promise<void>
+  fetchUserNFTStats: () => Promise<void>
+
+  // Actions - 业务操作
+  purchaseNFT: (level: NFTLevel) => Promise<CreateNFTOrderResponse | null>
+  upgradeNFT: (targetLevel: NFTLevel) => Promise<boolean>
+  stakeNFT: () => Promise<boolean>
+  unstakeNFT: () => Promise<boolean>
+  burnPIC: (amount: number) => Promise<boolean>
+  withdraw: (amount: number, tokenType?: 'PID' | 'PIC') => Promise<boolean>
+  createWithdrawOrder: (data: CreateWithdrawRequest) => Promise<boolean>
+  claimRewards: () => Promise<boolean>
+
+  // 工具方法
+  setLoading: (loading: boolean) => void
+  setError: (error: string | null) => void
+  reset: () => void
+}
+
+// ================================
+// 默认值和工具函数
+// ================================
+
+const getDefaultUserAssets = (): UserAssets => ({
+  currentNFTLevel: null,
+  nftCoefficient: 0,
+  nftStaked: false,
+  nftStakeTime: null,
+  powerFromNFT: 0,
+  powerFromBurn: 0,
+  totalPower: 0,
+  totalNFTInvest: 0,
+  totalPICBurnUsdt: 0,
+  totalInvest: 0,
+  exitFromNFT: 0,
+  exitFromBurn: 0,
+  totalExitLimit: 0,
+  earnedRewards: 0,
+  remainingLimit: 0,
+  pidTotalLocked: 0,
+  pidReleased: 0,
+  pidBalance: 0,
+  picBalance: 0,
+  picReleasedBalance: 0,
+})
+
+const getDefaultTeamStats = (): TeamStats => ({
+  nodeLevel: 'P0',
+  directPerformance: 0,
+  directCount: 0,
+  directOrderCount: 0,
+  teamCount: 0,
+  teamOrderCount: 0,
+  teamPerformance: 0,
+  stakingPerformance: 0,
+  smallAreaPerf: 0,
+  maxLinePerf: 0,
+})
+
+// 转换 API PriceInfo
+const convertPriceInfo = (apiPrice: ApiPriceInfo): PriceInfo => ({
+  pidPrice: apiPrice.pidPrice,
+  picPrice: apiPrice.picPrice,
+  pidChange: apiPrice.pidChange || 0,
+  picChange: apiPrice.picChange || 0,
+  lastUpdated: new Date(),
+})
+
+// 转换 API UserRelation 到 TeamMember
+const convertToTeamMember = (relation: UserRelation, index: number, isDirectReferral: boolean): TeamMember => ({
+  id: index + 1,
+  address: relation.address,
+  nftLevel: null, // 第一阶段都是 null
+  nodeLevel: 'P0', // 第一阶段都是 P0
+  performance: 0, // 第一阶段都是 0
+  isDirectReferral,
+  joinedAt: new Date(relation.createdAt),
+})
+
+// 转换 API WithdrawOrder 到 WithdrawRecord
+const convertToWithdrawRecord = (order: ApiWithdrawOrder): WithdrawRecord => ({
+  id: order.id,
+  totalAmount: parseFloat(order.amount),
+  feeAmount: 0,
+  instantAmount: parseFloat(order.amount),
+  linearAmount: 0,
+  linearReleased: 0,
+  status: order.state === 'claimed' ? 'completed' : 'processing',
+  createdAt: new Date(order.createdAt),
+})
+
+// 转换 API BurnRecord 到 PICBurnRecord
+const convertToBurnRecord = (record: ApiBurnRecord): PICBurnRecord => ({
+  id: record.id,
+  picAmount: record.picAmount,
+  picPrice: record.picPrice,
+  usdtValue: record.usdtValue,
+  nftLevelAtBurn: record.nftLevelAtBurn as NFTLevel,
+  exitMultiplier: record.exitMultiplier,
+  powerAdded: record.powerAdded,
+  exitAdded: record.exitAdded,
+  createdAt: new Date(record.createdAt),
+})
+
+// ================================
+// 请求防抖机制
+// ================================
+
+// 存储正在进行的请求 Promise，避免重复请求
+const pendingRequests = new Map<string, Promise<void>>()
+
+// 防抖请求包装函数
+async function dedupeRequest(key: string, requestFn: () => Promise<void>): Promise<void> {
+  // 如果已有相同请求在进行，返回现有的 Promise
+  const existing = pendingRequests.get(key)
+  if (existing) {
+    return existing
+  }
+
+  // 创建新请求
+  const promise = requestFn().finally(() => {
+    // 请求完成后从 Map 中移除
+    pendingRequests.delete(key)
+  })
+
+  pendingRequests.set(key, promise)
+  return promise
+}
+
+// ================================
+// Store 实现
+// ================================
 
 export const usePayFiStore = create<PayFiState>()(
   persist(
@@ -95,438 +242,408 @@ export const usePayFiStore = create<PayFiState>()(
       withdrawRecords: [],
       teamMembers: [],
       systemStats: null,
+      nftOrders: [],
+      nftHoldings: [],
+      nftHoldingStats: null,
       isLoading: false,
       error: null,
-      inviteCode: 'PF2024XY',
-      inviteLink: '', // 在组件中基于当前域名动态生成
+      inviteCode: '',
+      inviteLink: '',
 
-      // 获取所有数据（保留已存在的 userAssets，避免覆盖用户操作后的状态）
+      // ================================
+      // 数据获取
+      // ================================
+
+      // 首页数据加载：只加载首页需要的数据
+      fetchHomeData: async () => {
+        return dedupeRequest('homeData', async () => {
+          set({ isLoading: true, error: null })
+          try {
+            const store = get()
+            await Promise.all([
+              store.fetchPriceInfo(),
+              store.fetchUserAssets(),
+              store.fetchEarningsStats(),
+            ])
+            set({ isLoading: false })
+          } catch (error) {
+            console.error('获取首页数据失败:', error)
+            set({ error: '获取数据失败', isLoading: false })
+          }
+        })
+      },
+
+      // 保留 fetchAllData 用于需要全部数据的场景，但一般不推荐使用
       fetchAllData: async () => {
-        set({ isLoading: true, error: null });
+        set({ isLoading: true, error: null })
         try {
-          await delay(500); // 模拟网络延迟
-
-          const { userAssets: existingAssets } = get();
-
-          set({
-            priceInfo: getMockPriceInfo(),
-            userAssets: existingAssets || getMockUserAssets(),
-            teamStats: getMockTeamStats(),
-            earningsStats: getMockEarningsStats(),
-            pidReleasePlans: getMockPIDReleasePlans(),
-            burnRecords: getMockBurnRecords(),
-            rewardRecords: getMockRewardRecords(),
-            withdrawRecords: getMockWithdrawRecords(),
-            teamMembers: getMockTeamMembers(),
-            systemStats: getMockSystemStats(),
-            isLoading: false,
-          });
+          const store = get()
+          await Promise.all([
+            store.fetchPriceInfo(),
+            store.fetchUserAssets(),
+            store.fetchTeamStats(),
+            store.fetchEarningsStats(),
+            store.fetchInviteCode(),
+          ])
+          set({ isLoading: false })
         } catch (error) {
-          set({ error: '获取数据失败', isLoading: false });
+          console.error('获取数据失败:', error)
+          set({ error: '获取数据失败', isLoading: false })
         }
       },
 
-      // 获取价格信息
       fetchPriceInfo: async () => {
-        try {
-          await delay(200);
-          set({ priceInfo: getMockPriceInfo() });
-        } catch (error) {
-          console.error('获取价格失败', error);
-        }
+        return dedupeRequest('priceInfo', async () => {
+          try {
+            const apiPrice = await payfiApi.getPriceInfo()
+            const priceInfo = convertPriceInfo(apiPrice)
+            set({ priceInfo })
+          } catch (error) {
+            console.error('获取价格失败:', error)
+          }
+        })
       },
 
-      // 获取用户资产（如果已有数据则不覆盖，避免覆盖用户操作后的状态）
       fetchUserAssets: async () => {
-        try {
-          const { userAssets: existingAssets } = get();
-          // 如果已有数据，不重新获取（mock 模式下保持用户操作后的状态）
-          if (existingAssets) return;
-
-          await delay(300);
-          set({ userAssets: getMockUserAssets() });
-        } catch (error) {
-          console.error('获取资产失败', error);
-        }
+        return dedupeRequest('userAssets', async () => {
+          try {
+            const apiAssets = await payfiApi.getUserAssets()
+            // 解析 NFT 等级（API 返回字符串如 "N1", "N2" 等）
+            const nftLevel = apiAssets.currentNftLevel as NFTLevel || null
+            // 从 API 响应构建用户资产，使用默认值填充缺失字段
+            const userAssets: UserAssets = {
+              ...getDefaultUserAssets(),
+              currentNFTLevel: nftLevel,
+              pidBalance: apiAssets.release?.availableToRelease || 0,
+              pidTotalLocked: apiAssets.release?.totalLocked || 0,
+              pidReleased: apiAssets.release?.totalReleased || 0,
+              picBalance: apiAssets.picBalance || 0,
+              picReleasedBalance: apiAssets.picReleasedBalance || 0,
+            }
+            // 同时从 assets API 提取价格信息，避免额外的价格请求
+            const updates: Partial<PayFiState> = { userAssets }
+            if (apiAssets.prices) {
+              updates.priceInfo = convertPriceInfo(apiAssets.prices)
+            }
+            set(updates)
+          } catch (error) {
+            console.error('获取用户资产失败:', error)
+            if (error instanceof ApiError && error.isUnauthorized) {
+              set({ error: '请先登录' })
+            }
+          }
+        })
       },
 
-      // 获取团队统计
       fetchTeamStats: async () => {
-        try {
-          await delay(300);
-          set({ teamStats: getMockTeamStats() });
-        } catch (error) {
-          console.error('获取团队统计失败', error);
-        }
+        return dedupeRequest('teamStats', async () => {
+          try {
+            const apiStats = await payfiApi.getTeamStats()
+            const teamStats: TeamStats = {
+              ...getDefaultTeamStats(),
+              directPerformance: parseFloat(apiStats.directPerformance) || 0,
+              directCount: apiStats.directCount || 0,
+              directOrderCount: apiStats.directOrderCount || 0,
+              teamCount: apiStats.teamCount || 0,
+              teamOrderCount: apiStats.teamOrderCount || 0,
+              teamPerformance: parseFloat(apiStats.teamPerformance) || 0,
+              stakingPerformance: parseFloat(apiStats.stakingPerformance) || 0,
+              maxLinePerf: parseFloat(apiStats.maxLinePerf) || 0,
+              smallAreaPerf: parseFloat(apiStats.smallAreaPerf) || 0,
+              nodeLevel: (apiStats.nodeLevel as TeamStats['nodeLevel']) || 'P0',
+            }
+            set({ teamStats })
+          } catch (error) {
+            console.error('获取团队统计失败:', error)
+          }
+        })
       },
 
-      // 获取收益统计
       fetchEarningsStats: async () => {
-        try {
-          await delay(300);
-          set({ earningsStats: getMockEarningsStats() });
-        } catch (error) {
-          console.error('获取收益统计失败', error);
-        }
+        return dedupeRequest('earningsStats', async () => {
+          try {
+            const summary = await payfiApi.getRewardSummary()
+            const earningsStats: EarningsStats = {
+              totalStaticEarned: summary.totalStaticProfit,
+              totalReferralEarned: summary.totalInviteProfit,
+              totalNodeEarned: 0, // 第一阶段无节点奖励
+              totalSameLevelEarned: 0,
+              totalGlobalEarned: 0,
+              todayEarnings: summary.todayProfit,
+              withdrawableAmount: summary.totalProfit,
+            }
+            set({ earningsStats })
+          } catch (error) {
+            console.error('获取收益统计失败:', error)
+          }
+        })
       },
 
-      // 获取 PID 释放计划
       fetchPIDReleasePlans: async () => {
-        try {
-          await delay(200);
-          set({ pidReleasePlans: getMockPIDReleasePlans() });
-        } catch (error) {
-          console.error('获取释放计划失败', error);
-        }
+        return dedupeRequest('pidReleasePlans', async () => {
+          try {
+            const releaseSummary = await payfiApi.getReleaseSummary()
+            const totalLocked = releaseSummary.totalLocked || 0
+            const totalReleased = releaseSummary.totalReleased || 0
+
+            // 如果没有锁仓，返回空数组
+            if (totalLocked <= 0) {
+              set({ pidReleasePlans: [] })
+              return
+            }
+
+            // 生成释放计划（25 个月线性释放）
+            const monthsTotal = 25
+            const dailyAmount = totalLocked / (monthsTotal * 30)
+            const monthlyAmount = totalLocked / monthsTotal
+            const monthsCompleted = Math.min(
+              Math.floor(totalReleased / monthlyAmount),
+              monthsTotal
+            )
+
+            const startDate = new Date()
+            startDate.setMonth(startDate.getMonth() - monthsCompleted)
+
+            const endDate = new Date(startDate)
+            endDate.setMonth(endDate.getMonth() + monthsTotal)
+
+            const plan: PIDReleasePlan = {
+              id: 1,
+              totalAmount: totalLocked,
+              releasedAmount: totalReleased,
+              startDate,
+              endDate,
+              dailyAmount,
+              status: totalReleased >= totalLocked ? 'completed' : 'active',
+              monthsTotal,
+              monthsCompleted,
+            }
+
+            set({ pidReleasePlans: [plan] })
+          } catch (error) {
+            console.error('获取释放计划失败:', error)
+          }
+        })
       },
 
-      // 获取奖励记录
       fetchRewardRecords: async () => {
-        try {
-          await delay(300);
-          set({ rewardRecords: getMockRewardRecords() });
-        } catch (error) {
-          console.error('获取奖励记录失败', error);
-        }
+        // 第一阶段暂无奖励记录 API，使用空数组
+        set({ rewardRecords: [] })
       },
 
-      // 获取提现记录
       fetchWithdrawRecords: async () => {
         try {
-          await delay(200);
-          set({ withdrawRecords: getMockWithdrawRecords() });
+          const result = await withdrawApi.getWithdrawOrders(undefined, 1, 50)
+          const records = (result.items || []).map(convertToWithdrawRecord)
+          set({ withdrawRecords: records })
         } catch (error) {
-          console.error('获取提现记录失败', error);
+          console.error('获取提现记录失败:', error)
         }
       },
 
-      // 获取团队成员
       fetchTeamMembers: async () => {
         try {
-          await delay(400);
-          set({ teamMembers: getMockTeamMembers() });
+          // 先获取直推，再获取间推
+          const [directResult, indirectResult] = await Promise.all([
+            userApi.getUserRelations(UserRelationType.Direct, 1, 50),
+            userApi.getUserRelations(UserRelationType.Indirect, 1, 50),
+          ])
+
+          const directMembers = (directResult.items || []).map((r, i) =>
+            convertToTeamMember(r, i, true)
+          )
+          const indirectMembers = (indirectResult.items || []).map((r, i) =>
+            convertToTeamMember(r, directMembers.length + i, false)
+          )
+
+          set({ teamMembers: [...directMembers, ...indirectMembers] })
         } catch (error) {
-          console.error('获取团队成员失败', error);
+          console.error('获取团队成员失败:', error)
         }
       },
 
-      // 购买 NFT
+      fetchInviteCode: async () => {
+        return dedupeRequest('inviteCode', async () => {
+          try {
+            const result = await authApi.createInviteCode()
+            const code = result.code
+            const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+            set({ inviteCode: code, inviteLink: `${baseUrl}/?ref=${code}` })
+          } catch (error) {
+            console.error('获取邀请码失败:', error)
+          }
+        })
+      },
+
+      fetchNFTOrders: async () => {
+        try {
+          const result = await nftApi.getNFTOrders(1, 50)
+          set({ nftOrders: result.items || [] })
+        } catch (error) {
+          console.error('获取NFT订单失败:', error)
+        }
+      },
+
+      fetchUserNFTList: async (page = 1, pageSize = 50) => {
+        try {
+          const result = await nftApi.getUserNFTList(page, pageSize)
+          set({ nftHoldings: result.items || [] })
+        } catch (error) {
+          console.error('获取用户NFT列表失败:', error)
+        }
+      },
+
+      fetchUserNFTStats: async () => {
+        try {
+          const stats = await nftApi.getUserNFTStats()
+          set({ nftHoldingStats: stats })
+        } catch (error) {
+          console.error('获取用户NFT统计失败:', error)
+        }
+      },
+
+      // ================================
+      // 业务操作
+      // ================================
+
       purchaseNFT: async (level: NFTLevel) => {
-        set({ isLoading: true });
+        if (!level) return null
+        set({ isLoading: true, error: null })
         try {
-          await delay(1000);
-
-          const config = getNFTConfig(level);
-          if (!config) {
-            set({ error: '无效的NFT等级', isLoading: false });
-            return false;
-          }
-
-          const { priceInfo, userAssets } = get();
-          if (!priceInfo || !userAssets) {
-            set({ error: '数据未加载', isLoading: false });
-            return false;
-          }
-
-          // 计算获得的 PID
-          const pidAmount = config.price / priceInfo.pidPrice;
-
-          // 更新用户资产（模拟）- 购买后默认未质押
-          set({
-            userAssets: {
-              ...userAssets,
-              currentNFTLevel: level,
-              nftCoefficient: config.coefficient,
-              powerFromNFT: config.power,
-              totalPower: config.power + userAssets.powerFromBurn,
-              totalNFTInvest: config.price,
-              totalInvest: config.price + userAssets.totalPICBurnUsdt,
-              exitFromNFT: config.price * config.nftExitMultiplier,
-              totalExitLimit: config.price * config.nftExitMultiplier + userAssets.exitFromBurn,
-              remainingLimit: config.price * config.nftExitMultiplier + userAssets.exitFromBurn - userAssets.earnedRewards,
-              pidTotalLocked: userAssets.pidTotalLocked + pidAmount,
-              // 新购买的 NFT 默认未质押，需要用户主动质押
-              nftStaked: false,
-              nftStakeTime: null,
-            },
-            isLoading: false,
-          });
-
-          return true;
+          const result = await nftApi.createNFTOrder({
+            nftLevel: level,
+            isUpgrade: false,
+          })
+          set({ isLoading: false })
+          return result
         } catch (error) {
-          set({ error: '购买失败', isLoading: false });
-          return false;
+          console.error('创建NFT订单失败:', error)
+          set({
+            error: error instanceof ApiError ? error.message : '创建订单失败',
+            isLoading: false,
+          })
+          return null
         }
       },
 
-      // 升级 NFT
       upgradeNFT: async (targetLevel: NFTLevel) => {
-        set({ isLoading: true });
+        if (!targetLevel) return false
+        set({ isLoading: true, error: null })
         try {
-          await delay(1000);
-
-          const { userAssets, priceInfo } = get();
-          if (!userAssets || !priceInfo) {
-            set({ error: '数据未加载', isLoading: false });
-            return false;
-          }
-
-          if (!targetLevel) {
-            set({ error: '请选择目标等级', isLoading: false });
-            return false;
-          }
-
-          const targetConfig = getNFTConfig(targetLevel);
-          if (!targetConfig) {
-            set({ error: '无效的目标等级', isLoading: false });
-            return false;
-          }
-
-          const upgradeCost = calculateUpgradeCost(userAssets.currentNFTLevel, targetLevel);
-          if (upgradeCost <= 0) {
-            set({ error: '只能升级到更高等级', isLoading: false });
-            return false;
-          }
-
-          // 计算新增 PID
-          const newPidAmount = upgradeCost / priceInfo.pidPrice;
-          const newTotalInvest = userAssets.totalNFTInvest + upgradeCost;
-
-          // 更新用户资产 - 升级后新 NFT 需要重新质押
-          set({
-            userAssets: {
-              ...userAssets,
-              currentNFTLevel: targetLevel,
-              nftCoefficient: targetConfig.coefficient,
-              powerFromNFT: targetConfig.power,
-              totalPower: targetConfig.power + userAssets.powerFromBurn,
-              totalNFTInvest: newTotalInvest,
-              totalInvest: newTotalInvest + userAssets.totalPICBurnUsdt,
-              exitFromNFT: newTotalInvest * targetConfig.nftExitMultiplier,
-              totalExitLimit: newTotalInvest * targetConfig.nftExitMultiplier + userAssets.exitFromBurn,
-              remainingLimit: newTotalInvest * targetConfig.nftExitMultiplier + userAssets.exitFromBurn - userAssets.earnedRewards,
-              pidTotalLocked: userAssets.pidTotalLocked + newPidAmount,
-              // 升级后新 NFT 默认未质押，需要用户主动质押
-              nftStaked: false,
-              nftStakeTime: null,
-            },
-            isLoading: false,
-          });
-
-          return true;
+          await nftApi.createNFTOrder({
+            nftLevel: targetLevel,
+            isUpgrade: true,
+          })
+          set({ isLoading: false })
+          return true
         } catch (error) {
-          set({ error: '升级失败', isLoading: false });
-          return false;
+          console.error('升级NFT失败:', error)
+          set({
+            error: error instanceof ApiError ? error.message : '升级失败',
+            isLoading: false,
+          })
+          return false
         }
       },
 
-      // 质押 NFT
+      // 第一阶段禁用质押功能
       stakeNFT: async () => {
-        set({ isLoading: true });
-        try {
-          await delay(1500); // 模拟链上交易时间
-
-          const { userAssets } = get();
-          if (!userAssets) {
-            set({ error: '数据未加载', isLoading: false });
-            return false;
-          }
-
-          if (!userAssets.currentNFTLevel) {
-            set({ error: '您还没有 NFT，请先购买', isLoading: false });
-            return false;
-          }
-
-          if (userAssets.nftStaked) {
-            set({ error: 'NFT 已处于质押状态', isLoading: false });
-            return false;
-          }
-
-          // 更新质押状态
-          set({
-            userAssets: {
-              ...userAssets,
-              nftStaked: true,
-              nftStakeTime: new Date(),
-            },
-            isLoading: false,
-          });
-
-          return true;
-        } catch (error) {
-          set({ error: '质押失败', isLoading: false });
-          return false;
-        }
+        set({ error: '第一阶段暂未开放质押功能' })
+        return false
       },
 
-      // 解除质押 NFT
       unstakeNFT: async () => {
-        set({ isLoading: true });
-        try {
-          await delay(1500); // 模拟链上交易时间
-
-          const { userAssets } = get();
-          if (!userAssets) {
-            set({ error: '数据未加载', isLoading: false });
-            return false;
-          }
-
-          if (!userAssets.nftStaked) {
-            set({ error: 'NFT 未质押', isLoading: false });
-            return false;
-          }
-
-          // 更新质押状态
-          set({
-            userAssets: {
-              ...userAssets,
-              nftStaked: false,
-              nftStakeTime: null,
-            },
-            isLoading: false,
-          });
-
-          return true;
-        } catch (error) {
-          set({ error: '解除质押失败', isLoading: false });
-          return false;
-        }
+        set({ error: '第一阶段暂未开放质押功能' })
+        return false
       },
 
-      // 销毁 PIC
       burnPIC: async (amount: number) => {
-        set({ isLoading: true });
+        set({ isLoading: true, error: null })
         try {
-          await delay(800);
-
-          const { userAssets, priceInfo, burnRecords } = get();
-          if (!userAssets || !priceInfo) {
-            set({ error: '数据未加载', isLoading: false });
-            return false;
-          }
-
-          if (amount > userAssets.picBalance) {
-            set({ error: 'PIC余额不足', isLoading: false });
-            return false;
-          }
-
-          const result = simulateBurnPIC(amount, userAssets.currentNFTLevel, priceInfo.picPrice);
-          if (!result) {
-            set({ error: '销毁金额必须是100U的整数倍', isLoading: false });
-            return false;
-          }
-
-          // 创建销毁记录
-          const newRecord: PICBurnRecord = {
-            id: burnRecords.length + 1,
-            picAmount: amount,
-            picPrice: priceInfo.picPrice,
-            usdtValue: result.usdtValue,
-            nftLevelAtBurn: userAssets.currentNFTLevel,
-            exitMultiplier: result.exitAdded / result.usdtValue,
-            powerAdded: result.powerAdded,
-            exitAdded: result.exitAdded,
-            createdAt: new Date(),
-          };
-
-          // 更新用户资产
-          set({
-            userAssets: {
-              ...userAssets,
-              picBalance: userAssets.picBalance - amount,
-              totalPICBurnUsdt: userAssets.totalPICBurnUsdt + result.usdtValue,
-              totalInvest: userAssets.totalInvest + result.usdtValue,
-              powerFromBurn: userAssets.powerFromBurn + result.powerAdded,
-              totalPower: userAssets.totalPower + result.powerAdded,
-              exitFromBurn: userAssets.exitFromBurn + result.exitAdded,
-              totalExitLimit: userAssets.totalExitLimit + result.exitAdded,
-              remainingLimit: userAssets.remainingLimit + result.exitAdded,
-            },
-            burnRecords: [newRecord, ...burnRecords],
+          const response = await burnApi.burnPIC({ amount })
+          // 转换并添加到记录
+          const record = convertToBurnRecord({
+            id: response.id,
+            picAmount: response.picAmount,
+            picPrice: 0, // API 响应中没有这个字段
+            usdtValue: response.usdtValue,
+            nftLevelAtBurn: 'N1', // 默认值
+            exitMultiplier: 0,
+            powerAdded: response.powerAdded,
+            exitAdded: response.exitAdded,
+            createdAt: response.createdAt,
+          })
+          set((state) => ({
+            burnRecords: [record, ...state.burnRecords],
             isLoading: false,
-          });
-
-          return true;
+          }))
+          await get().fetchUserAssets()
+          return true
         } catch (error) {
-          set({ error: '销毁失败', isLoading: false });
-          return false;
+          console.error('销毁PIC失败:', error)
+          set({
+            error: error instanceof ApiError ? error.message : '销毁失败',
+            isLoading: false,
+          })
+          return false
         }
       },
 
-      // 提现
-      withdraw: async (picAmount: number) => {
-        set({ isLoading: true });
+      withdraw: async (amount: number, tokenType: 'PID' | 'PIC' = 'PID') => {
+        set({ isLoading: true, error: null })
         try {
-          await delay(1000);
-
-          const { userAssets, priceInfo, withdrawRecords } = get();
-          if (!userAssets || !priceInfo) {
-            set({ error: '数据未加载', isLoading: false });
-            return false;
-          }
-
-          if (picAmount > userAssets.picBalance) {
-            set({ error: 'PIC余额不足', isLoading: false });
-            return false;
-          }
-
-          const result = simulateWithdraw(picAmount, priceInfo.picPrice);
-
-          // 创建提现记录
-          const newRecord: WithdrawRecord = {
-            id: withdrawRecords.length + 1,
-            totalAmount: picAmount,
-            feeAmount: result.fee / priceInfo.picPrice,
-            instantAmount: result.instantAmount,
-            linearAmount: result.linearAmount,
-            linearReleased: 0,
-            status: 'processing',
-            createdAt: new Date(),
-          };
-
-          // 更新用户资产
-          set({
-            userAssets: {
-              ...userAssets,
-              picBalance: userAssets.picBalance - picAmount,
-            },
-            withdrawRecords: [newRecord, ...withdrawRecords],
-            isLoading: false,
-          });
-
-          return true;
+          await withdrawApi.createWithdrawOrder({
+            amount,
+            type: tokenType,
+          })
+          await Promise.all([
+            get().fetchWithdrawRecords(),
+            get().fetchUserAssets(),
+          ])
+          set({ isLoading: false })
+          return true
         } catch (error) {
-          set({ error: '提现失败', isLoading: false });
-          return false;
+          console.error('提现失败:', error)
+          set({
+            error: error instanceof ApiError ? error.message : '提现失败',
+            isLoading: false,
+          })
+          return false
         }
       },
 
-      // 领取奖励
+      createWithdrawOrder: async (data: CreateWithdrawRequest) => {
+        set({ isLoading: true, error: null })
+        try {
+          await withdrawApi.createWithdrawOrder(data)
+          await Promise.all([
+            get().fetchWithdrawRecords(),
+            get().fetchUserAssets(),
+          ])
+          set({ isLoading: false })
+          return true
+        } catch (error) {
+          console.error('创建提现订单失败:', error)
+          set({
+            error: error instanceof ApiError ? error.message : '创建提现订单失败',
+            isLoading: false,
+          })
+          return false
+        }
+      },
+
       claimRewards: async () => {
-        set({ isLoading: true });
-        try {
-          await delay(500);
-          // Mock: 领取成功后更新可提现金额
-          const { earningsStats } = get();
-          if (earningsStats) {
-            set({
-              earningsStats: {
-                ...earningsStats,
-                withdrawableAmount: 0,
-              },
-              isLoading: false,
-            });
-          }
-          return true;
-        } catch (error) {
-          set({ error: '领取失败', isLoading: false });
-          return false;
-        }
+        // 第一阶段暂无领取功能
+        return true
       },
 
+      // ================================
       // 工具方法
+      // ================================
+
       setLoading: (loading) => set({ isLoading: loading }),
       setError: (error) => set({ error }),
+
       reset: () => set({
         priceInfo: null,
         userAssets: null,
@@ -538,8 +655,13 @@ export const usePayFiStore = create<PayFiState>()(
         withdrawRecords: [],
         teamMembers: [],
         systemStats: null,
+        nftOrders: [],
+        nftHoldings: [],
+        nftHoldingStats: null,
         isLoading: false,
         error: null,
+        inviteCode: '',
+        inviteLink: '',
       }),
     }),
     {
@@ -550,4 +672,4 @@ export const usePayFiStore = create<PayFiState>()(
       }),
     }
   )
-);
+)

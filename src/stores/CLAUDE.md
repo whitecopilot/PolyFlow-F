@@ -15,5 +15,6 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #21766 | 8:24 PM | 🔄 | 为 fetchUserAssets 添加请求去重机制 | ~124 |
 | #21687 | 6:19 PM | 🔵 | 读取 payfiStore.ts 以了解状态管理和错误消息的国际化需求 | ~206 |
 </claude-mem-context>

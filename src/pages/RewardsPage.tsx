@@ -3,6 +3,7 @@
 import { Box, Flex, HStack, Input, SimpleGrid, Text, VStack } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   HiOutlineBanknotes,
   HiOutlineBolt,
@@ -13,13 +14,12 @@ import {
   HiOutlineUserGroup,
 } from 'react-icons/hi2'
 import { useNavigate } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
 import {
   ActionButton,
   GradientBorderCard,
   PageHeader
 } from '../components/common'
-import { PAYFI_CONFIG, getRewardTypeName } from '../mocks/payfiConfig'
+import { getRewardTypeName } from '../mocks/payfiConfig'
 import { usePayFiStore } from '../stores/payfiStore'
 import type { RewardType } from '../types/payfi'
 
@@ -34,14 +34,6 @@ const REWARD_ICONS: Record<RewardType, React.ReactNode> = {
   global: <HiOutlineGlobeAlt size={18} color="#06B6D4" />,
 }
 
-const REWARD_COLORS: Record<RewardType, string> = {
-  static: '#292FE1',
-  referral: '#D811F0',
-  node: '#22C55E',
-  same_level: '#EAB308',
-  global: '#06B6D4',
-}
-
 export function RewardsPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -51,73 +43,53 @@ export function RewardsPage() {
     earningsStats,
     withdraw,
     fetchEarningsStats,
+    fetchUserAssets,
+    fetchPriceInfo,
   } = usePayFiStore()
 
   const [withdrawAmount, setWithdrawAmount] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
   const [showWithdrawModal, setShowWithdrawModal] = useState(false)
 
-  // 新增：Token 类型和来源选择
-  const [tokenType, setTokenType] = useState<'PIC' | 'PID'>('PIC')
-  const [withdrawSource, setWithdrawSource] = useState<'balance' | 'released'>('balance')
+  // Phase 1: 只支持 PID 提现，不支持 PIC
 
   useEffect(() => {
+    // 只获取收益页面需要的数据
     fetchEarningsStats()
-  }, [fetchEarningsStats])
+    fetchUserAssets()
+    fetchPriceInfo()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // 计算提现预估 - 根据不同类型和来源
   const withdrawTokenAmount = parseFloat(withdrawAmount) || 0
 
-  // 获取可用余额
+  // Phase 1: 只支持 PID 提现
   const getAvailableBalance = () => {
     if (!userAssets) return 0
-    if (tokenType === 'PIC') {
-      if (withdrawSource === 'balance') {
-        return userAssets.picBalance || 0
-      } else {
-        // 释放余额从提现记录的线性释放部分计算
-        return 0 // 简化处理，实际应从 withdrawRecords 计算
-      }
-    } else {
-      return userAssets.pidBalance || 0
-    }
+    // Phase 1: 只返回 PID 可用余额
+    return userAssets.pidBalance || 0
   }
 
   const availableBalance = getAvailableBalance()
 
-  // 计算价值和费用
-  const withdrawUsdtValue = withdrawTokenAmount * (tokenType === 'PIC' ? (priceInfo?.picPrice || 0) : (priceInfo?.pidPrice || 0))
+  // Phase 1: PID 提现，使用 PID 价格
+  const withdrawUsdtValue = withdrawTokenAmount * (priceInfo?.pidPrice || 0)
 
-  // 计算手续费和到账金额
-  let hasFee = false
-  let instantAmount = 0
-  let linearAmount = 0
+  // Phase 1: PID 提现无手续费，100% 到账
+  const hasFee = false
+  const instantAmount = withdrawUsdtValue
+  const linearAmount = 0
 
-  if (tokenType === 'PIC' && withdrawSource === 'balance') {
-    // PIC 余额提现：有手续费，80% 立即 + 20% 线性
-    hasFee = true
-    const feeRate = 0.03
-    const fee = withdrawUsdtValue * feeRate
-    const netAmount = withdrawUsdtValue - fee
-    instantAmount = netAmount * 0.80
-    linearAmount = netAmount * 0.20
-  } else {
-    // PID 提现或 PIC 释放提现：无手续费，100% 到账
-    hasFee = false
-    instantAmount = withdrawUsdtValue
-    linearAmount = 0
-  }
-
-  // 处理提现
+  // 处理提现 - Phase 1 只支持 PID
   const handleWithdraw = async () => {
     if (!withdrawAmount || isProcessing) return
 
     setIsProcessing(true)
     try {
       const amount = parseFloat(withdrawAmount)
-      // 注意：这里需要调用后端 API，传递 tokenType 和 source 参数
-      // 暂时使用现有的 withdraw 方法，只支持 PIC
-      const success = await withdraw(amount)
+      // Phase 1: 只支持 PID 提现
+      const success = await withdraw(amount, 'PID')
       if (success) {
         setWithdrawAmount('')
         setShowWithdrawModal(false)
@@ -127,22 +99,26 @@ export function RewardsPage() {
     }
   }
 
-  // 重置选择
+  // 打开提现弹窗
   const handleOpenModal = () => {
     setWithdrawAmount('')
-    setTokenType('PIC')
-    setWithdrawSource('balance')
     setShowWithdrawModal(true)
   }
 
-  // 总收益
+  // 总收益（添加 || 0 防止 NaN）
   const totalEarnings = earningsStats
-    ? earningsStats.totalStaticEarned +
-      earningsStats.totalReferralEarned +
-      earningsStats.totalNodeEarned +
-      earningsStats.totalSameLevelEarned +
-      earningsStats.totalGlobalEarned
+    ? (earningsStats.totalStaticEarned || 0) +
+      (earningsStats.totalReferralEarned || 0) +
+      (earningsStats.totalNodeEarned || 0) +
+      (earningsStats.totalSameLevelEarned || 0) +
+      (earningsStats.totalGlobalEarned || 0)
     : 0
+
+  // 三种可提现余额
+  const pidWithdrawable = userAssets?.pidBalance || 0
+  const picWithdrawable = userAssets?.picBalance || 0
+  const picReleased = userAssets?.picReleasedBalance || 0
+  const hasWithdrawable = pidWithdrawable > 0 || picWithdrawable > 0 || picReleased > 0
 
   // 节点配置
   // const nodeConfig = getNodeConfig(teamStats?.nodeLevel || 'P0')
@@ -178,25 +154,58 @@ export function RewardsPage() {
               </Flex>
             </Flex>
 
-            <Flex direction="column" align="center" mb="4">
-              <Text fontSize="3xl" fontWeight="bold" color="white">
-                ${totalEarnings.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-              </Text>
-              <HStack gap={2} mt="2">
-                <Text fontSize="sm" color="whiteAlpha.500">
-                  {t('rewards.withdrawable')}
+            {/* 累计收益金额 */}
+            <Text fontSize="2xl" fontWeight="bold" color="white" textAlign="center" mb="4">
+              ${totalEarnings.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            </Text>
+
+            {/* 三列可提现余额 */}
+            <SimpleGrid columns={3} gap={3} mb="4">
+              {/* PID 可提现 */}
+              <Box textAlign="center">
+                <Text fontSize="xs" color="whiteAlpha.500" mb="1">
+                  {t('rewards.pid_available')}
                 </Text>
-                <Text fontSize="sm" fontWeight="bold" color="#22C55E">
-                  {userAssets?.picBalance.toFixed(2) || '0.00'} PIC
+                <Text fontSize="lg" fontWeight="bold" color="white">
+                  {pidWithdrawable.toFixed(2)}
                 </Text>
-              </HStack>
-            </Flex>
+                <Text fontSize="xs" color="#22C55E">
+                  {t('rewards.no_fee')}
+                </Text>
+              </Box>
+
+              {/* PIC 可提现（首次产出） */}
+              <Box textAlign="center">
+                <Text fontSize="xs" color="whiteAlpha.500" mb="1">
+                  {t('rewards.pic_available')}
+                </Text>
+                <Text fontSize="lg" fontWeight="bold" color="white">
+                  {picWithdrawable.toFixed(2)}
+                </Text>
+                <Text fontSize="xs" color="#EAB308">
+                  3% {t('rewards.withdraw_fee').replace(' (3%)', '')}
+                </Text>
+              </Box>
+
+              {/* PIC 已释放（线性释放） */}
+              <Box textAlign="center">
+                <Text fontSize="xs" color="whiteAlpha.500" mb="1">
+                  {t('rewards.pic_released')}
+                </Text>
+                <Text fontSize="lg" fontWeight="bold" color="white">
+                  {picReleased.toFixed(2)}
+                </Text>
+                <Text fontSize="xs" color="#22C55E">
+                  {t('rewards.no_fee')}
+                </Text>
+              </Box>
+            </SimpleGrid>
 
             <ActionButton
               variant="primary"
               w="full"
               onClick={handleOpenModal}
-              disabled={(userAssets?.picBalance || 0) <= 0}
+              disabled={!hasWithdrawable}
             >
               <HStack gap={2}>
                 <HiOutlineBanknotes size={20} />
@@ -287,51 +296,20 @@ export function RewardsPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <Text fontSize="lg" fontWeight="bold" color="white" mb="4">
-              {tokenType === 'PIC' ? t('rewards.withdraw_pic') : t('rewards.withdraw_pid')}
+              {t('rewards.withdraw_pid')}
             </Text>
 
-            {/* Token 类型选择 */}
-            <HStack gap="2" mb="4">
-              <TokenSelector
-                active={tokenType === 'PIC'}
-                onClick={() => {
-                  setTokenType('PIC')
-                  setWithdrawSource('balance')
-                  setWithdrawAmount('')
-                }}
-                label="PIC"
-              />
-              <TokenSelector
-                active={tokenType === 'PID'}
-                onClick={() => {
-                  setTokenType('PID')
-                  setWithdrawAmount('')
-                }}
-                label="PID"
-              />
-            </HStack>
-
-            {/* 来源选择 - 仅 PIC 时显示 */}
-            {tokenType === 'PIC' && (
-              <HStack gap="2" mb="4">
-                <SourceSelector
-                  active={withdrawSource === 'balance'}
-                  onClick={() => {
-                    setWithdrawSource('balance')
-                    setWithdrawAmount('')
-                  }}
-                  label={t('rewards.source_balance')}
-                />
-                <SourceSelector
-                  active={withdrawSource === 'released'}
-                  onClick={() => {
-                    setWithdrawSource('released')
-                    setWithdrawAmount('')
-                  }}
-                  label={t('rewards.source_released')}
-                />
-              </HStack>
-            )}
+            {/* Phase 1: Token 类型选择已禁用，只支持 PID */}
+            <Box
+              bg="rgba(41, 47, 225, 0.1)"
+              borderRadius="lg"
+              p="3"
+              mb="4"
+            >
+              <Text fontSize="xs" color="whiteAlpha.600">
+                {t('rewards.phase1_pid_only')}
+              </Text>
+            </Box>
 
             {/* 输入框 */}
             <Box mb="4">
@@ -406,11 +384,7 @@ export function RewardsPage() {
                   )}
                 </SimpleGrid>
 
-                {tokenType === 'PIC' && withdrawSource === 'balance' && (
-                  <Text fontSize="xs" color="whiteAlpha.400" mt="2">
-                    {t('rewards.linear_release_notice')} {PAYFI_CONFIG.LINEAR_RELEASE_DAYS} {t('rewards.releases_days')}
-                  </Text>
-                )}
+                {/* Phase 1: PID 提现无线性释放说明 */}
               </Box>
             )}
 
@@ -426,60 +400,6 @@ export function RewardsPage() {
           </MotionBox>
         </Box>
       )}
-    </Box>
-  )
-}
-
-// Token 类型选择器
-interface TokenSelectorProps {
-  active: boolean
-  onClick: () => void
-  label: string
-}
-
-function TokenSelector({ active, onClick, label }: TokenSelectorProps) {
-  return (
-    <Box
-      px="4"
-      py="2"
-      borderRadius="full"
-      bg={active ? '#292FE1' : 'whiteAlpha.100'}
-      color={active ? 'white' : 'whiteAlpha.600'}
-      fontSize="sm"
-      fontWeight="600"
-      cursor="pointer"
-      transition="all 0.2s"
-      onClick={onClick}
-      _hover={!active ? { bg: 'whiteAlpha.200' } : undefined}
-    >
-      {label}
-    </Box>
-  )
-}
-
-// 来源选择器
-interface SourceSelectorProps {
-  active: boolean
-  onClick: () => void
-  label: string
-}
-
-function SourceSelector({ active, onClick, label }: SourceSelectorProps) {
-  return (
-    <Box
-      px="4"
-      py="2"
-      borderRadius="full"
-      bg={active ? '#22C55E' : 'whiteAlpha.100'}
-      color={active ? 'white' : 'whiteAlpha.600'}
-      fontSize="sm"
-      fontWeight="600"
-      cursor="pointer"
-      transition="all 0.2s"
-      onClick={onClick}
-      _hover={!active ? { bg: 'whiteAlpha.200' } : undefined}
-    >
-      {label}
     </Box>
   )
 }
@@ -521,7 +441,7 @@ function RewardTypeCard({
           </Text>
         </HStack>
         <HStack gap={2}>
-          <Text fontSize="lg" fontWeight="bold" color={REWARD_COLORS[type]}>
+          <Text fontSize="lg" fontWeight="bold" color="whiteAlpha.500">
             ${amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </Text>
           {onClick && (

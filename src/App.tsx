@@ -1,22 +1,24 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ChakraProvider } from '@chakra-ui/react'
-import { system } from './theme'
-import { Web3Provider } from './providers/Web3Provider'
-import { MobileLayout, SecondaryLayout, ProtectedRoute } from './components/layout'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { MobileLayout, ProtectedRoute, SecondaryLayout } from './components/layout'
 import {
-  LoginPage,
-  HomePage,
-  RewardsPage,
-  TeamPage,
-  InvitePage,
-  NFTPage,
   AssetsPage,
   BurnRecordsPage,
+  HomePage,
+  InvitePage,
+  LoginPage,
+  NFTListPage,
+  NFTPage,
   RewardListPage,
-  WithdrawRecordsPage,
+  RewardsPage,
+  StakeRecordsPage,
   TeamMembersPage,
+  TeamPage,
+  WithdrawRecordsPage,
 } from './pages'
+import { Web3Provider } from './providers/Web3Provider'
 import { TestI18n } from './test-i18n'
+import { system } from './theme'
 
 function App() {
   return (
@@ -26,7 +28,7 @@ function App() {
           <Routes>
             {/* 测试路由 */}
             <Route path="/test-i18n" element={<TestI18n />} />
-            
+
             {/* 公开路由 - 登录页 */}
             <Route path="/login" element={<LoginPage />} />
 
@@ -58,9 +60,11 @@ function App() {
             >
               <Route path="/invite" element={<InvitePage />} />
               <Route path="/burn-records" element={<BurnRecordsPage />} />
+              <Route path="/stake-records" element={<StakeRecordsPage />} />
               <Route path="/rewards/:type" element={<RewardListPage />} />
               <Route path="/withdraw-records" element={<WithdrawRecordsPage />} />
               <Route path="/team-members" element={<TeamMembersPage />} />
+              <Route path="/nft-list" element={<NFTListPage />} />
             </Route>
 
             {/* 404 重定向到首页 */}

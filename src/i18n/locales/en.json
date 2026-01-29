@@ -49,7 +49,13 @@
     "total_req": "Total Power ≥ {{req}}K",
     "p9_special_req": "≥ 2 P8 in team",
     "units": "units",
-    "ten_thousand": "K"
+    "ten_thousand": "K",
+    "invite_performance": "Invite Performance",
+    "invite_count": "Invites",
+    "invite_orders": "Invite Orders",
+    "team_orders": "Team Orders",
+    "person_unit": "",
+    "order_unit": ""
   },
   "invite": {
     "title": "Invite Friends",
@@ -74,14 +80,25 @@
     "subtitle": "NFT staking platform, start your Web3 earning journey",
     "connect_wallet": "Wallet Login",
     "connecting": "Connecting...",
+    "connect_failed": "Failed to connect wallet, please try again",
     "sign_message": "Please sign to verify your wallet ownership",
+    "sign_failed": "Login failed, please try again",
     "terms_notice": "By connecting your wallet, you agree to our terms of service",
     "wallet_connected": "Wallet Connected",
     "sign_to_verify": "Please sign to verify ownership",
     "sign_notice": "Signing this message will not incur any gas fees and is only used to verify your ownership of the wallet.",
     "waiting_sign": "Waiting for signature...",
     "sign_to_login": "Sign to Login",
-    "use_other_wallet": "Use Other Wallet"
+    "use_other_wallet": "Use Other Wallet",
+    "go_back": "Go Back",
+    "continue": "Continue",
+    "enter_invite_code": "Please enter invite code to continue",
+    "invite_code": "Invite Code",
+    "invite_code_title": "Enter Invite Code",
+    "invite_code_subtitle": "Invite code is required to join PolyFlow",
+    "invite_code_placeholder": "Enter invite code",
+    "invite_code_notice": "You can get the invite code from your referrer, or register directly via invite link.",
+    "invite_code_required": "Please enter invite code"
   },
   "common": {
     "loading": "Loading...",
@@ -123,7 +140,21 @@
     "burn_failed": "Burn failed, please retry",
     "processing": "Processing...",
     "confirm_burn": "Confirm Burn",
-    "need_nft_to_burn": "Need to purchase NFT first to burn PIC"
+    "need_nft_to_burn": "Need to purchase NFT first to burn PIC",
+    "stake_pid_title": "Stake PID to get PIC",
+    "stake_amount_label": "Stake Amount (PID)",
+    "enter_stake_amount": "Enter stake amount",
+    "stake_period": "Stake Period",
+    "lock_period": "Lock Period",
+    "apy": "APY",
+    "confirm_stake": "Confirm Stake",
+    "stake_success": "Stake Successful",
+    "stake_failed": "Stake Failed",
+    "min_stake_amount": "Min stake {{amount}} PID",
+    "stake_days": "Days",
+    "stake_period_m3": "Stake M3",
+    "stake_period_m6": "Stake M6",
+    "stake_period_m12": "Stake M12"
   },
   "rewards": {
     "title": "My Rewards",
@@ -134,6 +165,7 @@
     "earnings_details": "Earnings Details",
     "withdraw_pic": "Withdraw PIC",
     "withdraw_pid": "Withdraw PID",
+    "phase1_pid_only": "Currently only PID withdrawal is supported. PIC withdrawal will be available in future updates.",
     "withdraw_amount": "Withdraw Amount",
     "all": "All",
     "enter_withdraw_amount": "Enter withdraw amount",
@@ -154,17 +186,22 @@
     "source_balance": "Available Balance",
     "source_released": "Linear Release",
     "no_fee": "No Fee",
-    "full_release": "100% Release"
+    "full_release": "100% Release",
+    "pid_available": "PID Withdrawable",
+    "pic_available": "PIC Withdrawable",
+    "pic_released": "PIC Released"
   },
   "nft": {
     "current_level": "Current Level",
     "no_nft": "No NFT Held",
+    "not_staked_hint": "NFT Not Staked",
     "power_coefficient": "Power Coefficient",
     "pool_multiplier": "Pool Multiplier",
     "stake_mining": "Stake Mining",
     "stake_to_mine": "Stake NFT to start mining rewards",
     "mining": "Mining",
     "not_staked": "Not Staked",
+    "staked_ratio": "Staked {{staked}}/{{total}}",
     "stake_time": "Stake Time",
     "staked_days": "Days Staked",
     "days": "days",
@@ -172,6 +209,10 @@
     "stake_notice_2": "Staking requires on-chain confirmation",
     "confirming_on_chain": "Confirming on-chain...",
     "stake_now": "Stake Now",
+    "stake": "Stake",
+    "staking": "Staking...",
+    "select_nft_to_stake": "Select NFT to Stake",
+    "select_nft_hint": "Each NFT can only be staked once. Please select an NFT to stake.",
     "upgrade_from": "Upgrade from {{from}}",
     "price": "Price",
     "base_power": "Base Power",
@@ -182,7 +223,18 @@
     "purchase_level": "Purchase {{level}}",
     "all_levels": "All Levels",
     "power": "Power",
-    "current": "Current"
+    "current": "Current",
+    "mint_list": "My NFTs",
+    "holding_count": "{{count}} owned",
+    "nft_list_title": "My NFTs",
+    "filter_all": "All",
+    "filter_purchase": "Purchased",
+    "filter_transfer": "Transferred",
+    "source_purchase": "Purchased",
+    "source_transfer": "Transferred",
+    "token_id": "Token ID",
+    "acquire_time": "Acquired",
+    "no_nft_holdings": "No NFT Holdings"
   },
   "reward_list": {
     "total_reward": "Total {{type}}",
@@ -221,6 +273,12 @@
     "pool_amount": "Pool Amount",
     "usdt_value": "USDT Value",
     "pool_multiplier": "Pool Multiplier"
+  },
+  "stake_records": {
+    "title": "PID Stake Records",
+    "no_records": "No stake records",
+    "status_active": "Active",
+    "status_completed": "Completed"
   },
   "nft_level_badge": {
     "none": "None"
@@ -272,7 +330,16 @@
     "benefit_2_diamond": "Highest benefit level",
     "benefit_3_diamond": "Revenue sharing",
     "benefit_4_diamond": "Full airdrops",
-    "benefit_5_diamond": "Custom services"
+    "benefit_5_diamond": "Custom services",
+    "current_price": "Current Price",
+    "pay_pid": "Pay PID",
+    "power": "Power",
+    "coefficient": "Coefficient",
+    "exit_multiplier": "Exit Multiplier",
+    "burn_exit_multiplier": "Burn Exit Multiplier",
+    "price_unavailable": "Price data unavailable, please try again later",
+    "step": "Step",
+    "wallet_confirm_hint": "Please review and confirm the transaction in your wallet"
   },
   "staking": {
     "title": "Staking",

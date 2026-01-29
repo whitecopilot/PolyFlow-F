@@ -49,7 +49,13 @@
     "total_req": "総パワー ≥ {{req}}万",
     "p9_special_req": "チーム内 P8 ≥ 2名",
     "units": "名",
-    "ten_thousand": "万"
+    "ten_thousand": "万",
+    "invite_performance": "招待実績",
+    "invite_count": "招待人数",
+    "invite_orders": "招待注文数",
+    "team_orders": "チーム注文数",
+    "person_unit": "人",
+    "order_unit": "件"
   },
   "invite": {
     "title": "友達を招待",
@@ -123,7 +129,21 @@
     "burn_failed": "焼却失敗、再試行してください",
     "processing": "処理中...",
     "confirm_burn": "焼却確認",
-    "need_nft_to_burn": "PIC焼却には先にNFT購入が必要"
+    "need_nft_to_burn": "PIC焼却には先にNFT購入が必要",
+    "stake_pid_title": "PIDをステークしてPICを獲得",
+    "stake_amount_label": "ステーク数量 (PID)",
+    "enter_stake_amount": "ステーク数量を入力",
+    "stake_period": "ステーク期間",
+    "lock_period": "ロック期間",
+    "apy": "年間収益率 (APY)",
+    "confirm_stake": "ステーク確認",
+    "stake_success": "ステーク成功",
+    "stake_failed": "ステーク失敗",
+    "min_stake_amount": "最小ステーク {{amount}} PID",
+    "stake_days": "日",
+    "stake_period_m3": "3ヶ月",
+    "stake_period_m6": "6ヶ月",
+    "stake_period_m12": "12ヶ月"
   },
   "rewards": {
     "title": "マイ報酬",
@@ -154,7 +174,10 @@
     "source_balance": "利用可能残高",
     "source_released": "線形解放",
     "no_fee": "手数料なし",
-    "full_release": "100%解放"
+    "full_release": "100%解放",
+    "pid_available": "PID 引き出し可能",
+    "pic_available": "PIC 引き出し可能",
+    "pic_released": "PIC リリース済み"
   },
   "nft": {
     "current_level": "現在レベル",
@@ -165,6 +188,7 @@
     "stake_to_mine": "NFTステーキングでマイニング報酬開始",
     "mining": "マイニング中",
     "not_staked": "未ステーキング",
+    "staked_ratio": "ステーキング {{staked}}/{{total}}",
     "stake_time": "ステーキング時刻",
     "staked_days": "ステーキング日数",
     "days": "日",
@@ -172,6 +196,10 @@
     "stake_notice_2": "ステーキングにはオンチェーン確認が必要",
     "confirming_on_chain": "オンチェーン確認中...",
     "stake_now": "今すぐステーキング",
+    "stake": "ステーキング",
+    "staking": "ステーキング中...",
+    "select_nft_to_stake": "ステーキングするNFTを選択",
+    "select_nft_hint": "各NFTは一度しかステーキングできません。ステーキングするNFTを選択してください。",
     "upgrade_from": "{{from}}からアップグレード",
     "price": "価格",
     "base_power": "基本パワー",
@@ -221,6 +249,12 @@
     "pool_amount": "プール額",
     "usdt_value": "USDT価値",
     "pool_multiplier": "プール倍率"
+  },
+  "stake_records": {
+    "title": "PID ステーキング記録",
+    "no_records": "ステーキング記録なし",
+    "status_active": "進行中",
+    "status_completed": "完了"
   },
   "nft_level_badge": {
     "none": "なし"
@@ -272,7 +306,16 @@
     "benefit_2_diamond": "最高特典レベル",
     "benefit_3_diamond": "収益分配",
     "benefit_4_diamond": "フルエアドロップ",
-    "benefit_5_diamond": "カスタムサービス"
+    "benefit_5_diamond": "カスタムサービス",
+    "current_price": "現在価格",
+    "pay_pid": "PID支払い",
+    "power": "パワー",
+    "coefficient": "係数",
+    "exit_multiplier": "出口倍率",
+    "burn_exit_multiplier": "バーン出口倍率",
+    "price_unavailable": "価格データを取得できません。後でもう一度お試しください",
+    "step": "ステップ",
+    "wallet_confirm_hint": "ウォレットで取引を確認してください"
   },
   "staking": {
     "title": "ステーキング",

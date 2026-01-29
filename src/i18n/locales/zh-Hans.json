@@ -49,7 +49,13 @@
     "total_req": "总算力值 ≥ {{req}}万",
     "p9_special_req": "团队内 ≥ 2 个 P8",
     "units": "个",
-    "ten_thousand": "万"
+    "ten_thousand": "万",
+    "invite_performance": "邀请业绩",
+    "invite_count": "邀请人数",
+    "invite_orders": "邀请单数",
+    "team_orders": "团队单数",
+    "person_unit": "人",
+    "order_unit": "单"
   },
   "invite": {
     "title": "邀请好友",
@@ -74,14 +80,25 @@
     "subtitle": "NFT 质押平台，开启你的 Web3 收益之旅",
     "connect_wallet": "钱包登录",
     "connecting": "连接中...",
+    "connect_failed": "连接钱包失败，请重试",
     "sign_message": "请签名验证您的钱包所有权",
+    "sign_failed": "登录失败，请重试",
     "terms_notice": "连接钱包即表示您同意我们的服务条款",
     "wallet_connected": "钱包已连接",
     "sign_to_verify": "请签名以验证所有权",
     "sign_notice": "签名消息不会产生任何 Gas 费用，仅用于验证您对钱包的所有权。",
     "waiting_sign": "等待签名...",
     "sign_to_login": "签名登录",
-    "use_other_wallet": "使用其他钱包"
+    "use_other_wallet": "使用其他钱包",
+    "go_back": "返回上一步",
+    "continue": "继续",
+    "enter_invite_code": "请输入邀请码以继续",
+    "invite_code": "邀请码",
+    "invite_code_title": "输入邀请码",
+    "invite_code_subtitle": "邀请码是加入 PolyFlow 的必要条件",
+    "invite_code_placeholder": "请输入邀请码",
+    "invite_code_notice": "您可以从邀请人处获取邀请码，或通过邀请链接直接注册。",
+    "invite_code_required": "请输入邀请码"
   },
   "common": {
     "loading": "加载中...",
@@ -123,7 +140,21 @@
     "burn_failed": "销毁失败，请重试",
     "processing": "处理中...",
     "confirm_burn": "确认销毁",
-    "need_nft_to_burn": "需要先购买 NFT 才能销毁 PIC"
+    "need_nft_to_burn": "需要先购买 NFT 才能销毁 PIC",
+    "stake_pid_title": "质押 PID 获得 PIC",
+    "stake_amount_label": "质押数量 (PID)",
+    "enter_stake_amount": "输入质押数量",
+    "stake_period": "质押周期",
+    "lock_period": "锁仓周期",
+    "apy": "年化收益率",
+    "confirm_stake": "确认质押",
+    "stake_success": "质押成功",
+    "stake_failed": "质押失败",
+    "min_stake_amount": "最低质押 {{amount}} PID",
+    "stake_days": "天",
+    "stake_period_m3": "3个月",
+    "stake_period_m6": "6个月",
+    "stake_period_m12": "12个月"
   },
   "rewards": {
     "title": "我的收益",
@@ -134,6 +165,7 @@
     "earnings_details": "收益明细",
     "withdraw_pic": "提现 PIC",
     "withdraw_pid": "提现 PID",
+    "phase1_pid_only": "当前阶段仅支持 PID 提现，PIC 提现功能将在后续版本开放。",
     "withdraw_amount": "提现数量",
     "all": "全部",
     "enter_withdraw_amount": "输入提现数量",
@@ -154,17 +186,22 @@
     "source_balance": "可用余额",
     "source_released": "线性释放",
     "no_fee": "无手续费",
-    "full_release": "100% 到账"
+    "full_release": "100% 到账",
+    "pid_available": "PID 可提现",
+    "pic_available": "PIC 可提现",
+    "pic_released": "PIC 已释放"
   },
   "nft": {
     "current_level": "当前等级",
     "no_nft": "未持有 NFT",
+    "not_staked_hint": "NFT 未质押",
     "power_coefficient": "算力系数",
     "pool_multiplier": "矿池倍数",
     "stake_mining": "质押挖矿",
     "stake_to_mine": "质押 NFT 开启挖矿收益",
     "mining": "挖矿中",
     "not_staked": "未质押",
+    "staked_ratio": "质押 {{staked}}/{{total}}",
     "stake_time": "质押时间",
     "staked_days": "已质押天数",
     "days": "天",
@@ -172,6 +209,10 @@
     "stake_notice_2": "质押操作需要链上确认",
     "confirming_on_chain": "链上确认中...",
     "stake_now": "立即质押",
+    "stake": "质押",
+    "staking": "质押中...",
+    "select_nft_to_stake": "选择要质押的 NFT",
+    "select_nft_hint": "每个 NFT 只能质押一次，请选择要质押的 NFT",
     "upgrade_from": "从 {{from}} 升级",
     "price": "价格",
     "base_power": "基础算力",
@@ -182,7 +223,18 @@
     "purchase_level": "购买 {{level}}",
     "all_levels": "全部等级",
     "power": "算力",
-    "current": "当前"
+    "current": "当前",
+    "mint_list": "铸造列表",
+    "holding_count": "持有 {{count}} 个",
+    "nft_list_title": "我的 NFT",
+    "filter_all": "全部",
+    "filter_purchase": "购买",
+    "filter_transfer": "转入",
+    "source_purchase": "购买",
+    "source_transfer": "转入",
+    "token_id": "编号",
+    "acquire_time": "获得时间",
+    "no_nft_holdings": "暂无 NFT"
   },
   "reward_list": {
     "total_reward": "累计{{type}}",
@@ -221,6 +273,12 @@
     "pool_amount": "矿池量",
     "usdt_value": "USDT 价值",
     "pool_multiplier": "矿池倍数"
+  },
+  "stake_records": {
+    "title": "PID质押记录",
+    "no_records": "暂无质押记录",
+    "status_active": "进行中",
+    "status_completed": "已完成"
   },
   "nft_level_badge": {
     "none": "无"
@@ -272,7 +330,16 @@
     "benefit_2_diamond": "最高权益等级",
     "benefit_3_diamond": "收益分红",
     "benefit_4_diamond": "全额空投",
-    "benefit_5_diamond": "定制服务"
+    "benefit_5_diamond": "定制服务",
+    "current_price": "当前价格",
+    "pay_pid": "支付 PID",
+    "power": "算力",
+    "coefficient": "系数",
+    "exit_multiplier": "出局倍数",
+    "burn_exit_multiplier": "销毁出局倍数",
+    "price_unavailable": "价格数据不可用，请稍后重试",
+    "step": "步骤",
+    "wallet_confirm_hint": "请在钱包中查看并确认交易"
   },
   "staking": {
     "title": "质押",

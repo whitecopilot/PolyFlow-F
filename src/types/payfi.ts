@@ -69,14 +69,19 @@ export interface UserAssets {
   pidTotalLocked: number;      // PID锁仓总量
   pidReleased: number;         // PID已释放量
   pidBalance: number;          // PID可用余额
-  picBalance: number;          // PIC可用余额
+  picBalance: number;          // PIC可用余额（首次产出，提现有手续费）
+  picReleasedBalance: number;  // PIC线性释放已解锁余额（提现无手续费）
 }
 
 // 团队统计
 export interface TeamStats {
+  directPerformance: number;   // 邀请业绩(USDT)
   directCount: number;         // 直推人数
+  directOrderCount: number;    // 直推单数
   teamCount: number;           // 团队总人数
+  teamOrderCount: number;      // 团队总单数
   teamPerformance: number;     // 团队总业绩(USDT)
+  stakingPerformance: number;  // 质押业绩(USDT)
   maxLinePerf: number;         // 最大单线业绩(USDT)
   smallAreaPerf: number;       // 小区业绩
   nodeLevel: NodeLevel;        // 节点等级

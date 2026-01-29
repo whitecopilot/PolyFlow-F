@@ -49,7 +49,13 @@
     "total_req": "總算力值 ≥ {{req}}萬",
     "p9_special_req": "團隊內 ≥ 2 個 P8",
     "units": "個",
-    "ten_thousand": "萬"
+    "ten_thousand": "萬",
+    "invite_performance": "邀請業績",
+    "invite_count": "邀請人數",
+    "invite_orders": "邀請單數",
+    "team_orders": "團隊單數",
+    "person_unit": "人",
+    "order_unit": "單"
   },
   "invite": {
     "title": "邀請好友",
@@ -123,7 +129,21 @@
     "burn_failed": "銷毀失敗，請重試",
     "processing": "處理中...",
     "confirm_burn": "確認銷毀",
-    "need_nft_to_bft": "需要先購買 NFT 才能銷毀 PIC"
+    "need_nft_to_bft": "需要先購買 NFT 才能銷毀 PIC",
+    "stake_pid_title": "質押 PID 獲得 PIC",
+    "stake_amount_label": "質押數量 (PID)",
+    "enter_stake_amount": "輸入質押數量",
+    "stake_period": "質押週期",
+    "lock_period": "鎖倉週期",
+    "apy": "年化收益率",
+    "confirm_stake": "確認質押",
+    "stake_success": "質押成功",
+    "stake_failed": "質押失敗",
+    "min_stake_amount": "最低質押 {{amount}} PID",
+    "stake_days": "天",
+    "stake_period_m3": "3個月",
+    "stake_period_m6": "6個月",
+    "stake_period_m12": "12個月"
   },
   "rewards": {
     "title": "我的收益",
@@ -154,7 +174,10 @@
     "source_balance": "可用餘額",
     "source_released": "線性釋放",
     "no_fee": "無手續費",
-    "full_release": "100% 到賬"
+    "full_release": "100% 到賬",
+    "pid_available": "PID 可提現",
+    "pic_available": "PIC 可提現",
+    "pic_released": "PIC 已釋放"
   },
   "nft": {
     "current_level": "當前等級",
@@ -165,6 +188,7 @@
     "stake_to_mine": "質押 NFT 開啟挖礦收益",
     "mining": "挖礦中",
     "not_staked": "未質押",
+    "staked_ratio": "質押 {{staked}}/{{total}}",
     "stake_time": "質押時間",
     "staked_days": "已質押天數",
     "days": "天",
@@ -172,6 +196,10 @@
     "stake_notice_2": "質押操作需要鏈上確認",
     "confirming_on_chain": "鏈上確認中...",
     "stake_now": "立即質押",
+    "stake": "質押",
+    "staking": "質押中...",
+    "select_nft_to_stake": "選擇要質押的 NFT",
+    "select_nft_hint": "每個 NFT 只能質押一次，請選擇要質押的 NFT",
     "upgrade_from": "從 {{from}} 升級",
     "price": "價格",
     "base_power": "基礎算力",
@@ -221,6 +249,12 @@
     "pool_amount": "礦池量",
     "usdt_value": "USDT 價值",
     "pool_multiplier": "礦池倍數"
+  },
+  "stake_records": {
+    "title": "PID質押記錄",
+    "no_records": "暫無質押記錄",
+    "status_active": "進行中",
+    "status_completed": "已完成"
   },
   "nft_level_badge": {
     "none": "無"
@@ -272,7 +306,16 @@
     "benefit_2_diamond": "最高權益等級",
     "benefit_3_diamond": "收益分紅",
     "benefit_4_diamond": "全額空投",
-    "benefit_5_diamond": "定製服務"
+    "benefit_5_diamond": "定製服務",
+    "current_price": "當前價格",
+    "pay_pid": "支付 PID",
+    "power": "算力",
+    "coefficient": "係數",
+    "exit_multiplier": "出局倍數",
+    "burn_exit_multiplier": "銷毀出局倍數",
+    "price_unavailable": "價格數據不可用，請稍後重試",
+    "step": "步驟",
+    "wallet_confirm_hint": "請在錢包中查看並確認交易"
   },
   "staking": {
     "title": "質押",

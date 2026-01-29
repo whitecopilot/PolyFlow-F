@@ -8,6 +8,8 @@ import {
   HiOutlineChartBar,
   HiOutlineCheckCircle,
   HiOutlineChevronRight,
+  HiOutlineCurrencyDollar,
+  HiOutlineDocumentText,
   HiOutlineTrophy,
   HiOutlineUserGroup,
   HiOutlineUserPlus,
@@ -120,6 +122,44 @@ export function TeamPage() {
           <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600" mb="3">
             {t('team.performance_stats')}
           </Text>
+
+          {/* 邀请业绩卡片 - 跨两列 */}
+          <MotionBox
+            bg="#17171C"
+            borderRadius="xl"
+            p="4"
+            mb="3"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+          >
+            <HStack gap={2} mb={3}>
+              <HiOutlineCurrencyDollar size={16} color="#F59E0B" />
+              <Text fontSize="xs" color="whiteAlpha.600">{t('team.invite_performance')}</Text>
+            </HStack>
+            <Text fontSize="2xl" fontWeight="bold" color="white" mb={3}>
+              ${(teamStats?.directPerformance || 0).toLocaleString()}
+            </Text>
+            <Flex gap={4}>
+              <HStack gap={1}>
+                <HiOutlineUserPlus size={14} color="#A78BFA" />
+                <Text fontSize="xs" color="whiteAlpha.500">{t('team.invite_count')}</Text>
+                <Text fontSize="sm" fontWeight="600" color="white">
+                  {teamStats?.directCount || 0}
+                  <Text as="span" fontSize="xs" color="whiteAlpha.400">{t('team.person_unit')}</Text>
+                </Text>
+              </HStack>
+              <HStack gap={1}>
+                <HiOutlineDocumentText size={14} color="#34D399" />
+                <Text fontSize="xs" color="whiteAlpha.500">{t('team.invite_orders')}</Text>
+                <Text fontSize="sm" fontWeight="600" color="white">
+                  {teamStats?.directOrderCount || 0}
+                  <Text as="span" fontSize="xs" color="whiteAlpha.400">{t('team.order_unit')}</Text>
+                </Text>
+              </HStack>
+            </Flex>
+          </MotionBox>
+
           <SimpleGrid columns={2} gap="3">
             <MotionBox
               bg="#17171C"

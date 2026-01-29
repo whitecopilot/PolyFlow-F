@@ -34,12 +34,12 @@ export function HomePage() {
     userAssets,
     earningsStats,
     systemStats,
-    fetchAllData,
+    fetchHomeData,
   } = usePayFiStore()
 
   useEffect(() => {
-    fetchAllData()
-  }, [fetchAllData])
+    fetchHomeData()
+  }, [fetchHomeData])
 
   // 计算总资产价值
   const totalAssetValue = userAssets
@@ -108,11 +108,11 @@ export function HomePage() {
                 <Text fontSize="xs" color="whiteAlpha.500" mb={1}>{t('home.pid_available_locked')}</Text>
                 <HStack gap={2}>
                   <Text fontSize="sm" fontWeight="600" color="white">
-                    {userAssets?.pidBalance.toFixed(2) || '0.00'}
+                    {userAssets?.pidBalance?.toFixed(2) ?? '0.00'}
                   </Text>
                   <Text fontSize="xs" color="whiteAlpha.400">/</Text>
                   <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600">
-                    {userAssets?.pidTotalLocked.toFixed(2) || '0.00'}
+                    {userAssets?.pidTotalLocked?.toFixed(2) ?? '0.00'}
                   </Text>
                 </HStack>
               </Box>
@@ -121,7 +121,7 @@ export function HomePage() {
                 <Text fontSize="xs" color="whiteAlpha.500" mb={1}>{t('home.pic_available_locked')}</Text>
                 <HStack gap={2}>
                   <Text fontSize="sm" fontWeight="600" color="white">
-                    {userAssets?.picBalance.toFixed(2) || '0.00'}
+                    {userAssets?.picBalance?.toFixed(2) ?? '0.00'}
                   </Text>
                   <Text fontSize="xs" color="whiteAlpha.400">/</Text>
                   <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600">
@@ -148,15 +148,15 @@ export function HomePage() {
               <Text fontSize="xs" color="whiteAlpha.600">{t('home.power_value')}</Text>
             </HStack>
             <Text fontSize="lg" fontWeight="bold" color="white">
-              {userAssets?.totalPower.toLocaleString() || '0'}
+              {userAssets?.totalPower?.toLocaleString() ?? '0'}
             </Text>
             <HStack gap={1} mt={1}>
               <Text fontSize="2xs" color="whiteAlpha.400">
-                NFT {userAssets?.powerFromNFT.toLocaleString() || '0'}
+                NFT {userAssets?.powerFromNFT?.toLocaleString() ?? '0'}
               </Text>
               <Text fontSize="2xs" color="whiteAlpha.300">+</Text>
               <Text fontSize="2xs" color="whiteAlpha.400">
-                {t('home.cumulative')} {userAssets?.powerFromBurn.toLocaleString() || '0'}
+                {t('home.cumulative')} {userAssets?.powerFromBurn?.toLocaleString() ?? '0'}
               </Text>
             </HStack>
           </MotionBox>
@@ -174,7 +174,7 @@ export function HomePage() {
               <Text fontSize="xs" color="whiteAlpha.600">{t('home.pool_amount')}</Text>
             </HStack>
             <Text fontSize="lg" fontWeight="bold" color="white">
-              ${userAssets?.totalExitLimit.toLocaleString() || '0'}
+              ${userAssets?.totalExitLimit?.toLocaleString() ?? '0'}
             </Text>
           </MotionBox>
 
@@ -211,7 +211,7 @@ export function HomePage() {
               <Text fontSize="sm" color="whiteAlpha.700">{t('home.today_earnings')}</Text>
             </HStack>
             <Text fontSize="xl" fontWeight="bold" color="#22C55E">
-              +${earningsStats?.todayEarnings.toFixed(2) || '0.00'}
+              +${earningsStats?.todayEarnings?.toFixed(2) ?? '0.00'}
             </Text>
           </Flex>
 
@@ -225,10 +225,10 @@ export function HomePage() {
 
           <Flex justify="space-between" mt="2">
             <Text fontSize="xs" color="whiteAlpha.500">
-              {t('home.claimed')}: ${userAssets?.earnedRewards.toLocaleString() || '0'}
+              {t('home.claimed')}: ${userAssets?.earnedRewards?.toLocaleString() ?? '0'}
             </Text>
             <Text fontSize="xs" color="whiteAlpha.500">
-              {t('home.remaining')}: ${userAssets?.remainingLimit.toLocaleString() || '0'}
+              {t('home.remaining')}: ${userAssets?.remainingLimit?.toLocaleString() ?? '0'}
             </Text>
           </Flex>
         </MotionBox>
@@ -241,7 +241,7 @@ export function HomePage() {
           <SimpleGrid columns={2} gap="3">
             <StatCard
               label={t('home.mining_rewards')}
-              value={`$${earningsStats?.totalStaticEarned.toLocaleString() || '0'}`}
+              value={`$${earningsStats?.totalStaticEarned?.toLocaleString() ?? '0'}`}
               subValue={t('home.cumulative')}
               icon={<HiOutlineBolt size={18} />}
               color="#292FE1"
@@ -249,7 +249,7 @@ export function HomePage() {
             />
             <StatCard
               label={t('home.invitation_rewards')}
-              value={`$${earningsStats?.totalReferralEarned.toLocaleString() || '0'}`}
+              value={`$${earningsStats?.totalReferralEarned?.toLocaleString() ?? '0'}`}
               subValue={t('home.cumulative')}
               icon={<HiOutlineUserPlus size={18} />}
               color="#D811F0"
@@ -257,7 +257,7 @@ export function HomePage() {
             />
             <StatCard
               label={t('home.node_rewards')}
-              value={`$${earningsStats?.totalNodeEarned.toLocaleString() || '0'}`}
+              value={`$${earningsStats?.totalNodeEarned?.toLocaleString() ?? '0'}`}
               subValue={t('home.cumulative')}
               icon={<HiOutlineGift size={18} />}
               color="#22C55E"
@@ -265,7 +265,7 @@ export function HomePage() {
             />
             <StatCard
               label={t('home.airdrop_rewards')}
-              value={`$${earningsStats?.totalGlobalEarned.toLocaleString() || '0'}`}
+              value={`$${earningsStats?.totalGlobalEarned?.toLocaleString() ?? '0'}`}
               subValue={t('home.cumulative')}
               icon={<HiOutlineGift size={18} />}
               color="#EAB308"

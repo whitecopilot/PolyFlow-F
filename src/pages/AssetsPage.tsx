@@ -1,8 +1,9 @@
 // 资产页面 - 数字金库（一级页面）
 
-import { Box, Flex, HStack, Input, SimpleGrid, Text, VStack } from '@chakra-ui/react'
+import { Box, Button, Image as ChakraImage, Flex, HStack, Input, SimpleGrid, Text, VStack } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   HiOutlineArrowPath,
   HiOutlineBolt,
@@ -11,10 +12,10 @@ import {
   HiOutlineFire,
   HiOutlineLockClosed,
   HiOutlineShieldCheck,
-  HiOutlineSparkles,
 } from 'react-icons/hi2'
 import { useNavigate } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
+import LogoIcon from '../assets/svg/logo.svg'
+import PicLogoIcon from '../assets/svg/pic_logo.svg'
 import {
   ActionButton,
   GradientBorderCard,
@@ -25,6 +26,12 @@ import { getNFTConfig, PAYFI_CONFIG } from '../mocks/payfiConfig'
 import { usePayFiStore } from '../stores/payfiStore'
 
 const MotionBox = motion.create(Box)
+
+const STAKE_OPTIONS = [
+  { id: 'm3', labelKey: 'assets.stake_period_m3', duration: 90, apy: 0.00, minAmount: 0 },
+  { id: 'm6', labelKey: 'assets.stake_period_m6', duration: 180, apy: 0.00, minAmount: 0 },
+  { id: 'm12', labelKey: 'assets.stake_period_m12', duration: 360, apy: 0.00, minAmount: 0 },
+]
 
 export function AssetsPage() {
   const { t } = useTranslation()
@@ -41,6 +48,12 @@ export function AssetsPage() {
   const [burnAmount, setBurnAmount] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
   const [burnError, setBurnError] = useState<string | null>(null)
+
+  // 质押相关状态
+  const [stakeAmount, setStakeAmount] = useState('')
+  const [selectedStakePeriod, setSelectedStakePeriod] = useState('m3')
+  const [isStaking, setIsStaking] = useState(false)
+  const [stakeError, setStakeError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchUserAssets()
@@ -81,6 +94,32 @@ export function AssetsPage() {
     }
   }
 
+  // 处理质押
+  const currentStakeOption = STAKE_OPTIONS.find(o => o.id === selectedStakePeriod) || STAKE_OPTIONS[0]
+  const isValidStakeAmount =
+    stakeAmount &&
+    !isNaN(parseFloat(stakeAmount)) &&
+    parseFloat(stakeAmount) >= currentStakeOption.minAmount &&
+    parseFloat(stakeAmount) <= (userAssets?.pidBalance || 0)
+
+  const handleStake = async () => {
+    if (!stakeAmount || !isValidStakeAmount || isStaking) return
+
+    setStakeError(null)
+    setIsStaking(true)
+
+    try {
+      // 模拟 API 调用
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      setStakeAmount('')
+      await fetchUserAssets()
+    } catch {
+      setStakeError(t('assets.stake_failed'))
+    } finally {
+      setIsStaking(false)
+    }
+  }
+
   // 快捷金额按钮
   const quickAmounts = [100, 500, 1000, 3000, 10000]
 
@@ -104,7 +143,7 @@ export function AssetsPage() {
                   alignItems="center"
                   justifyContent="center"
                 >
-                  <HiOutlineSparkles size={18} color="#292FE1" />
+                  <ChakraImage src={LogoIcon} boxSize="18px" />
                 </Box>
                 <Text fontSize="md" fontWeight="600" color="white">
                   PID
@@ -140,7 +179,7 @@ export function AssetsPage() {
               </Box>
               <Box>
                 <HStack gap={1} mb={1}>
-                  <HiOutlineSparkles size={12} color="#292FE1" />
+                  <ChakraImage src={LogoIcon} boxSize="12px" />
                   <Text fontSize="xs" color="whiteAlpha.500">
                     {t('assets.available')}
                   </Text>
@@ -153,52 +192,80 @@ export function AssetsPage() {
 
             <Text fontSize="xs" color="whiteAlpha.400">
               ≈ $
-              {((userAssets?.pidBalance || 0) * (priceInfo?.pidPrice || 0)).toFixed(2)}{' '}
+              {((userAssets?.pidTotalLocked || 0) * (priceInfo?.pidPrice || 0)).toFixed(2)}{' '}
               USDT
             </Text>
           </Box>
         </GradientBorderCard>
 
         {/* PIC 卡片 */}
-        <MotionBox
-          bg="#17171C"
-          borderRadius="xl"
-          p="4"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <HStack justify="space-between" mb="3">
-            <HStack gap={2}>
-              <Box
-                w="8"
-                h="8"
-                borderRadius="lg"
-                bg="rgba(216, 17, 240, 0.2)"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-              >
-                <HiOutlineFire size={18} color="#D811F0" />
-              </Box>
-              <Text fontSize="md" fontWeight="600" color="white">
-                PIC
+        <GradientBorderCard glowIntensity="low">
+          <Box p="4">
+            <HStack justify="space-between" mb="3">
+              <HStack gap={2}>
+                <Box
+                  w="8"
+                  h="8"
+                  borderRadius="lg"
+                  bg="rgba(216, 17, 240, 0.2)"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <ChakraImage src={PicLogoIcon} boxSize="18px" />
+                </Box>
+                <Text fontSize="md" fontWeight="600" color="white">
+                  PIC
+                </Text>
+              </HStack>
+              <Text fontSize="xs" color="whiteAlpha.500">
+                ${priceInfo?.picPrice.toFixed(4) || '0.00'}
               </Text>
             </HStack>
-            <Text fontSize="xs" color="whiteAlpha.500">
-              ${priceInfo?.picPrice.toFixed(4) || '0.00'}
-            </Text>
-          </HStack>
 
-          <Text fontSize="2xl" fontWeight="bold" color="white" mb="1">
-            {userAssets?.picBalance.toFixed(2) || '0.00'} PIC
-          </Text>
-          <Text fontSize="sm" color="whiteAlpha.500">
-            ≈ $
-            {((userAssets?.picBalance || 0) * (priceInfo?.picPrice || 0)).toFixed(2)}{' '}
-            USDT
-          </Text>
-        </MotionBox>
+            <SimpleGrid columns={3} gap={3} mb="4">
+              <Box>
+                <HStack gap={1} mb={1}>
+                  <HiOutlineLockClosed size={12} color="#71717A" />
+                  <Text fontSize="xs" color="whiteAlpha.500">
+                    {t('assets.locked')}
+                  </Text>
+                </HStack>
+                <Text fontSize="lg" fontWeight="bold" color="whiteAlpha.600">
+                  0.00
+                </Text>
+              </Box>
+              <Box>
+                <HStack gap={1} mb={1}>
+                  <HiOutlineArrowPath size={12} color="#22C55E" />
+                  <Text fontSize="xs" color="whiteAlpha.500">
+                    {t('assets.released')}
+                  </Text>
+                </HStack>
+                <Text fontSize="lg" fontWeight="bold" color="#22C55E">
+                  0.00
+                </Text>
+              </Box>
+              <Box>
+                <HStack gap={1} mb={1}>
+                  <ChakraImage src={PicLogoIcon} boxSize="12px" />
+                  <Text fontSize="xs" color="whiteAlpha.500">
+                    {t('assets.available')}
+                  </Text>
+                </HStack>
+                <Text fontSize="lg" fontWeight="bold" color="white">
+                  {userAssets?.picBalance.toFixed(2) || '0.00'}
+                </Text>
+              </Box>
+            </SimpleGrid>
+
+            <Text fontSize="xs" color="whiteAlpha.400">
+              ≈ $
+              {((userAssets?.picBalance || 0) * (priceInfo?.picPrice || 0)).toFixed(2)}{' '}
+              USDT
+            </Text>
+          </Box>
+        </GradientBorderCard>
 
         {/* PID 释放计划 */}
         {pidReleasePlans.length > 0 && (
@@ -276,6 +343,150 @@ export function AssetsPage() {
           </Box>
         )}
 
+        {/* PID 质押区域 */}
+        <Box>
+          <Flex justify="space-between" align="center" mb="3">
+            <HStack gap={2}>
+              <HiOutlineLockClosed size={18} color="#292FE1" />
+              <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600">
+                {t('assets.stake_pid_title')}
+              </Text>
+            </HStack>
+            {/* 质押记录入口 */}
+            <Flex
+              align="center"
+              gap="1"
+              color="whiteAlpha.500"
+              cursor="pointer"
+              onClick={() => navigate('/stake-records')}
+              _hover={{ color: '#292FE1' }}
+              transition="color 0.2s"
+            >
+              <HiOutlineClipboardDocumentList size={16} />
+              <Text fontSize="xs">{t('assets.records')}</Text>
+            </Flex>
+          </Flex>
+
+          <MotionBox
+            bg="#17171C"
+            borderRadius="xl"
+            p="4"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.18 }}
+          >
+            {/* 周期选择 */}
+            <HStack mb="4" bg="black" p="1" borderRadius="lg">
+              {STAKE_OPTIONS.map((option) => (
+                <Button
+                  disabled={true}
+                  key={option.id}
+                  flex={1}
+                  size="sm"
+                  variant={selectedStakePeriod === option.id ? 'solid' : 'ghost'}
+                  bg={selectedStakePeriod === option.id ? 'whiteAlpha.200' : 'transparent'}
+                  color={selectedStakePeriod === option.id ? 'white' : 'whiteAlpha.500'}
+                  _hover={{ bg: selectedStakePeriod === option.id ? 'whiteAlpha.200' : 'whiteAlpha.50' }}
+                  onClick={() => setSelectedStakePeriod(option.id)}
+                >
+                  {t(option.labelKey)}
+                </Button>
+              ))}
+            </HStack>
+
+            {/* 输入框 */}
+            <Box position="relative" mb="3">
+              <Input
+                disabled={true}
+                type="number"
+                placeholder={t('assets.enter_stake_amount')}
+                value={stakeAmount}
+                onChange={(e) => {
+                  setStakeAmount(e.target.value)
+                  setStakeError(null)
+                }}
+                bg="whiteAlpha.50"
+                border="1px solid"
+                borderColor="whiteAlpha.200"
+                borderRadius="xl"
+                color="white"
+                fontSize="lg"
+                h="12"
+                pl="4"
+                pr="20"
+                _placeholder={{ color: 'whiteAlpha.400' }}
+                _focus={{
+                  borderColor: '#292FE1',
+                  boxShadow: '0 0 0 1px #292FE1',
+                }}
+              />
+              <Button
+                  disabled={true}
+                  size="xs"
+                position="absolute"
+                right="3"
+                top="50%"
+                transform="translateY(-50%)"
+                zIndex={2}
+                bg="whiteAlpha.200"
+                color="whiteAlpha.800"
+                _hover={{ bg: 'whiteAlpha.300' }}
+                onClick={() => setStakeAmount(userAssets?.pidBalance.toString() || '0')}
+              >
+                ALL
+              </Button>
+            </Box>
+
+            <Flex justify="space-between" mb="4">
+               <Text fontSize="xs" color="whiteAlpha.400">
+                  {t('assets.available')}: {userAssets?.pidBalance.toFixed(2) || '0.00'} PID
+               </Text>
+            </Flex>
+
+            {/* 信息展示 */}
+            <Box mb="4">
+              <HStack justify="space-between" mb="2">
+                <Text fontSize="sm" color="whiteAlpha.600">
+                   {t('assets.lock_period')}
+                </Text>
+                <Text fontSize="sm" color="#22C55E">
+                  {currentStakeOption.duration} {t('assets.stake_days')}
+                </Text>
+              </HStack>
+              <HStack justify="space-between">
+                <Text fontSize="sm" color="whiteAlpha.600">
+                   {t('assets.apy')}
+                </Text>
+                <Text fontSize="sm" color="#22C55E">
+                  {(currentStakeOption.apy * 100).toFixed(0)}%
+                </Text>
+              </HStack>
+            </Box>
+
+             {/* 错误提示 */}
+            {stakeError && (
+              <Text fontSize="sm" color="red.400" mb="3">
+                {stakeError}
+              </Text>
+            )}
+
+            {/* 确认按钮 */}
+            <ActionButton
+              variant="primary"
+              w="full"
+              onClick={handleStake}
+              disabled={true}
+            >
+              {isStaking ? t('assets.processing') : t('assets.confirm_stake')}
+            </ActionButton>
+
+             <Text fontSize="xs" color="whiteAlpha.400" textAlign="center" mt="2">
+                {t('assets.min_stake_amount', { amount: currentStakeOption.minAmount })}
+              </Text>
+
+          </MotionBox>
+        </Box>
+
         {/* PIC 销毁区域 */}
         <Box>
           <Flex justify="space-between" align="center" mb="3">
@@ -314,6 +525,7 @@ export function AssetsPage() {
                 {t('assets.burn_amount_label')}
               </Text>
               <Input
+                disabled={true}
                 type="number"
                 placeholder={t('assets.enter_burn_amount')}
                 value={burnAmount}
@@ -361,6 +573,7 @@ export function AssetsPage() {
                     variant="outline"
                     size="sm"
                     flex={1}
+                    disabled={true}
                     onClick={() => setBurnAmount(picAmount.toFixed(2))}
                   >
                     ${amount}
@@ -418,9 +631,7 @@ export function AssetsPage() {
               variant="primary"
               w="full"
               onClick={handleBurn}
-              disabled={
-                !isValidBurnAmount || isProcessing || !userAssets?.currentNFTLevel
-              }
+              disabled={true}
             >
               {isProcessing ? t('assets.processing') : t('assets.confirm_burn')}
             </ActionButton>

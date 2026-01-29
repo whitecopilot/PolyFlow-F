@@ -1,5 +1,6 @@
 import { Box, Flex, Text } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import {
   HiChartBar,
   HiCube,
@@ -13,7 +14,6 @@ import {
   HiWallet,
 } from 'react-icons/hi2'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
 
 const MotionBox = motion.create(Box)
 
@@ -72,15 +72,17 @@ export function BottomNav() {
               transition={{ duration: 0.15 }}
             >
               <Box
-                color={isActive ? 'brand.primary' : 'text.muted'}
-                transition="color 0.2s"
+                color={isActive ? "white" : "whiteAlpha.400"}
+                transition="all 0.2s"
+                // 选中态可以加一点淡淡的白光，增加“亮起”的感觉
+                // style={{ filter: isActive ? "drop-shadow(0 0 5px rgba(255, 255, 255, 0.3))" : "none" }}
               >
-                <Icon size={24} />
+                <Icon size={22} />
               </Box>
               <Text
                 fontSize="xs"
                 fontWeight={isActive ? '600' : '400'}
-                color={isActive ? 'brand.primary' : 'text.muted'}
+                color={isActive ? "white" : "whiteAlpha.400"}
                 transition="all 0.2s"
               >
                 {item.label}
@@ -89,9 +91,9 @@ export function BottomNav() {
                 <MotionBox
                   position="absolute"
                   bottom="0"
-                  h="3px"
+                  h="1px"
                   w="20px"
-                  bg="brand.primary"
+                  bg="white"
                   borderRadius="full"
                   layoutId="activeTab"
                 />

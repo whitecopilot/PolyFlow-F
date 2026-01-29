@@ -1,4 +1,4 @@
-import { Box, Text, Flex } from '@chakra-ui/react'
+import { Box, Flex, Text } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 
 const MotionBox = motion.create(Box)
@@ -59,7 +59,7 @@ export function StatCard({
         )}
       </Flex>
       {subValue && (
-        <Text fontSize="xs" color={color} mt="1">
+        <Text fontSize="xs" color="whiteAlpha.400" mt="1">
           {subValue}
         </Text>
       )}

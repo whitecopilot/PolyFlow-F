@@ -1,7 +1,7 @@
 import { Box, Flex, Input, Text, VStack } from '@chakra-ui/react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { QRCodeSVG } from 'qrcode.react'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   HiArrowDownTray,
   HiOutlineCheckCircle,
@@ -21,7 +21,12 @@ const MotionBox = motion.create(Box)
 
 export function InvitePage() {
   const { t } = useTranslation()
-  const { inviteCode } = usePayFiStore()
+  const { inviteCode, fetchInviteCode } = usePayFiStore()
+
+  // 页面加载时获取邀请码
+  useEffect(() => {
+    fetchInviteCode()
+  }, [fetchInviteCode])
   const [copied, setCopied] = useState<'code' | 'link' | null>(null)
   const [showPoster, setShowPoster] = useState(false)
   const posterRef = useRef<HTMLDivElement>(null)

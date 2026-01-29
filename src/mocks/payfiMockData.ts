@@ -75,15 +75,20 @@ export function getMockUserAssets(): UserAssets {
     pidReleased: 48.98,      // 3个月释放
     pidBalance: 48.98,
     picBalance: 850.00,
+    picReleasedBalance: 120.50,  // PIC 线性释放已解锁余额
   };
 }
 
 // 生成团队统计 Mock 数据
 export function getMockTeamStats(): TeamStats {
   return {
+    directPerformance: 125000,
     directCount: 12,
+    directOrderCount: 18,
     teamCount: 156,
     teamPerformance: 450000,
+    teamOrderCount: 203,
+    stakingPerformance: 320000,
     maxLinePerf: 280000,
     smallAreaPerf: 170000,
     nodeLevel: 'P3',
