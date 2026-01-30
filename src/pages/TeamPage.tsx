@@ -116,9 +116,7 @@ export function TeamPage() {
           w="full"
           variant="primary"
           disabled={!user?.is_active}
-          onClick={() => user?.is_active && navigate('/invite')}
-          opacity={user?.is_active ? 1 : 0.5}
-          cursor={user?.is_active ? 'pointer' : 'not-allowed'}
+          onClick={() => navigate('/invite')}
         >
           <HStack gap={2}>
             <HiOutlineUserPlus size={18} />

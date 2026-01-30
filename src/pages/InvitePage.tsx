@@ -7,7 +7,6 @@ import {
   HiArrowDownTray,
   HiOutlineCheckCircle,
   HiOutlineClipboardDocument,
-  HiOutlineGift,
   HiOutlineLink,
   HiOutlineQrCode,
   HiOutlineShare,

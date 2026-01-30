@@ -33,7 +33,6 @@ import type {
   NodeLevel,
   PriceInfo,
   UserAssets,
-  FeatureFlags,
   TeamStats,
   EarningsStats,
   PIDReleasePlan,

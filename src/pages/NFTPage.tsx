@@ -1071,7 +1071,7 @@ export function NFTPage() {
                 >
                   <Flex justify="space-between" align="center">
                     <HStack gap={3}>
-                      <NFTBadge level={config.level} size="md" />
+                      <NFTBadge level={config.level as NFTLevel} size="md" />
                       <VStack align="start" gap={0}>
                         <Text fontSize="sm" fontWeight="600" color="white">
                           {t(`nft_level.${config.level}`)}
