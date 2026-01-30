@@ -40,10 +40,12 @@ export function ActionButton({
     switch (variant) {
       case 'primary':
         return {
-          bg: customBg || '#4F46E5',
+          bg: customBg || '#1A1A1E',
           color: 'white',
-          _hover: { bg: '#4338CA' },
-          _active: { bg: '#3730A3' },
+          border: '1px solid',
+          borderColor: '#3A3A40',
+          _hover: { bg: '#2A2A30', borderColor: '#5A5A60' },
+          _active: { bg: '#3A3A40', borderColor: '#6A6A70' },
         }
       case 'secondary':
         return {
@@ -51,17 +53,17 @@ export function ActionButton({
           color: 'white',
           border: '1px solid',
           borderColor: '#2D2D31',
-          _hover: { bg: '#232326', borderColor: '#4F46E5' },
+          _hover: { bg: '#232326', borderColor: '#4D4D51' },
           _active: { bg: '#232326' },
         }
       case 'outline':
         return {
           bg: 'transparent',
-          color: '#4F46E5',
+          color: '#A1A1AA',
           border: '1px solid',
-          borderColor: '#4F46E5',
-          _hover: { bg: 'rgba(79, 70, 229, 0.1)' },
-          _active: { bg: 'rgba(79, 70, 229, 0.2)' },
+          borderColor: '#3D3D41',
+          _hover: { bg: 'rgba(61, 61, 65, 0.3)' },
+          _active: { bg: 'rgba(61, 61, 65, 0.5)' },
         }
       case 'ghost':
         return {

@@ -22,6 +22,7 @@ import {
   StatCard,
 } from '../components/common'
 import { usePayFiStore } from '../stores/payfiStore'
+import { useAuthStore } from '../stores/authStore'
 
 const MotionBox = motion.create(Box)
 const MotionFlex = motion.create(Flex)
@@ -29,6 +30,7 @@ const MotionFlex = motion.create(Flex)
 export function HomePage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const { user } = useAuthStore()
   const {
     priceInfo,
     userAssets,
@@ -41,12 +43,13 @@ export function HomePage() {
     fetchHomeData()
   }, [fetchHomeData])
 
-  // 计算总资产价值
-  const totalAssetValue = userAssets
-    ? (userAssets.pidBalance * (priceInfo?.pidPrice || 0)) +
-      (userAssets.picBalance * (priceInfo?.picPrice || 0)) +
-      userAssets.totalNFTInvest
-    : 0
+  // 使用后端计算的总资产估值，如果没有则本地计算
+  const totalAssetValue = userAssets?.totalAssetValueUSDT ||
+    (userAssets
+      ? (userAssets.pidBalance + userAssets.pidTotalLocked) * (priceInfo?.pidPrice || 0) +
+        userAssets.picBalance * (priceInfo?.picPrice || 0) +
+        userAssets.totalNFTInvest
+      : 0)
 
   return (
     <Box>
@@ -65,7 +68,7 @@ export function HomePage() {
             <Flex justify="space-between" align="flex-start" mb="4">
               <Box>
                 <HStack gap={2} mb="1">
-                  <PolyFlowLogo size={16} colorMode="gradient" />
+                  <PolyFlowLogo size={16} colorMode="white" />
                   <Text fontSize="sm" color="whiteAlpha.600">
                     {t('home.total_asset_value')}
                   </Text>
@@ -116,7 +119,7 @@ export function HomePage() {
                   </Text>
                 </HStack>
               </Box>
-              {/* PIC 可用/锁仓 */}
+              {/* PIC 可用/已释放 */}
               <Box bg="whiteAlpha.50" borderRadius="lg" p={2}>
                 <Text fontSize="xs" color="whiteAlpha.500" mb={1}>{t('home.pic_available_locked')}</Text>
                 <HStack gap={2}>
@@ -125,7 +128,7 @@ export function HomePage() {
                   </Text>
                   <Text fontSize="xs" color="whiteAlpha.400">/</Text>
                   <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600">
-                    0.00
+                    {userAssets?.picReleasedBalance?.toFixed(2) ?? '0.00'}
                   </Text>
                 </HStack>
               </Box>
@@ -144,7 +147,7 @@ export function HomePage() {
             transition={{ delay: 0.1 }}
           >
             <HStack gap={1} mb={1}>
-              <HiOutlineBolt size={14} color="#292FE1" />
+              <HiOutlineBolt size={14} color="#8A8A90" />
               <Text fontSize="xs" color="whiteAlpha.600">{t('home.power_value')}</Text>
             </HStack>
             <Text fontSize="lg" fontWeight="bold" color="white">
@@ -170,7 +173,7 @@ export function HomePage() {
             transition={{ delay: 0.15 }}
           >
             <HStack gap={1} mb={1}>
-              <HiOutlineShieldCheck size={14} color="#D811F0" />
+              <HiOutlineShieldCheck size={14} color="#8A8A90" />
               <Text fontSize="xs" color="whiteAlpha.600">{t('home.pool_amount')}</Text>
             </HStack>
             <Text fontSize="lg" fontWeight="bold" color="white">
@@ -187,10 +190,10 @@ export function HomePage() {
             transition={{ delay: 0.2 }}
           >
             <HStack gap={1} mb={1}>
-              <HiOutlineArrowTrendingUp size={14} color="#22C55E" />
+              <HiOutlineArrowTrendingUp size={14} color="#8A8A90" />
               <Text fontSize="xs" color="whiteAlpha.600">{t('home.output_rate')}</Text>
             </HStack>
-            <Text fontSize="lg" fontWeight="bold" color="#22C55E">
+            <Text fontSize="lg" fontWeight="bold" color="white">
               {((systemStats?.dailyRate || 0) * 100).toFixed(2)}%
             </Text>
           </MotionBox>
@@ -207,10 +210,10 @@ export function HomePage() {
         >
           <Flex justify="space-between" align="center" mb="3">
             <HStack gap={2}>
-              <HiOutlineGift size={18} color="#D811F0" />
+              <HiOutlineGift size={18} color="#8A8A90" />
               <Text fontSize="sm" color="whiteAlpha.700">{t('home.today_earnings')}</Text>
             </HStack>
-            <Text fontSize="xl" fontWeight="bold" color="#22C55E">
+            <Text fontSize="xl" fontWeight="bold" color="white">
               +${earningsStats?.todayEarnings?.toFixed(2) ?? '0.00'}
             </Text>
           </Flex>
@@ -244,7 +247,7 @@ export function HomePage() {
               value={`$${earningsStats?.totalStaticEarned?.toLocaleString() ?? '0'}`}
               subValue={t('home.cumulative')}
               icon={<HiOutlineBolt size={18} />}
-              color="#292FE1"
+              color="#8A8A90"
               delay={0.1}
             />
             <StatCard
@@ -252,7 +255,7 @@ export function HomePage() {
               value={`$${earningsStats?.totalReferralEarned?.toLocaleString() ?? '0'}`}
               subValue={t('home.cumulative')}
               icon={<HiOutlineUserPlus size={18} />}
-              color="#D811F0"
+              color="#8A8A90"
               delay={0.15}
             />
             <StatCard
@@ -260,7 +263,7 @@ export function HomePage() {
               value={`$${earningsStats?.totalNodeEarned?.toLocaleString() ?? '0'}`}
               subValue={t('home.cumulative')}
               icon={<HiOutlineGift size={18} />}
-              color="#22C55E"
+              color="#8A8A90"
               delay={0.2}
             />
             <StatCard
@@ -268,25 +271,26 @@ export function HomePage() {
               value={`$${earningsStats?.totalGlobalEarned?.toLocaleString() ?? '0'}`}
               subValue={t('home.cumulative')}
               icon={<HiOutlineGift size={18} />}
-              color="#EAB308"
+              color="#8A8A90"
               delay={0.25}
             />
           </SimpleGrid>
         </Box>
 
-        {/* 邀请入口 */}
+        {/* 邀请入口 - 未激活用户禁用 */}
         <MotionBox
           bg="#17171C"
           borderRadius="xl"
           p="4"
           border="1px solid"
           borderColor="whiteAlpha.100"
-          cursor="pointer"
-          onClick={() => navigate('/invite')}
+          cursor={user?.is_active ? 'pointer' : 'not-allowed'}
+          opacity={user?.is_active ? 1 : 0.5}
+          onClick={() => user?.is_active && navigate('/invite')}
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={{ opacity: user?.is_active ? 1 : 0.5, y: 0 }}
           transition={{ duration: 0.4, delay: 0.3 }}
-          whileTap={{ scale: 0.98 }}
+          whileTap={user?.is_active ? { scale: 0.98 } : undefined}
         >
           <Flex justify="space-between" align="center">
             <Flex align="center" gap="3">
@@ -294,16 +298,21 @@ export function HomePage() {
                 w="44px"
                 h="44px"
                 borderRadius="12px"
-                bg="rgba(216, 17, 240, 0.15)"
+                bg={user?.is_active ? 'rgba(255, 255, 255, 0.1)' : 'rgba(100, 100, 100, 0.15)'}
                 align="center"
                 justify="center"
               >
-                <HiOutlineUserPlus size={22} color="#D811F0" />
+                <HiOutlineUserPlus size={22} color={user?.is_active ? '#FFFFFF' : '#666'} />
               </Flex>
               <Box>
-                <Text fontSize="sm" fontWeight="600" color="white">
+                <Text fontSize="sm" fontWeight="600" color={user?.is_active ? 'white' : 'whiteAlpha.400'}>
                   {t('home.invite_friends')}
                 </Text>
+                {!user?.is_active && (
+                  <Text fontSize="xs" color="whiteAlpha.400">
+                    {t('home.invite_disabled_hint')}
+                  </Text>
+                )}
               </Box>
             </Flex>
             <Box color="whiteAlpha.400">

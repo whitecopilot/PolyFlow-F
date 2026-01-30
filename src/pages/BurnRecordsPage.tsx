@@ -22,7 +22,7 @@ export function BurnRecordsPage() {
   }, [burnRecords.length, fetchAllData])
 
   return (
-    <Box minH="100vh" bg="black">
+    <Box minH="100vh" bg="#111111">
       <SecondaryPageHeader title={t('burn_records.title')} />
 
       <VStack gap="3" p="4" align="stretch">

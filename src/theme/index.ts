@@ -1,15 +1,15 @@
 import { createSystem, defaultConfig, defineConfig } from '@chakra-ui/react'
 
 /**
- * PolyFlow 设计规范 - 基于 app.polyflow.tech 实际站点
+ * PolyFlow 设计规范 - 黑白高级简约风格
  *
  * 颜色系统：
- * - 主背景：#000000 (纯黑)
- * - 卡片背景：#17171C (深灰偏蓝)
+ * - 主背景：#111111 (深黑)
+ * - 卡片背景：#17171C (深灰)
  * - 次级背景：#2F2F33 (中灰)
  * - 边框：#454549
- * - 主按钮：#292FE1 (蓝紫色)
- * - 渐变：#171CA2 → #D811F0 (蓝到粉紫)
+ * - 主按钮：#2D2D31 (深灰黑)
+ * - 渐变：#000000 → #FFFFFF (黑到白)
  */
 
 const config = defineConfig({
@@ -28,24 +28,24 @@ const config = defineConfig({
         body: { value: '"Inter", system-ui, sans-serif' },
       },
       colors: {
-        // 主色调 - 蓝紫色系 (基于 PolyFlow 实际配色)
+        // 主色调 - 黑灰色系 (高级简约风格)
         brand: {
-          50: { value: '#EEEEFF' },
-          100: { value: '#D8DAFF' },
-          200: { value: '#B3B7FF' },
-          300: { value: '#8A8FFF' },
-          400: { value: '#5A61F0' },
-          500: { value: '#292FE1' }, // 主色 - PolyFlow 主按钮色
-          600: { value: '#2328C4' },
-          700: { value: '#171CA2' }, // 渐变起点
-          800: { value: '#131780' },
-          900: { value: '#0E1160' },
+          50: { value: '#F5F5F5' },
+          100: { value: '#E5E5E5' },
+          200: { value: '#D4D4D4' },
+          300: { value: '#A3A3A3' },
+          400: { value: '#737373' },
+          500: { value: '#2D2D31' }, // 主色 - 深灰黑按钮
+          600: { value: '#3D3D41' },
+          700: { value: '#4D4D51' },
+          800: { value: '#1A1A1D' },
+          900: { value: '#0A0A0A' },
         },
-        // 强调色 - 渐变终点和装饰色
+        // 强调色 - 黑白主题装饰色
         accent: {
-          purple: { value: '#8B5CF6' },
-          pink: { value: '#D811F0' },    // 渐变终点
-          magenta: { value: '#C20ED7' }, // 卡片渐变
+          purple: { value: '#6B7280' },
+          pink: { value: '#9CA3AF' },    // 渐变终点（浅灰）
+          magenta: { value: '#D1D5DB' }, // 卡片渐变（白灰）
           cyan: { value: '#22D3EE' },
           green: { value: '#10B981' },
           orange: { value: '#F59E0B' },
@@ -79,10 +79,10 @@ const config = defineConfig({
         full: { value: '9999px' }, // 胶囊形状
       },
       shadows: {
-        card: { value: '0 0 20px rgba(0, 0, 0, 0.25)' }, // PolyFlow 卡片阴影
-        glow: { value: '0 0 20px rgba(41, 47, 225, 0.3)' },
-        'glow-lg': { value: '0 0 40px rgba(41, 47, 225, 0.4)' },
-        'glow-pink': { value: '0 0 30px rgba(216, 17, 240, 0.3)' },
+        card: { value: '0 0 20px rgba(0, 0, 0, 0.25)' },
+        glow: { value: '0 0 20px rgba(255, 255, 255, 0.15)' },
+        'glow-lg': { value: '0 0 40px rgba(255, 255, 255, 0.2)' },
+        'glow-pink': { value: '0 0 30px rgba(180, 180, 180, 0.2)' },
       },
     },
     semanticTokens: {

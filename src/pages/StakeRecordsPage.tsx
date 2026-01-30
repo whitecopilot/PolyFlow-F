@@ -23,7 +23,7 @@ export function StakeRecordsPage() {
   const stakeRecords: StakeRecord[] = []
 
   return (
-    <Box minH="100vh" bg="black">
+    <Box minH="100vh" bg="#111111">
       <SecondaryPageHeader title={t('stake_records.title')} />
 
       <VStack gap="3" p="4" align="stretch">

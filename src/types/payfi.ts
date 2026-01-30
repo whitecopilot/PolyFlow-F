@@ -42,8 +42,23 @@ export interface PriceInfo {
   lastUpdated: Date;
 }
 
+// 功能开关
+export interface FeatureFlags {
+  pidStakingEnabled: boolean;  // PID 质押功能是否启用
+  nftSalesEnabled: boolean;    // NFT 销售功能是否启用
+}
+
 // 用户资产信息
 export interface UserAssets {
+  // 功能开关
+  featureFlags?: FeatureFlags;
+
+  // 总资产估值
+  totalAssetValueUSDT?: number;  // 总资产估值 (USDT)，按当前价格计算
+
+  // 钱包 USDT 余额
+  usdtBalance?: number;  // 用户钱包持有的 USDT 数量
+
   // NFT & 算力
   currentNFTLevel: NFTLevel;
   nftCoefficient: number;
@@ -62,7 +77,7 @@ export interface UserAssets {
   exitFromNFT: number;         // NFT出局额度
   exitFromBurn: number;        // 销毁出局额度
   totalExitLimit: number;      // 总出局额度
-  earnedRewards: number;       // 已领取奖励总额(USDT)
+  earnedRewards: number;       // 已领取奖励总额(USDT)，历史价值
   remainingLimit: number;      // 剩余额度
 
   // 代币余额
@@ -73,17 +88,16 @@ export interface UserAssets {
   picReleasedBalance: number;  // PIC线性释放已解锁余额（提现无手续费）
 }
 
-// 团队统计
+// 团队统计（使用质押业绩）
 export interface TeamStats {
   directPerformance: number;   // 邀请业绩(USDT)
   directCount: number;         // 直推人数
   directOrderCount: number;    // 直推单数
   teamCount: number;           // 团队总人数
   teamOrderCount: number;      // 团队总单数
-  teamPerformance: number;     // 团队总业绩(USDT)
-  stakingPerformance: number;  // 质押业绩(USDT)
-  maxLinePerf: number;         // 最大单线业绩(USDT)
-  smallAreaPerf: number;       // 小区业绩
+  teamPerformance: number;     // 团队总业绩 - 质押业绩(USDT)
+  maxLinePerf: number;         // 大区业绩 - 质押业绩(USDT)
+  smallAreaPerf: number;       // 小区业绩 - 质押业绩
   nodeLevel: NodeLevel;        // 节点等级
 }
 
@@ -94,7 +108,13 @@ export interface EarningsStats {
   totalNodeEarned: number;        // 累计节点奖励
   totalSameLevelEarned: number;   // 累计平级奖励
   totalGlobalEarned: number;      // 累计全网加权分成
-  todayEarnings: number;          // 今日收益
+  todayEarnings: number;          // 今日总收益
+  // 今日各类型收益
+  todayStaticEarned: number;      // 今日静态收益
+  todayReferralEarned: number;    // 今日推荐奖励
+  todayNodeEarned: number;        // 今日节点奖励
+  todaySameLevelEarned: number;   // 今日平级奖励
+  todayGlobalEarned: number;      // 今日全网分成
   withdrawableAmount: number;     // 可提现金额
 }
 
@@ -137,19 +157,50 @@ export interface RewardRecord {
   createdAt: Date;
 }
 
+// 提现订单状态
+export type WithdrawStatus = 'submit' | 'cheque' | 'received';
+
+// 提现来源类型
+export type WithdrawSourceType = 'balance' | 'released';
+
 // 提现记录
 export interface WithdrawRecord {
   id: number;
-  totalAmount: number;      // 提现总量(PIC)
-  feeAmount: number;        // 手续费(PIC)
-  instantAmount: number;    // 即时到账(80%)
-  linearAmount: number;     // 线性释放(20%)
-  linearReleased: number;   // 已释放的线性部分
-  status: 'pending' | 'processing' | 'completed';
-  createdAt: Date;
+  orderNum: string;         // 订单编号
+  tokenType: 'PID' | 'PIC'; // 代币类型
+  amount: number;           // 实际到账金额
+  servicedFee: number;      // 手续费
+  source: WithdrawSourceType; // 来源类型
+  status: WithdrawStatus;   // 订单状态
+  transactionHash?: string; // 交易哈希
+  createdAt: Date;          // 创建时间
+  claimedAt?: Date;         // 领取时间
 }
 
 // 团队成员
+// 用户状态枚举（与后端对应）
+export const UserStateEnum = {
+  UnInvested: 0,      // 未投资
+  Invested: 1,        // 已投资
+  TransIn: 2,         // 转入
+  FullTransOut: 3,    // 所有NFT已完全转出
+  Out: 4,             // 已出局
+  OutReTransIn: 5,    // 出局后转入激活
+  ReInvested: 6,      // 已复投
+  Banned: 7,          // 已封禁
+} as const
+
+// 判断用户是否已激活（已投资）
+export function isUserActivated(state: number): boolean {
+  const activatedStates: number[] = [
+    UserStateEnum.Invested,
+    UserStateEnum.TransIn,
+    UserStateEnum.OutReTransIn,
+    UserStateEnum.ReInvested,
+  ]
+  return activatedStates.includes(state)
+}
+
 export interface TeamMember {
   id: number;
   address: string;
@@ -158,6 +209,7 @@ export interface TeamMember {
   performance: number;      // 业绩
   joinedAt: Date;
   isDirectReferral: boolean;
+  state: number;            // 用户状态
 }
 
 // 全局系统状态

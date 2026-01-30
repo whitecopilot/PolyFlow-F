@@ -31,22 +31,23 @@
     "invitation_rewards": "초대 보상",
     "node_rewards": "노드 보상",
     "airdrop_rewards": "에어드랍 보상",
-    "invite_friends": "친구 초대"
+    "invite_friends": "친구 초대",
+    "invite_disabled_hint": "NFT 구매로 초대 권한 잠금 해제"
   },
   "team": {
     "node_level": "노드 레벨",
     "upgrade_to": "{{level}}로 업그레이드하려면",
-    "small_area_perf": "소구역 실적",
-    "total_perf": "총 실적",
+    "small_area_perf": "승급 파워",
+    "total_perf": "총 파워",
     "performance_stats": "실적 통계",
-    "team_total_perf": "팀 총 실적",
-    "small_area_perf_value": "경쟁 파워 값",
-    "daily_new_power": "일일 신규 파워",
+    "team_total_perf": "총 파워",
+    "small_area_perf_value": "소구역 실적",
+    "max_line_perf_value": "일일 신규 파워",
     "community_count": "커뮤니티 인원",
     "invite": "초대",
     "upgrade_requirements": "{{level}} 업그레이드 조건",
-    "small_area_req": "경쟁 파워 ≥ {{req}}만",
-    "total_req": "총 파워 ≥ {{req}}만",
+    "small_area_req": "소구역 실적 ≥ {{req}}만",
+    "total_req": "총 실적 ≥ {{req}}만",
     "p9_special_req": "팀 내 P8 ≥ 2명",
     "units": "명",
     "ten_thousand": "만",
@@ -87,7 +88,9 @@
     "sign_notice": "이 메시지에 서명해도 Gas 비용이 발생하지 않으며 지갑 소유권 확인에만 사용됩니다.",
     "waiting_sign": "서명 대기 중...",
     "sign_to_login": "서명하여 로그인",
-    "use_other_wallet": "다른 지갑 사용"
+    "use_other_wallet": "다른 지갑 사용",
+    "invalid_invite_code": "잘못된 초대 코드입니다. 올바른 코드를 입력해 주세요",
+    "wallet_switched": "지갑 전환이 감지되었습니다. 다시 로그인해 주세요"
   },
   "common": {
     "loading": "로딩 중...",
@@ -177,7 +180,9 @@
     "full_release": "100% 지급",
     "pid_available": "PID 출금 가능",
     "pic_available": "PIC 출금 가능",
-    "pic_released": "PIC 릴리스됨"
+    "pic_released": "PIC 릴리스됨",
+    "instant_arrival": "즉시 입금",
+    "fee_label": "수수료"
   },
   "nft": {
     "current_level": "현재 레벨",
@@ -210,7 +215,10 @@
     "purchase_level": "{{level}} 구매",
     "all_levels": "모든 레벨",
     "power": "파워",
-    "current": "현재"
+    "current": "현재",
+    "insufficient_balance": "잔액 부족",
+    "balance_hint": "현재 잔액: {{balance}} USDT, 필요: {{required}} USDT",
+    "wallet_balance": "지갑 잔액"
   },
   "reward_list": {
     "total_reward": "누적 {{type}}",
@@ -222,14 +230,29 @@
     "title": "출금 기록",
     "total_withdrawn": "누적 출금",
     "completed_count": "{{count}} 건 완료",
+    "pending_count": "{{count}} 건 대기",
     "releasing_count": "{{count}} 건 해제 중",
     "no_records": "출금 기록 없음",
     "completed": "완료됨",
+    "claimable": "수령 가능",
+    "processing": "처리 중",
     "releasing": "해제 중",
+    "claim": "수령",
+    "fee": "수수료",
+    "source": "출처",
+    "source_balance": "사용 가능 잔액",
+    "source_released": "선형 해제",
+    "create_time": "생성 시간",
+    "claim_time": "수령 시간",
     "linear_progress": "선형 해제 진행률",
     "instant_release": "즉시",
     "linear_release": "선형",
     "withdraw_time": "출금 시간"
+  },
+  "withdraw": {
+    "step": "단계",
+    "wallet_confirm_hint": "지갑에서 거래를 확인하세요",
+    "view_records": "기록 보기"
   },
   "team_members": {
     "title": "팀 멤버",
@@ -240,7 +263,9 @@
     "invite": "초대",
     "no_direct": "직접 초대 없음",
     "no_members": "팀 멤버 없음",
-    "invite_friends": "친구를 초대하여 팀에 합류하세요"
+    "invite_friends": "친구를 초대하여 팀에 합류하세요",
+    "activated": "활성화됨",
+    "not_activated": "미활성화"
   },
   "burn_records": {
     "title": "소각 기록",

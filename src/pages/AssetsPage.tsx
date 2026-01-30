@@ -55,6 +55,9 @@ export function AssetsPage() {
   const [isStaking, setIsStaking] = useState(false)
   const [stakeError, setStakeError] = useState<string | null>(null)
 
+  // 质押功能是否启用（由后端配置控制）
+  const isStakingEnabled = userAssets?.featureFlags?.pidStakingEnabled ?? false
+
   useEffect(() => {
     fetchUserAssets()
     fetchPIDReleasePlans()
@@ -124,13 +127,13 @@ export function AssetsPage() {
   const quickAmounts = [100, 500, 1000, 3000, 10000]
 
   return (
-    <Box minH="100vh" bg="black">
+    <Box minH="100vh" bg="#111111">
       {/* 一级页面顶部导航 */}
       <PageHeader title={t('assets.title')} />
 
       <VStack gap="5" p="4" align="stretch">
         {/* PID 卡片 */}
-        <GradientBorderCard glowIntensity="low">
+        <GradientBorderCard glowIntensity="low" staticBorder>
           <Box p="4">
             <HStack justify="space-between" mb="3">
               <HStack gap={2}>
@@ -168,12 +171,12 @@ export function AssetsPage() {
               </Box>
               <Box>
                 <HStack gap={1} mb={1}>
-                  <HiOutlineArrowPath size={12} color="#22C55E" />
+                  <HiOutlineArrowPath size={12} color="#8A8A90" />
                   <Text fontSize="xs" color="whiteAlpha.500">
                     {t('assets.released')}
                   </Text>
                 </HStack>
-                <Text fontSize="lg" fontWeight="bold" color="#22C55E">
+                <Text fontSize="lg" fontWeight="bold" color="white">
                   {userAssets?.pidReleased.toFixed(2) || '0.00'}
                 </Text>
               </Box>
@@ -192,14 +195,14 @@ export function AssetsPage() {
 
             <Text fontSize="xs" color="whiteAlpha.400">
               ≈ $
-              {((userAssets?.pidTotalLocked || 0) * (priceInfo?.pidPrice || 0)).toFixed(2)}{' '}
+              {(((userAssets?.pidTotalLocked || 0) + (userAssets?.pidBalance || 0)) * (priceInfo?.pidPrice || 0)).toFixed(2)}{' '}
               USDT
             </Text>
           </Box>
         </GradientBorderCard>
 
         {/* PIC 卡片 */}
-        <GradientBorderCard glowIntensity="low">
+        <GradientBorderCard glowIntensity="low" staticBorder>
           <Box p="4">
             <HStack justify="space-between" mb="3">
               <HStack gap={2}>
@@ -232,18 +235,19 @@ export function AssetsPage() {
                   </Text>
                 </HStack>
                 <Text fontSize="lg" fontWeight="bold" color="whiteAlpha.600">
+                  {/* PIC 锁仓 = 总获取 - 可用 - 已释放 */}
                   0.00
                 </Text>
               </Box>
               <Box>
                 <HStack gap={1} mb={1}>
-                  <HiOutlineArrowPath size={12} color="#22C55E" />
+                  <HiOutlineArrowPath size={12} color="#8A8A90" />
                   <Text fontSize="xs" color="whiteAlpha.500">
                     {t('assets.released')}
                   </Text>
                 </HStack>
-                <Text fontSize="lg" fontWeight="bold" color="#22C55E">
-                  0.00
+                <Text fontSize="lg" fontWeight="bold" color="white">
+                  {userAssets?.picReleasedBalance?.toFixed(2) || '0.00'}
                 </Text>
               </Box>
               <Box>
@@ -254,14 +258,14 @@ export function AssetsPage() {
                   </Text>
                 </HStack>
                 <Text fontSize="lg" fontWeight="bold" color="white">
-                  {userAssets?.picBalance.toFixed(2) || '0.00'}
+                  {userAssets?.picBalance?.toFixed(2) || '0.00'}
                 </Text>
               </Box>
             </SimpleGrid>
 
             <Text fontSize="xs" color="whiteAlpha.400">
               ≈ $
-              {((userAssets?.picBalance || 0) * (priceInfo?.picPrice || 0)).toFixed(2)}{' '}
+              {(((userAssets?.picBalance || 0) + (userAssets?.picReleasedBalance || 0)) * (priceInfo?.picPrice || 0)).toFixed(2)}{' '}
               USDT
             </Text>
           </Box>
@@ -271,7 +275,7 @@ export function AssetsPage() {
         {pidReleasePlans.length > 0 && (
           <Box>
             <HStack gap={2} mb="3">
-              <HiOutlineCalendarDays size={18} color="#292FE1" />
+              <HiOutlineCalendarDays size={18} color="#8A8A90" />
               <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600">
                 {t('assets.pid_release_plans')}
               </Text>
@@ -317,7 +321,7 @@ export function AssetsPage() {
                     <Text fontSize="xs" color="whiteAlpha.500">
                       {t('assets.released')}
                     </Text>
-                    <Text fontSize="sm" fontWeight="medium" color="#22C55E">
+                    <Text fontSize="sm" fontWeight="medium" color="white">
                       {plan.releasedAmount.toFixed(2)} PID
                     </Text>
                   </Box>
@@ -347,7 +351,7 @@ export function AssetsPage() {
         <Box>
           <Flex justify="space-between" align="center" mb="3">
             <HStack gap={2}>
-              <HiOutlineLockClosed size={18} color="#292FE1" />
+              <HiOutlineLockClosed size={18} color="#8A8A90" />
               <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600">
                 {t('assets.stake_pid_title')}
               </Text>
@@ -359,7 +363,7 @@ export function AssetsPage() {
               color="whiteAlpha.500"
               cursor="pointer"
               onClick={() => navigate('/stake-records')}
-              _hover={{ color: '#292FE1' }}
+              _hover={{ color: '#5A5A60' }}
               transition="color 0.2s"
             >
               <HiOutlineClipboardDocumentList size={16} />
@@ -379,7 +383,7 @@ export function AssetsPage() {
             <HStack mb="4" bg="black" p="1" borderRadius="lg">
               {STAKE_OPTIONS.map((option) => (
                 <Button
-                  disabled={true}
+                  disabled={!isStakingEnabled}
                   key={option.id}
                   flex={1}
                   size="sm"
@@ -397,7 +401,7 @@ export function AssetsPage() {
             {/* 输入框 */}
             <Box position="relative" mb="3">
               <Input
-                disabled={true}
+                disabled={!isStakingEnabled}
                 type="number"
                 placeholder={t('assets.enter_stake_amount')}
                 value={stakeAmount}
@@ -416,12 +420,12 @@ export function AssetsPage() {
                 pr="20"
                 _placeholder={{ color: 'whiteAlpha.400' }}
                 _focus={{
-                  borderColor: '#292FE1',
+                  borderColor: '#5A5A60',
                   boxShadow: '0 0 0 1px #292FE1',
                 }}
               />
               <Button
-                  disabled={true}
+                  disabled={!isStakingEnabled}
                   size="xs"
                 position="absolute"
                 right="3"
@@ -449,7 +453,7 @@ export function AssetsPage() {
                 <Text fontSize="sm" color="whiteAlpha.600">
                    {t('assets.lock_period')}
                 </Text>
-                <Text fontSize="sm" color="#22C55E">
+                <Text fontSize="sm" color="white">
                   {currentStakeOption.duration} {t('assets.stake_days')}
                 </Text>
               </HStack>
@@ -457,7 +461,7 @@ export function AssetsPage() {
                 <Text fontSize="sm" color="whiteAlpha.600">
                    {t('assets.apy')}
                 </Text>
-                <Text fontSize="sm" color="#22C55E">
+                <Text fontSize="sm" color="white">
                   {(currentStakeOption.apy * 100).toFixed(0)}%
                 </Text>
               </HStack>
@@ -475,7 +479,7 @@ export function AssetsPage() {
               variant="primary"
               w="full"
               onClick={handleStake}
-              disabled={true}
+              disabled={!isStakingEnabled}
             >
               {isStaking ? t('assets.processing') : t('assets.confirm_stake')}
             </ActionButton>
@@ -491,7 +495,7 @@ export function AssetsPage() {
         <Box>
           <Flex justify="space-between" align="center" mb="3">
             <HStack gap={2}>
-              <HiOutlineFire size={18} color="#D811F0" />
+              <HiOutlineFire size={18} color="#8A8A90" />
               <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600">
                 {t('assets.burn_pic_title')}
               </Text>
@@ -503,7 +507,7 @@ export function AssetsPage() {
               color="whiteAlpha.500"
               cursor="pointer"
               onClick={() => navigate('/burn-records')}
-              _hover={{ color: '#D811F0' }}
+              _hover={{ color: '#5A5A60' }}
               transition="color 0.2s"
             >
               <HiOutlineClipboardDocumentList size={16} />
@@ -525,7 +529,7 @@ export function AssetsPage() {
                 {t('assets.burn_amount_label')}
               </Text>
               <Input
-                disabled={true}
+                disabled={!isStakingEnabled}
                 type="number"
                 placeholder={t('assets.enter_burn_amount')}
                 value={burnAmount}
@@ -543,7 +547,7 @@ export function AssetsPage() {
                 pl="4"
                 _placeholder={{ color: 'whiteAlpha.400' }}
                 _focus={{
-                  borderColor: '#D811F0',
+                  borderColor: '#5A5A60',
                   boxShadow: '0 0 0 1px #D811F0',
                 }}
               />
@@ -573,7 +577,7 @@ export function AssetsPage() {
                     variant="outline"
                     size="sm"
                     flex={1}
-                    disabled={true}
+                    disabled={!isStakingEnabled}
                     onClick={() => setBurnAmount(picAmount.toFixed(2))}
                   >
                     ${amount}
@@ -590,7 +594,7 @@ export function AssetsPage() {
                 </Text>
                 <SimpleGrid columns={2} gap={3}>
                   <HStack>
-                    <HiOutlineBolt size={16} color="#292FE1" />
+                    <HiOutlineBolt size={16} color="#8A8A90" />
                     <Box>
                       <Text fontSize="xs" color="whiteAlpha.500">
                         {t('assets.power')}
@@ -601,7 +605,7 @@ export function AssetsPage() {
                     </Box>
                   </HStack>
                   <HStack>
-                    <HiOutlineShieldCheck size={16} color="#22C55E" />
+                    <HiOutlineShieldCheck size={16} color="#8A8A90" />
                     <Box>
                       <Text fontSize="xs" color="whiteAlpha.500">
                         {t('assets.exit_limit')}
@@ -631,7 +635,7 @@ export function AssetsPage() {
               variant="primary"
               w="full"
               onClick={handleBurn}
-              disabled={true}
+              disabled={!isStakingEnabled}
             >
               {isProcessing ? t('assets.processing') : t('assets.confirm_burn')}
             </ActionButton>

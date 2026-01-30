@@ -1,13 +1,14 @@
 import { useAccount, useDisconnect, useSignMessage } from 'wagmi'
 import { useAuthStore, shortenAddress } from '../stores/authStore'
-import { useCallback, useMemo, useEffect } from 'react'
+import { usePayFiStore } from '../stores/payfiStore'
+import { useCallback, useMemo, useEffect, useRef } from 'react'
 import { authApi, ApiError } from '../api'
-import { AuthErrorMessages } from '../api/types'
 
 // 登录结果类型
 export interface SignInResult {
   success: boolean
-  needsInviteCode?: boolean
+  needsInviteCode?: boolean      // 新用户需要提供邀请码
+  invalidInviteCode?: boolean    // 邀请码无效（包括不存在、已使用、已过期等）
   errorMessage?: string
 }
 
@@ -65,11 +66,19 @@ export function useAuth() {
     token,
     user,
     isLoading,
+    walletSwitched,
     setAuth,
     setUser,
     clearAuth,
     setLoading,
+    setWalletSwitched,
   } = useAuthStore()
+
+  // 获取 payfiStore 的 reset 方法用于清理用户数据
+  const resetPayFiStore = usePayFiStore((state) => state.reset)
+
+  // 用于追踪上一个连接的地址，检测钱包切换
+  const previousAddressRef = useRef<string | null>(null)
 
   // 用户是否已完成签名认证
   const isAuthenticated = useMemo(() => {
@@ -130,17 +139,34 @@ export function useAuth() {
       console.error('登录失败:', error)
       setLoading(false)
 
-      // 如果是 API 错误，检查是否需要邀请码
+      // 如果是 API 错误，检查具体错误类型
       if (error instanceof ApiError) {
         const errorMsg = error.message
-        // 检查是否是需要邀请码的错误（匹配后端 i18n 消息）
-        const needsInviteCode = errorMsg.includes('invitation code') ||
-                                errorMsg.includes('邀请码') ||
-                                errorMsg.includes(AuthErrorMessages.NeedInviteCode)
+
+        // 检查是否是新用户需要邀请码的错误
+        // 匹配多语言消息：英文 "must provide", 中文 "必须提供"
+        const needsInviteCode =
+          errorMsg.includes('must provide') ||
+          errorMsg.includes('必须提供') ||
+          errorMsg.includes('제공해야') // 韩文
+
+        // 检查是否是邀请码无效的错误（不存在、已使用、已过期、邀请人问题等）
+        const invalidInviteCode =
+          errorMsg.includes('Invalid') ||
+          errorMsg.includes('无效') ||
+          errorMsg.includes('已被使用') ||
+          errorMsg.includes('has been used') ||
+          errorMsg.includes('已过期') ||
+          errorMsg.includes('expired') ||
+          errorMsg.includes('未投资') ||
+          errorMsg.includes('not invested') ||
+          errorMsg.includes('INVITER') ||
+          errorMsg.includes('잘못된') // 韩文 "无效"
 
         return {
           success: false,
           needsInviteCode,
+          invalidInviteCode,
           errorMessage: errorMsg
         }
       }
@@ -183,19 +209,67 @@ export function useAuth() {
     }
   }, [isAuthenticated, setUser, clearAuth])
 
+  // 清除所有用户数据（认证状态 + PayFi 数据）
+  const clearAllUserData = useCallback(() => {
+    // 清除认证状态
+    clearAuth()
+    // 清除 PayFi store 中的用户数据
+    resetPayFiStore()
+    // 清除可能存在的其他用户相关缓存
+    try {
+      // 清除 payfi-storage（虽然 reset 会清理内存状态，但持久化存储也需要清理）
+      localStorage.removeItem('payfi-storage')
+    } catch {
+      // 忽略 localStorage 错误
+    }
+  }, [clearAuth, resetPayFiStore])
+
   // 断开连接并清除认证
   const disconnect = useCallback(() => {
-    clearAuth()
+    clearAllUserData()
     wagmiDisconnect()
-  }, [clearAuth, wagmiDisconnect])
+  }, [clearAllUserData, wagmiDisconnect])
 
-  // 当钱包地址变化时，检查是否需要重新登录
+  // 监听钱包地址变化 - 增强版
+  useEffect(() => {
+    const currentAddress = address?.toLowerCase() || null
+    const prevAddress = previousAddressRef.current
+
+    // 更新 ref 以追踪当前地址
+    previousAddressRef.current = currentAddress
+
+    // 如果是首次设置地址（从 null 到有值），不触发切换逻辑
+    if (prevAddress === null && currentAddress !== null) {
+      return
+    }
+
+    // 检测钱包切换：之前有地址，现在地址变了（包括变成不同地址或断开连接）
+    if (prevAddress !== null && currentAddress !== prevAddress) {
+      console.log('[useAuth] 检测到钱包切换:', prevAddress, '->', currentAddress)
+
+      // 清除所有用户数据
+      clearAllUserData()
+
+      // 如果用户切换到了新地址（不是断开连接），标记需要重新登录
+      if (currentAddress !== null) {
+        setWalletSwitched(true)
+      }
+    }
+  }, [address, clearAllUserData, setWalletSwitched])
+
+  // 额外的安全检查：如果当前连接地址与已签名地址不匹配，清除认证
   useEffect(() => {
     if (address && signedAddress && address.toLowerCase() !== signedAddress.toLowerCase()) {
-      // 地址变了，清除认证状态
-      clearAuth()
+      console.log('[useAuth] 地址不匹配，清除认证状态')
+      clearAllUserData()
+      setWalletSwitched(true)
     }
-  }, [address, signedAddress, clearAuth])
+  }, [address, signedAddress, clearAllUserData, setWalletSwitched])
+
+  // 清除钱包切换标志
+  const clearWalletSwitchedFlag = useCallback(() => {
+    setWalletSwitched(false)
+  }, [setWalletSwitched])
 
   return {
     // 钱包状态
@@ -210,10 +284,15 @@ export function useAuth() {
     user,
     needsBindInviter,
 
+    // 钱包切换状态
+    walletSwitched,
+    clearWalletSwitchedFlag,
+
     // 操作
     signIn,
     disconnect,
     bindInviter,
     refreshUser,
+    clearAllUserData,
   }
 }

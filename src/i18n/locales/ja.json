@@ -31,22 +31,23 @@
     "invitation_rewards": "招待報酬",
     "node_rewards": "ノード報酬",
     "airdrop_rewards": "エアドロップ報酬",
-    "invite_friends": "友達を招待"
+    "invite_friends": "友達を招待",
+    "invite_disabled_hint": "NFTを購入して招待権限を解除"
   },
   "team": {
     "node_level": "ノードレベル",
     "upgrade_to": "{{level}}にアップグレードするには",
-    "small_area_perf": "小エリア実績",
-    "total_perf": "総実績",
+    "small_area_perf": "昇格パワー",
+    "total_perf": "総パワー",
     "performance_stats": "実績統計",
-    "team_total_perf": "チーム総実績",
-    "small_area_perf_value": "競合パワー値",
-    "daily_new_power": "日次新規パワー",
+    "team_total_perf": "総パワー",
+    "small_area_perf_value": "小エリア実績",
+    "max_line_perf_value": "日次新規パワー",
     "community_count": "コミュニティ人数",
     "invite": "招待",
     "upgrade_requirements": "{{level}}アップグレード条件",
-    "small_area_req": "競合パワー ≥ {{req}}万",
-    "total_req": "総パワー ≥ {{req}}万",
+    "small_area_req": "小エリア実績 ≥ {{req}}万",
+    "total_req": "総実績 ≥ {{req}}万",
     "p9_special_req": "チーム内 P8 ≥ 2名",
     "units": "名",
     "ten_thousand": "万",
@@ -87,7 +88,9 @@
     "sign_notice": "このメッセージへの署名にGas料金はかからず、ウォレットの所有権証明にのみ使用されます。",
     "waiting_sign": "署名を待っています...",
     "sign_to_login": "署名してログイン",
-    "use_other_wallet": "別のウォレットを使用"
+    "use_other_wallet": "別のウォレットを使用",
+    "invalid_invite_code": "招待コードが無効です。正しいコードを入力してください",
+    "wallet_switched": "ウォレットの切り替えが検出されました。再度ログインしてください"
   },
   "common": {
     "loading": "読み込み中...",
@@ -177,7 +180,9 @@
     "full_release": "100%解放",
     "pid_available": "PID 引き出し可能",
     "pic_available": "PIC 引き出し可能",
-    "pic_released": "PIC リリース済み"
+    "pic_released": "PIC リリース済み",
+    "instant_arrival": "即時入金",
+    "fee_label": "手数料"
   },
   "nft": {
     "current_level": "現在レベル",
@@ -210,7 +215,10 @@
     "purchase_level": "{{level}}を購入",
     "all_levels": "すべてのレベル",
     "power": "パワー",
-    "current": "現在"
+    "current": "現在",
+    "insufficient_balance": "残高不足",
+    "balance_hint": "現在残高: {{balance}} USDT、必要: {{required}} USDT",
+    "wallet_balance": "ウォレット残高"
   },
   "reward_list": {
     "total_reward": "累計{{type}}",
@@ -222,14 +230,29 @@
     "title": "出金記録",
     "total_withdrawn": "累計出金",
     "completed_count": "{{count}}件完了",
+    "pending_count": "{{count}}件処理中",
     "releasing_count": "{{count}}件解放中",
     "no_records": "出金記録なし",
     "completed": "完了",
+    "claimable": "受取可能",
+    "processing": "処理中",
     "releasing": "解放中",
+    "claim": "受取",
+    "fee": "手数料",
+    "source": "ソース",
+    "source_balance": "利用可能残高",
+    "source_released": "線形解放",
+    "create_time": "作成時刻",
+    "claim_time": "受取時刻",
     "linear_progress": "線形解放進捗",
     "instant_release": "即時",
     "linear_release": "線形",
     "withdraw_time": "出金時刻"
+  },
+  "withdraw": {
+    "step": "ステップ",
+    "wallet_confirm_hint": "ウォレットで取引を確認してください",
+    "view_records": "記録を表示"
   },
   "team_members": {
     "title": "チームメンバー",
@@ -240,7 +263,9 @@
     "invite": "招待",
     "no_direct": "直接紹介なし",
     "no_members": "チームメンバーなし",
-    "invite_friends": "友達を招待してチームに参加させましょう"
+    "invite_friends": "友達を招待してチームに参加させましょう",
+    "activated": "活性化済み",
+    "not_activated": "未活性化"
   },
   "burn_records": {
     "title": "焼却記録",

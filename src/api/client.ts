@@ -3,8 +3,10 @@
 import type { ApiResponse } from './types'
 import { ErrorCodes } from './types'
 
-// API 基础路径
-const API_BASE_URL = '/api/v1'
+// API 基础路径（支持环境变量配置）
+// VITE_API_BASE_URL: 完整的 API 地址，如 https://api.example.com/api/v1
+// 如果未配置，默认使用相对路径 /api/v1
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1'
 
 // Token 存储键
 const TOKEN_STORAGE_KEY = 'polyflow-token'
@@ -83,7 +85,10 @@ interface RequestOptions extends RequestInit {
 
 // 构建 URL（带查询参数）
 function buildUrl(path: string, params?: Record<string, string | number | boolean | undefined>): string {
-  const url = new URL(`${API_BASE_URL}${path}`, window.location.origin)
+  // 判断 API_BASE_URL 是否为绝对路径
+  const isAbsoluteUrl = API_BASE_URL.startsWith('http://') || API_BASE_URL.startsWith('https://')
+  const baseUrl = isAbsoluteUrl ? API_BASE_URL : window.location.origin + API_BASE_URL
+  const url = new URL(path, baseUrl + '/')
 
   if (params) {
     Object.entries(params).forEach(([key, value]) => {

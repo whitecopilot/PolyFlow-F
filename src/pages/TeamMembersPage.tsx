@@ -2,13 +2,13 @@
 
 import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { HiOutlineUserGroup } from 'react-icons/hi2'
 import { useTranslation } from 'react-i18next'
 import { CombinedBadges } from '../components/common'
 import { SecondaryPageHeader } from '../components/layout'
 import { usePayFiStore } from '../stores/payfiStore'
-import type { TeamMember } from '../types/payfi'
+import { isUserActivated, type TeamMember } from '../types/payfi'
 
 const MotionBox = motion.create(Box)
 
@@ -16,8 +16,12 @@ export function TeamMembersPage() {
   const { t } = useTranslation()
   const { teamStats, teamMembers, fetchTeamMembers } = usePayFiStore()
   const [activeTab, setActiveTab] = useState<'all' | 'direct'>('all')
+  const fetchedRef = useRef(false)
 
   useEffect(() => {
+    // 防止 React Strict Mode 双重调用
+    if (fetchedRef.current) return
+    fetchedRef.current = true
     fetchTeamMembers()
   }, [fetchTeamMembers])
 
@@ -26,10 +30,11 @@ export function TeamMembersPage() {
       ? teamMembers.filter((m) => m.isDirectReferral)
       : teamMembers
 
-  const directCount = teamMembers.filter((m) => m.isDirectReferral).length
+  // 使用 teamStats 中的统计数据（从 API 获取，更准确）
+  const directCount = teamStats?.directCount ?? teamMembers.filter((m) => m.isDirectReferral).length
 
   return (
-    <Box minH="100vh" bg="black">
+    <Box minH="100vh" bg="#111111">
       <SecondaryPageHeader title={t('team_members.title')} />
 
       <VStack gap="4" p="4" align="stretch">
@@ -136,6 +141,8 @@ interface TeamMemberItemProps {
 }
 
 function TeamMemberItem({ member, delay }: TeamMemberItemProps) {
+  const { t } = useTranslation()
+
   // 确保成员数据有效
   if (!member || !member.address) {
     return null
@@ -164,8 +171,8 @@ function TeamMemberItem({ member, delay }: TeamMemberItemProps) {
             <HiOutlineUserGroup size={22} color="#71717A" />
           </Flex>
           <Box flex="1" minW="0">
-            <Text fontSize="sm" fontWeight="600" color="white" truncate>
-              {member.address}
+            <Text fontSize="sm" fontWeight="600" color="white" fontFamily="mono">
+              {formatAddress(member.address)}
             </Text>
             <HStack gap={2} mt={1}>
               <CombinedBadges
@@ -182,8 +189,12 @@ function TeamMemberItem({ member, delay }: TeamMemberItemProps) {
           </Box>
         </HStack>
         <VStack align="end" gap={0} flexShrink={0}>
-          <Text fontSize="sm" fontWeight="600" color="#22C55E">
-            ${member.performance?.toLocaleString() || '0'}
+          <Text
+            fontSize="sm"
+            fontWeight="600"
+            color={isUserActivated(member.state) ? '#22C55E' : 'whiteAlpha.500'}
+          >
+            {isUserActivated(member.state) ? t('team_members.activated') : t('team_members.not_activated')}
           </Text>
           <Text fontSize="xs" color="whiteAlpha.500">
             {member.joinedAt ? formatDate(member.joinedAt) : '-'}
@@ -218,4 +229,10 @@ function EmptyState({ activeTab }: { activeTab: 'all' | 'direct' }) {
 function formatDate(date: Date): string {
   const d = new Date(date)
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+// 格式化地址，显示前6位和后4位，中间用省略号
+function formatAddress(address: string): string {
+  if (!address || address.length < 12) return address
+  return `${address.slice(0, 6)}...${address.slice(-4)}`
 }

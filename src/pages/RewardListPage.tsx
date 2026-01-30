@@ -40,15 +40,17 @@ export function RewardListPage() {
   const { t } = useTranslation()
   const { type } = useParams<{ type: string }>()
   const navigate = useNavigate()
-  const { rewardRecords, fetchRewardRecords } = usePayFiStore()
-
-  useEffect(() => {
-    fetchRewardRecords()
-  }, [fetchRewardRecords])
+  const { rewardRecords, fetchRewardRecordsByType } = usePayFiStore()
 
   // 验证类型是否有效
   const validTypes: RewardType[] = ['static', 'referral', 'node', 'same_level', 'global']
   const rewardType = validTypes.includes(type as RewardType) ? (type as RewardType) : null
+
+  useEffect(() => {
+    if (rewardType) {
+      fetchRewardRecordsByType(rewardType)
+    }
+  }, [rewardType, fetchRewardRecordsByType])
 
   if (!rewardType) {
     // 无效类型，返回上一页
@@ -56,8 +58,8 @@ export function RewardListPage() {
     return null
   }
 
-  // 筛选对应类型的记录
-  const filteredRecords = rewardRecords.filter((record) => record.rewardType === rewardType)
+  // 记录已通过 API 按类型筛选，直接使用
+  const filteredRecords = rewardRecords
 
   // 计算总收益
   const totalAmount = filteredRecords.reduce((sum, record) => sum + record.usdtValue, 0)
@@ -65,7 +67,7 @@ export function RewardListPage() {
   const rewardTypeName = getRewardTypeName(rewardType)
 
   return (
-    <Box minH="100vh" bg="black">
+    <Box minH="100vh" bg="#111111">
       <SecondaryPageHeader title={rewardTypeName} />
 
       <VStack gap="4" p="4" align="stretch">

@@ -31,22 +31,23 @@
     "invitation_rewards": "邀請獎勵",
     "node_rewards": "節點獎勵",
     "airdrop_rewards": "空投獎勵",
-    "invite_friends": "邀請好友"
+    "invite_friends": "邀請好友",
+    "invite_disabled_hint": "購買 NFT 開啟邀請權限"
   },
   "team": {
     "node_level": "節點等級",
     "upgrade_to": "升級到 {{level}} 還需",
-    "small_area_perf": "小區業績",
-    "total_perf": "總業績",
+    "small_area_perf": "竟升算力值",
+    "total_perf": "總算力值",
     "performance_stats": "業績統計",
-    "team_total_perf": "團隊總業績",
-    "small_area_perf_value": "競升算力值",
-    "daily_new_power": "日新增算力值",
+    "team_total_perf": "總算力值",
+    "small_area_perf_value": "小區業績",
+    "max_line_perf_value": "日新增算力值",
     "community_count": "社區人數",
     "invite": "邀請",
     "upgrade_requirements": "{{level}} 升級條件",
-    "small_area_req": "競升算力值 ≥ {{req}}萬",
-    "total_req": "總算力值 ≥ {{req}}萬",
+    "small_area_req": "小區業績 ≥ {{req}}萬",
+    "total_req": "總業績 ≥ {{req}}萬",
     "p9_special_req": "團隊內 ≥ 2 個 P8",
     "units": "個",
     "ten_thousand": "萬",
@@ -87,7 +88,9 @@
     "sign_notice": "簽名消息不會產生任何 Gas 費用，僅用於驗證您對錢包的所有權。",
     "waiting_sign": "等待簽名...",
     "sign_to_login": "簽名登錄",
-    "use_other_wallet": "使用其他錢包"
+    "use_other_wallet": "使用其他錢包",
+    "invalid_invite_code": "邀請碼無效，請輸入正確的邀請碼",
+    "wallet_switched": "檢測到錢包切換，請重新登錄"
   },
   "common": {
     "loading": "加載中...",
@@ -177,7 +180,9 @@
     "full_release": "100% 到賬",
     "pid_available": "PID 可提現",
     "pic_available": "PIC 可提現",
-    "pic_released": "PIC 已釋放"
+    "pic_released": "PIC 已釋放",
+    "instant_arrival": "即時到賬",
+    "fee_label": "手續費"
   },
   "nft": {
     "current_level": "當前等級",
@@ -210,7 +215,10 @@
     "purchase_level": "購買 {{level}}",
     "all_levels": "全部等級",
     "power": "算力",
-    "current": "當前"
+    "current": "當前",
+    "insufficient_balance": "餘額不足",
+    "balance_hint": "當前餘額: {{balance}} USDT，需要: {{required}} USDT",
+    "wallet_balance": "錢包餘額"
   },
   "reward_list": {
     "total_reward": "累計{{type}}",
@@ -222,14 +230,29 @@
     "title": "提現記錄",
     "total_withdrawn": "累計提現",
     "completed_count": "已完成 {{count}} 筆",
+    "pending_count": "待處理 {{count}} 筆",
     "releasing_count": "釋放中 {{count}} 筆",
     "no_records": "暫無提現記錄",
     "completed": "已完成",
+    "claimable": "可提取",
+    "processing": "處理中",
     "releasing": "釋放中",
+    "claim": "提取",
+    "fee": "手續費",
+    "source": "來源",
+    "source_balance": "可用餘額",
+    "source_released": "線性釋放",
+    "create_time": "創建時間",
+    "claim_time": "提取時間",
     "linear_progress": "線性釋放進度",
     "instant_release": "即時到賬",
     "linear_release": "線性釋放",
     "withdraw_time": "提現時間"
+  },
+  "withdraw": {
+    "step": "步驟",
+    "wallet_confirm_hint": "請在錢包中確認交易",
+    "view_records": "查看記錄"
   },
   "team_members": {
     "title": "團隊成員",
@@ -240,7 +263,9 @@
     "invite": "邀請",
     "no_direct": "暫無直推成員",
     "no_members": "暫無團隊成員",
-    "invite_friends": "邀請好友加入你的團隊"
+    "invite_friends": "邀請好友加入你的團隊",
+    "activated": "已激活",
+    "not_activated": "未激活"
   },
   "burn_records": {
     "title": "銷毀記錄",

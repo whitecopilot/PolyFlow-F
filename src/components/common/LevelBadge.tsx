@@ -23,14 +23,14 @@ interface NFTBadgeProps {
 }
 
 const NFT_COLORS: Record<string, { bg: string; border: string; glow: string }> = {
-  N1: { bg: '#3D4A5C', border: '#5A6B7D', glow: 'rgba(90, 107, 125, 0.3)' },
-  N2: { bg: '#CD7F32', border: '#DDA15E', glow: 'rgba(205, 127, 50, 0.3)' },
-  N3: { bg: '#C0C0C0', border: '#E8E8E8', glow: 'rgba(192, 192, 192, 0.3)' },
-  N4: { bg: '#FFD700', border: '#FFF8DC', glow: 'rgba(255, 215, 0, 0.4)' },
+  N1: { bg: '#2A2A2E', border: '#3A3A40', glow: 'rgba(60, 60, 65, 0.3)' },
+  N2: { bg: '#3A3A40', border: '#4A4A50', glow: 'rgba(80, 80, 85, 0.3)' },
+  N3: { bg: '#4A4A50', border: '#5A5A60', glow: 'rgba(100, 100, 105, 0.3)' },
+  N4: { bg: '#5A5A60', border: '#6A6A70', glow: 'rgba(120, 120, 125, 0.3)' },
   N5: {
-    bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    border: '#A78BFA',
-    glow: 'rgba(167, 139, 250, 0.5)',
+    bg: 'linear-gradient(135deg, #1A1A1E 0%, #3A3A40 50%, #5A5A60 100%)',
+    border: '#7A7A80',
+    glow: 'rgba(140, 140, 145, 0.4)',
   },
 }
 
@@ -49,7 +49,7 @@ export function NFTBadge({ level, size = 'md', showName = false }: NFTBadgeProps
     return (
       <Box px={size === 'sm' ? 2 : 3} py={size === 'sm' ? 0.5 : 1} bg="whiteAlpha.100" borderRadius="full">
         <Text fontSize={size === 'sm' ? 'xs' : 'sm'} color="whiteAlpha.500">
-          {t('nft.level_badge.none')}
+          {t('nft_level_badge.none')}
         </Text>
       </Box>
     )

@@ -88,7 +88,6 @@ export function getMockTeamStats(): TeamStats {
     teamCount: 156,
     teamPerformance: 450000,
     teamOrderCount: 203,
-    stakingPerformance: 320000,
     maxLinePerf: 280000,
     smallAreaPerf: 170000,
     nodeLevel: 'P3',
@@ -104,6 +103,11 @@ export function getMockEarningsStats(): EarningsStats {
     totalSameLevelEarned: 320,
     totalGlobalEarned: 280,
     todayEarnings: 45.20,
+    todayStaticEarned: 25.00,
+    todayReferralEarned: 12.50,
+    todayNodeEarned: 5.20,
+    todaySameLevelEarned: 1.50,
+    todayGlobalEarned: 1.00,
     withdrawableAmount: 380,
   };
 }
@@ -189,23 +193,35 @@ export function getMockWithdrawRecords(): WithdrawRecord[] {
   return [
     {
       id: 1,
-      totalAmount: 100,
-      feeAmount: 3,
-      instantAmount: 77.6,  // (100-3) * 0.8
-      linearAmount: 19.4,   // (100-3) * 0.2
-      linearReleased: 19.4,
-      status: 'completed',
+      orderNum: 'WD20240720001',
+      tokenType: 'PID',
+      amount: 100,
+      servicedFee: 0,
+      source: 'balance',
+      status: 'received',
+      transactionHash: '0x1234567890abcdef',
       createdAt: new Date('2024-07-20'),
+      claimedAt: new Date('2024-07-20'),
     },
     {
       id: 2,
-      totalAmount: 200,
-      feeAmount: 6,
-      instantAmount: 155.2,
-      linearAmount: 38.8,
-      linearReleased: 25.87, // 65% 已释放
-      status: 'processing',
+      orderNum: 'WD20240815002',
+      tokenType: 'PIC',
+      amount: 97,
+      servicedFee: 3,
+      source: 'balance',
+      status: 'cheque',
       createdAt: new Date('2024-08-15'),
+    },
+    {
+      id: 3,
+      orderNum: 'WD20240820003',
+      tokenType: 'PID',
+      amount: 50,
+      servicedFee: 0,
+      source: 'released',
+      status: 'submit',
+      createdAt: new Date('2024-08-20'),
     },
   ];
 }
@@ -226,6 +242,7 @@ export function getMockTeamMembers(): TeamMember[] {
       performance: Math.floor(Math.random() * 50000) + 1000,
       joinedAt: new Date(Date.now() - Math.random() * 180 * 24 * 60 * 60 * 1000),
       isDirectReferral,
+      state: Math.random() > 0.3 ? 1 : 0, // 70% 已激活
     });
   }
 

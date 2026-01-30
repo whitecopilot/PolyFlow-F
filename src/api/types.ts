@@ -88,6 +88,7 @@ export interface UserOverview {
   id: number
   address: string
   state: string
+  is_active: boolean // 是否为激活状态（可生成邀请码、访问邀请页面）
   level: number
   nodeLevel: number
   referrerAddress?: string
@@ -124,11 +125,19 @@ export interface PriceInfo {
 }
 
 export interface RewardSummary {
+  // 累计奖励
   totalStaticProfit: number
   totalInviteProfit: number
+  totalNodeProfit: number
+  totalSameLevelProfit: number
+  totalGlobalProfit: number
   totalProfit: number
+  // 今日奖励
   todayStaticProfit: number
   todayInviteProfit: number
+  todayNodeProfit: number
+  todaySameLevelProfit: number
+  todayGlobalProfit: number
   todayProfit: number
 }
 
@@ -139,23 +148,87 @@ export interface ReleaseSummary {
   todayReleased: number
 }
 
+// NFT 资产响应
+export interface NFTAssetsResponse {
+  stakedLevel: string    // 已质押的最高 NFT 等级
+  stakedCount: number    // 已质押 NFT 数量
+  totalInvest: number    // NFT 总投入 (USDT)
+  totalPower: number     // NFT 总算力
+  exitLimit: number      // NFT 产生的出局额度
+  coefficient: number    // 质押系数
+}
+
+// 代币余额响应
+export interface TokenBalanceResponse {
+  totalLocked: number        // 总锁仓量
+  released: number           // 已释放量
+  available: number          // 可用余额
+  currentPrice: number       // 当前价格
+  totalValueUSDT: number     // 总价值 (USDT)
+  availableValueUSDT: number // 可用价值 (USDT)
+}
+
+// PIC 余额响应
+export interface PICBalanceResponse extends TokenBalanceResponse {
+  releasedBalance: number // 线性释放已解锁余额
+}
+
+// 收益概览响应
+export interface EarningsOverviewResponse {
+  earnedRewardsUSDT: number  // 累计收益 (USDT)，历史价值
+  picHoldings: number        // PIC 持有总量
+  picCurrentValue: number    // PIC 当前估值 (USDT)
+  totalExitLimit: number     // 总出局额度
+  remainingLimit: number     // 剩余出局额度
+}
+
+// 功能开关响应
+export interface FeatureFlags {
+  pidStakingEnabled: boolean  // PID 质押功能是否启用
+  nftSalesEnabled: boolean    // NFT 销售功能是否启用
+}
+
 export interface UserAssets {
+  // 价格信息
   prices?: PriceInfo
-  rewards?: RewardSummary
+
+  // 功能开关
+  featureFlags?: FeatureFlags
+
+  // 资产汇总
+  totalAssetValueUSDT?: number  // 总资产估值 (USDT)
+  usdtBalance?: number  // 用户钱包持有的 USDT 数量
+
+  // NFT 资产
+  nft?: NFTAssetsResponse
+
+  // PID 资产
+  pid?: TokenBalanceResponse
+
+  // PIC 资产
+  pic?: PICBalanceResponse
+
+  // 收益概览
+  earnings?: EarningsOverviewResponse
+
+  // 释放信息
   release?: ReleaseSummary
-  currentNftLevel?: string     // 用户当前 NFT 等级（如 "N1", "N2" 等，质押后才有）
-  picBalance?: number          // PIC 可用余额（首次产出，提现有手续费）
-  picReleasedBalance?: number  // PIC 线性释放已解锁余额（提现无手续费）
+
+  // 兼容旧字段
+  rewards?: RewardSummary
+  currentNftLevel?: string
+  pidBalance?: number
+  picBalance?: number
+  picReleasedBalance?: number
 }
 
 export interface TeamStatsResponse {
   directPerformance: string   // 邀请业绩 (USDT)
   directCount: number         // 邀请人数
   directOrderCount: number    // 邀请单数
-  teamPerformance: string     // 团队总业绩 (USDT)
-  stakingPerformance: string  // 质押业绩 (USDT)
-  maxLinePerf: string         // 大区业绩 (USDT)
-  smallAreaPerf: string       // 小区业绩 (USDT)
+  teamPerformance: string     // 团队总业绩 - 质押业绩 (USDT)
+  maxLinePerf: string         // 大区业绩 - 质押业绩 (USDT)
+  smallAreaPerf: string       // 小区业绩 - 质押业绩 (USDT)
   teamCount: number           // 团队总人数
   teamOrderCount: number      // 团队总单数
   nodeLevel: string           // 节点等级
@@ -168,11 +241,39 @@ export interface DailyReward {
   totalProfit: number
 }
 
+// 奖励类型
+export type RewardType = 'static' | 'referral' | 'node' | 'same_level' | 'global'
+
+// 奖励记录（后端返回格式）
+export interface RewardRecordResponse {
+  ID: number
+  CreatedAt: string
+  UpdatedAt: string
+  UserID: number
+  RewardType: RewardType
+  SourceUserID: number | null
+  SourceID: number
+  PICAmount: number
+  USDTValue: number
+  PICPrice: number
+  RewardDate: string
+}
+
 // ================================
 // NFT 相关
 // ================================
 
 export type NFTLevel = 'N1' | 'N2' | 'N3' | 'N4' | 'N5'
+
+// NFT 等级配置（从后端获取）
+export interface NFTLevelConfigItem {
+  level: string              // N1, N2, N3, N4, N5
+  price: number              // 价格（USDT）
+  power: number              // 基础算力
+  coefficient: number        // 挖矿系数
+  nftExitMultiplier: number  // NFT 出局倍数
+  burnExitMultiplier: number // PIC 销毁出局倍数
+}
 
 export interface CreateNFTOrderRequest {
   nftLevel: NFTLevel
@@ -281,28 +382,62 @@ export interface SubmitStakingResponse {
 export type TokenType = 'PID' | 'PIC'
 export type WithdrawSource = 'balance' | 'released'
 
+// 后端 TokenType 常量映射
+export const TokenTypeCode = {
+  USDT: 1,
+  PID: 2,
+  PIC: 3,
+} as const
+
+// 后端 WithdrawSource 常量映射
+export const WithdrawSourceCode = {
+  AWT: 1,
+  balance: 2,
+  released: 3,
+} as const
+
 export interface CreateWithdrawRequest {
   amount: number
-  type: TokenType
-  source?: WithdrawSource
+  type: number  // 使用 TokenTypeCode 的值
+  source?: number  // 使用 WithdrawSourceCode 的值
   remark?: string
 }
 
 export interface CreateWithdrawResponse {
   orderId: number
   orderNum: string
-  state: string
+  state: number
+  // 交易数据（订单签名完成后返回）
+  tx?: string
+  tokenType?: string
 }
+
+// 提现订单状态
+export const WithdrawState = {
+  Submit: 1,    // 已提交，等待签名
+  Cheque: 2,    // 已发放支票（可提取）
+  Received: 3,  // 已领取
+} as const;
+
+// 提现来源
+export const WithdrawSourceType = {
+  AWT: 1,       // AWT 提现
+  Balance: 2,   // 余额提现
+  Released: 3,  // 释放提现
+} as const;
 
 export interface WithdrawOrder {
   id: number
   orderNum: string
   tokenType: string
-  amount: string
-  state: string
+  amount: string           // 实际到账金额
+  total?: string           // 用户扣除的总额
+  servicedFee: string      // 手续费
+  source: number           // 来源类型
+  state: number            // 订单状态
   transactionHash?: string
   createdAt: string
-  confirmedAt?: string
+  claimedAt?: string       // 领取时间
 }
 
 export interface CreateWithdrawTransactionRequest {

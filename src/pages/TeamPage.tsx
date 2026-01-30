@@ -2,7 +2,7 @@
 
 import { Box, Flex, HStack, SimpleGrid, Text, VStack } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import {
   HiOutlineArrowTrendingUp,
   HiOutlineChartBar,
@@ -25,18 +25,24 @@ import {
 } from '../components/common'
 import { getNextNodeLevel } from '../mocks/payfiConfig'
 import { usePayFiStore } from '../stores/payfiStore'
+import { useAuthStore } from '../stores/authStore'
 
 const MotionBox = motion.create(Box)
 
 export function TeamPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const { user } = useAuthStore()
   const {
     teamStats,
     fetchTeamStats,
   } = usePayFiStore()
+  const fetchedRef = useRef(false)
 
   useEffect(() => {
+    // 防止 React Strict Mode 双重调用
+    if (fetchedRef.current) return
+    fetchedRef.current = true
     fetchTeamStats()
   }, [fetchTeamStats])
 
@@ -52,7 +58,7 @@ export function TeamPage() {
     : 100
 
   return (
-    <Box minH="100vh" bg="black">
+    <Box minH="100vh" bg="#111111">
       <PageHeader title={t('nav.team')} />
 
       <VStack gap="5" p="4" align="stretch">
@@ -105,15 +111,23 @@ export function TeamPage() {
           </MotionBox>
         </GradientBorderCard>
 
-        {/* 邀请入口 - 放在卡片和业绩统计之间 */}
+        {/* 邀请入口 - 未激活用户禁用 */}
         <ActionButton
           w="full"
           variant="primary"
-          onClick={() => navigate('/invite')}
+          disabled={!user?.is_active}
+          onClick={() => user?.is_active && navigate('/invite')}
+          opacity={user?.is_active ? 1 : 0.5}
+          cursor={user?.is_active ? 'pointer' : 'not-allowed'}
         >
           <HStack gap={2}>
             <HiOutlineUserPlus size={18} />
             <Text>{t('home.invite_friends')}</Text>
+            {!user?.is_active && (
+              <Text fontSize="xs" color="whiteAlpha.500">
+                ({t('home.invite_disabled_hint')})
+              </Text>
+            )}
           </HStack>
         </ActionButton>
 
@@ -134,7 +148,7 @@ export function TeamPage() {
             transition={{ delay: 0.05 }}
           >
             <HStack gap={2} mb={3}>
-              <HiOutlineCurrencyDollar size={16} color="#F59E0B" />
+              <HiOutlineCurrencyDollar size={16} color="#8A8A90" />
               <Text fontSize="xs" color="whiteAlpha.600">{t('team.invite_performance')}</Text>
             </HStack>
             <Text fontSize="2xl" fontWeight="bold" color="white" mb={3}>
@@ -142,7 +156,7 @@ export function TeamPage() {
             </Text>
             <Flex gap={4}>
               <HStack gap={1}>
-                <HiOutlineUserPlus size={14} color="#A78BFA" />
+                <HiOutlineUserPlus size={14} color="#8A8A90" />
                 <Text fontSize="xs" color="whiteAlpha.500">{t('team.invite_count')}</Text>
                 <Text fontSize="sm" fontWeight="600" color="white">
                   {teamStats?.directCount || 0}
@@ -150,7 +164,7 @@ export function TeamPage() {
                 </Text>
               </HStack>
               <HStack gap={1}>
-                <HiOutlineDocumentText size={14} color="#34D399" />
+                <HiOutlineDocumentText size={14} color="#8A8A90" />
                 <Text fontSize="xs" color="whiteAlpha.500">{t('team.invite_orders')}</Text>
                 <Text fontSize="sm" fontWeight="600" color="white">
                   {teamStats?.directOrderCount || 0}
@@ -170,7 +184,7 @@ export function TeamPage() {
               transition={{ delay: 0.1 }}
             >
               <HStack gap={2} mb={2}>
-                <HiOutlineChartBar size={16} color="#D811F0" />
+                <HiOutlineChartBar size={16} color="#8A8A90" />
                 <Text fontSize="xs" color="whiteAlpha.600">{t('team.team_total_perf')}</Text>
               </HStack>
               <Text fontSize="xl" fontWeight="bold" color="white">
@@ -187,11 +201,11 @@ export function TeamPage() {
               transition={{ delay: 0.15 }}
             >
               <HStack gap={2} mb={2}>
-                <HiOutlineArrowTrendingUp size={16} color="#22C55E" />
-                <Text fontSize="xs" color="whiteAlpha.600">{t('team.small_area_perf_value')}</Text>
+                <HiOutlineArrowTrendingUp size={16} color="#8A8A90" />
+                <Text fontSize="xs" color="whiteAlpha.600">{t('team.max_line_perf_value')}</Text>
               </HStack>
               <Text fontSize="xl" fontWeight="bold" color="white">
-                ${(teamStats?.smallAreaPerf || 0).toLocaleString()}
+                ${(teamStats?.maxLinePerf || 0).toLocaleString()}
               </Text>
             </MotionBox>
 
@@ -204,11 +218,11 @@ export function TeamPage() {
               transition={{ delay: 0.2 }}
             >
               <HStack gap={2} mb={2}>
-                <HiOutlineTrophy size={16} color="#EAB308" />
-                <Text fontSize="xs" color="whiteAlpha.600">{t('team.daily_new_power')}</Text>
+                <HiOutlineTrophy size={16} color="#8A8A90" />
+                <Text fontSize="xs" color="whiteAlpha.600">{t('team.small_area_perf_value')}</Text>
               </HStack>
               <Text fontSize="xl" fontWeight="bold" color="white">
-                ${(teamStats?.maxLinePerf || 0).toLocaleString()}
+                ${(teamStats?.smallAreaPerf || 0).toLocaleString()}
               </Text>
             </MotionBox>
 
@@ -226,7 +240,7 @@ export function TeamPage() {
               <Flex justify="space-between" align="flex-start">
                 <Box>
                   <HStack gap={2} mb={2}>
-                    <HiOutlineUserGroup size={16} color="#06B6D4" />
+                    <HiOutlineUserGroup size={16} color="#8A8A90" />
                     <Text fontSize="xs" color="whiteAlpha.600">{t('team.community_count')}</Text>
                   </HStack>
                   <Text fontSize="xl" fontWeight="bold" color="white">

@@ -2,6 +2,7 @@ import { Box, Flex, Input, Text, VStack } from '@chakra-ui/react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { QRCodeSVG } from 'qrcode.react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   HiArrowDownTray,
   HiOutlineCheckCircle,
@@ -12,21 +13,33 @@ import {
   HiOutlineShare,
   HiXMark,
 } from 'react-icons/hi2'
-import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { ActionButton, PolyFlowLogo } from '../components/common'
 import { SecondaryPageHeader } from '../components/layout'
+import { useAuthStore } from '../stores/authStore'
 import { usePayFiStore } from '../stores/payfiStore'
 
 const MotionBox = motion.create(Box)
 
 export function InvitePage() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
+  const { user } = useAuthStore()
   const { inviteCode, fetchInviteCode } = usePayFiStore()
+
+  // 非激活用户重定向到首页
+  useEffect(() => {
+    if (user && !user.is_active) {
+      navigate('/', { replace: true })
+    }
+  }, [user, navigate])
 
   // 页面加载时获取邀请码
   useEffect(() => {
-    fetchInviteCode()
-  }, [fetchInviteCode])
+    if (user?.is_active) {
+      fetchInviteCode()
+    }
+  }, [fetchInviteCode, user?.is_active])
   const [copied, setCopied] = useState<'code' | 'link' | null>(null)
   const [showPoster, setShowPoster] = useState(false)
   const posterRef = useRef<HTMLDivElement>(null)
@@ -97,41 +110,20 @@ export function InvitePage() {
   }, [inviteCode, t])
 
   return (
-    <Box minH="100vh" bg="black">
+    <Box minH="100vh" bg="#111111">
       <SecondaryPageHeader title={t('invite.title')} />
 
       <VStack gap="5" p="4" align="stretch">
-        {/* 邀请奖励卡片 */}
+        {/* 系统 Logo */}
         <MotionBox
-          bg="linear-gradient(135deg, rgba(217, 70, 239, 0.2) 0%, rgba(139, 92, 246, 0.1) 100%)"
-          borderRadius="20px"
-          p="5"
-          border="1px solid"
-          borderColor="rgba(217, 70, 239, 0.3)"
+          py="6"
+          display="flex"
+          justifyContent="center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Flex justify="space-between" align="center">
-            <Text
-              fontSize="xl"
-              fontWeight="700"
-              color="text.primary"
-              letterSpacing="tight"
-            >
-              {t('invite.slogan')}
-            </Text>
-            <Flex
-              w="48px"
-              h="48px"
-              borderRadius="14px"
-              bg="rgba(217, 70, 239, 0.2)"
-              align="center"
-              justify="center"
-            >
-              <HiOutlineGift size={24} color="#D946EF" />
-            </Flex>
-          </Flex>
+          <PolyFlowLogo size={64} colorMode="white" showText />
         </MotionBox>
 
         {/* 邀请码 */}

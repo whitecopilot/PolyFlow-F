@@ -9,11 +9,19 @@ import type {
   DailyReward,
   PaginatedData,
   TeamStatsResponse,
+  RewardType,
+  RewardRecordResponse,
+  NFTLevelConfigItem,
 } from './types'
 
 // 获取价格信息（公开接口）
 export async function getPriceInfo(): Promise<PriceInfo> {
   return get<PriceInfo>('/price', undefined, { skipAuth: true })
+}
+
+// 获取 NFT 等级配置列表（公开接口）
+export async function getNFTLevelConfigs(): Promise<NFTLevelConfigItem[]> {
+  return get<NFTLevelConfigItem[]>('/config/nft-levels', undefined, { skipAuth: true })
 }
 
 // 获取用户资产详情
@@ -44,14 +52,25 @@ export async function getTeamStats(): Promise<TeamStatsResponse> {
   return get<TeamStatsResponse>('/team/stats')
 }
 
+// 根据类型获取奖励记录
+export async function getRewardsByType(
+  type: RewardType,
+  page: number = 1,
+  pageSize: number = 20
+): Promise<PaginatedData<RewardRecordResponse>> {
+  return get<PaginatedData<RewardRecordResponse>>(`/rewards/${type}`, { page, pageSize })
+}
+
 // 导出 PayFi API
 export const payfiApi = {
   getPriceInfo,
+  getNFTLevelConfigs,
   getUserAssets,
   getRewardSummary,
   getDailyRewards,
   getReleaseSummary,
   getTeamStats,
+  getRewardsByType,
 }
 
 export default payfiApi

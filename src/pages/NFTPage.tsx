@@ -8,6 +8,7 @@ import {
   HiOutlineBolt,
   HiOutlineCheck,
   HiOutlineCube,
+  HiOutlineExclamationCircle,
   HiOutlinePlay,
   HiOutlineQueueList,
   HiOutlineShieldCheck,
@@ -24,13 +25,11 @@ import {
   NFTBadge,
   PageHeader,
 } from '../components/common'
-import { NFT_LEVEL_CONFIGS, getNFTConfig } from '../mocks/payfiConfig'
 import { usePayFiStore } from '../stores/payfiStore'
 import { useNFTPurchase, type PurchaseStep } from '../hooks/useNFTPurchase'
 import { useNFTStake, type StakeStep } from '../hooks/useNFTStake'
 import type { NFTLevel } from '../types/payfi'
 import type { UserNFTItem } from '../api/types'
-import { nftApi } from '../api'
 
 const MotionBox = motion.create(Box)
 
@@ -108,7 +107,7 @@ function PurchaseOverlay({ step, statusText, onClose }: PurchaseOverlayProps) {
           </Box>
         ) : (
           <Spinner
-            color="#D811F0"
+            color="#8A8A90"
             w={16}
             h={16}
             borderWidth="4px"
@@ -143,7 +142,7 @@ function PurchaseOverlay({ step, statusText, onClose }: PurchaseOverlayProps) {
                 w={2}
                 h={2}
                 borderRadius="full"
-                bg={i <= progress ? '#D811F0' : 'whiteAlpha.200'}
+                bg={i <= progress ? '#6A6A70' : 'whiteAlpha.200'}
                 transition="background-color 0.3s"
               />
             ))}
@@ -247,7 +246,7 @@ function StakeOverlay({ step, statusText, onClose }: StakeOverlayProps) {
           </Box>
         ) : (
           <Spinner
-            color="#D811F0"
+            color="#8A8A90"
             w={16}
             h={16}
             borderWidth="4px"
@@ -282,7 +281,7 @@ function StakeOverlay({ step, statusText, onClose }: StakeOverlayProps) {
                 w={2}
                 h={2}
                 borderRadius="full"
-                bg={i <= progress ? '#D811F0' : 'whiteAlpha.200'}
+                bg={i <= progress ? '#6A6A70' : 'whiteAlpha.200'}
                 transition="background-color 0.3s"
               />
             ))}
@@ -357,8 +356,8 @@ function NFTSelectorOverlay({ nfts, filterLevel, onSelect, onClose }: NFTSelecto
               {t('nft.select_nft_to_stake')}
             </Text>
             {filterLevel && (
-              <Box px={2} py={0.5} bg="rgba(216, 17, 240, 0.2)" borderRadius="full">
-                <Text fontSize="xs" color="#D811F0" fontWeight="bold">
+              <Box px={2} py={0.5} bg="rgba(138, 138, 144, 0.2)" borderRadius="full">
+                <Text fontSize="xs" color="#8A8A90" fontWeight="bold">
                   {filterLevel}
                 </Text>
               </Box>
@@ -418,10 +417,10 @@ function NFTSelectorOverlay({ nfts, filterLevel, onSelect, onClose }: NFTSelecto
                 <Box
                   px={2}
                   py={0.5}
-                  bg="rgba(216, 17, 240, 0.2)"
+                  bg="rgba(138, 138, 144, 0.2)"
                   borderRadius="full"
                 >
-                  <Text fontSize="xs" color="#D811F0" fontWeight="bold">
+                  <Text fontSize="xs" color="#8A8A90" fontWeight="bold">
                     {nft.nftLevel}
                   </Text>
                 </Box>
@@ -451,9 +450,19 @@ export function NFTPage() {
     userAssets,
     priceInfo,
     fetchUserAssets,
+    nftHoldings,
     nftHoldingStats,
+    fetchUserNFTList,
     fetchUserNFTStats,
+    nftLevelConfigs,
+    fetchNFTLevelConfigs,
   } = usePayFiStore()
+
+  // 辅助函数：根据等级获取配置
+  const getNFTConfig = (level: string | null) => {
+    if (!level || nftLevelConfigs.length === 0) return null
+    return nftLevelConfigs.find(c => c.level === level) || null
+  }
 
   // 使用 NFT 购买 hook
   const {
@@ -474,18 +483,18 @@ export function NFTPage() {
   } = useNFTStake()
 
   const [selectedLevel, setSelectedLevel] = useState<NFTLevel>(null)
-  const [userNFTList, setUserNFTList] = useState<UserNFTItem[]>([])
   const [showNFTSelector, setShowNFTSelector] = useState(false)
   const [selectorFilterLevel, setSelectorFilterLevel] = useState<string | null>(null)
+
+  // 使用 store 中的 nftHoldings 替代本地状态
+  const userNFTList = nftHoldings
 
   useEffect(() => {
     fetchUserAssets()
     fetchUserNFTStats()
-    // 获取用户 NFT 列表，用于选择质押
-    nftApi.getUserNFTList(1, 50).then(res => {
-      setUserNFTList(res.items || [])
-    }).catch(console.error)
-  }, [fetchUserAssets, fetchUserNFTStats])
+    fetchUserNFTList(1, 50)
+    fetchNFTLevelConfigs()
+  }, [fetchUserAssets, fetchUserNFTStats, fetchUserNFTList, fetchNFTLevelConfigs])
 
   // 滚动穿透修复
   const showPurchaseOverlay = purchaseStep !== 'idle'
@@ -506,12 +515,12 @@ export function NFTPage() {
   const currentLevel = userAssets?.currentNFTLevel ?? null
   const currentConfig = getNFTConfig(currentLevel)
   const currentLevelIndex = currentLevel
-    ? NFT_LEVEL_CONFIGS.findIndex(c => c.level === currentLevel)
+    ? nftLevelConfigs.findIndex(c => c.level === currentLevel)
     : -1
 
   // 计算选中等级的索引
   const selectedLevelIndex = selectedLevel
-    ? NFT_LEVEL_CONFIGS.findIndex(c => c.level === selectedLevel)
+    ? nftLevelConfigs.findIndex(c => c.level === selectedLevel)
     : -1
 
   // 判断是否为升级（选中等级高于当前等级）
@@ -525,6 +534,19 @@ export function NFTPage() {
   const stakedNFTCount = userNFTList.filter(n => n.isStaked).length
   const hasUnstakedNFTs = totalNFTCount - stakedNFTCount > 0
 
+  // 获取用户 USDT 余额
+  const usdtBalance = userAssets?.usdtBalance ?? 0
+
+  // 获取全局质押开关
+  const isStakingEnabled = userAssets?.featureFlags?.pidStakingEnabled ?? false
+
+  // 获取选中等级的配置和价格
+  const selectedConfig = getNFTConfig(selectedLevel)
+  const selectedPrice = selectedConfig?.price ?? 0
+
+  // 检查 USDT 余额是否足够购买选中的 NFT
+  const hasInsufficientBalance = !!selectedLevel && usdtBalance < selectedPrice
+
   // 处理购买/升级
   const handlePurchaseOrUpgrade = async () => {
     if (!selectedLevel || isPurchasing) return
@@ -536,9 +558,10 @@ export function NFTPage() {
     console.log('[NFTPage] 购买结果:', success)
 
     if (success) {
-      // 刷新用户资产和 NFT 持有统计
+      // 刷新用户资产、NFT 持有统计和 NFT 列表
       await fetchUserAssets()
       await fetchUserNFTStats()
+      await fetchUserNFTList(1, 50)
       setSelectedLevel(null)
     }
   }
@@ -558,8 +581,7 @@ export function NFTPage() {
       // 刷新用户资产和 NFT 列表
       await fetchUserAssets()
       await fetchUserNFTStats()
-      const res = await nftApi.getUserNFTList(1, 50)
-      setUserNFTList(res.items || [])
+      await fetchUserNFTList(1, 50)
     }
   }
 
@@ -596,11 +618,8 @@ export function NFTPage() {
     console.log('[NFTPage] 质押结果:', success)
   }
 
-  // 获取选中等级的配置
-  const selectedConfig = getNFTConfig(selectedLevel)
-
   return (
-    <Box minH="100vh" bg="black">
+    <Box minH="100vh" bg="#111111">
       {/* 购买进度蒙版 */}
       <AnimatePresence>
         {showPurchaseOverlay && (
@@ -639,7 +658,7 @@ export function NFTPage() {
 
       <VStack gap="5" p="4" align="stretch">
         {/* 当前等级横幅 */}
-        <GradientBorderCard glowIntensity={currentLevel ? 'medium' : 'none'}>
+        <GradientBorderCard glowIntensity={currentLevel ? 'medium' : 'low'} staticBorder>
           <MotionBox
             p="4"
             initial={{ opacity: 0, y: 10 }}
@@ -648,7 +667,7 @@ export function NFTPage() {
             <HStack justify="space-between" align="center">
               <VStack align="start" gap={1}>
                 <HStack gap={1}>
-                  <Sparkle size={14} weight="fill" color="#D811F0" />
+                  <Sparkle size={14} weight="fill" color="#8A8A90" />
                   <Text fontSize="sm" color="whiteAlpha.600">{t('nft.current_level')}</Text>
                 </HStack>
                 {currentLevel ? (
@@ -656,7 +675,7 @@ export function NFTPage() {
                     <NFTBadge level={currentLevel} size="lg" showName />
                   </HStack>
                 ) : hasNFTHoldings ? (
-                  <Text fontSize="lg" fontWeight="bold" color="#FBBF24">
+                  <Text fontSize="lg" fontWeight="bold" color="white">
                     {t('nft.not_staked_hint')}
                   </Text>
                 ) : (
@@ -688,13 +707,15 @@ export function NFTPage() {
             transition={{ delay: 0.1 }}
           >
             <GradientBorderCard
-              glowIntensity={stakedNFTCount > 0 ? 'medium' : 'none'}
+              glowIntensity={stakedNFTCount > 0 ? 'medium' : 'low'}
+              staticBorder
             >
               <Box
                 p="4"
-                cursor="pointer"
-                onClick={() => handleOpenNFTSelector()}
-                _hover={{ bg: 'whiteAlpha.50' }}
+                cursor={isStakingEnabled ? 'pointer' : 'not-allowed'}
+                opacity={isStakingEnabled ? 1 : 0.5}
+                onClick={() => isStakingEnabled && handleOpenNFTSelector()}
+                _hover={isStakingEnabled ? { bg: 'whiteAlpha.50' } : undefined}
                 borderRadius="xl"
                 transition="background-color 0.2s"
               >
@@ -704,14 +725,14 @@ export function NFTPage() {
                       w="8"
                       h="8"
                       borderRadius="lg"
-                      bg={stakedNFTCount > 0 ? 'rgba(34, 197, 94, 0.2)' : 'rgba(251, 191, 36, 0.2)'}
+                      bg={stakedNFTCount > 0 ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255, 255, 255, 0.1)'}
                       display="flex"
                       alignItems="center"
                       justifyContent="center"
                     >
                       <HiOutlineCube
                         size={18}
-                        color={stakedNFTCount > 0 ? '#22C55E' : '#FBBF24'}
+                        color={stakedNFTCount > 0 ? '#22C55E' : 'white'}
                       />
                     </Box>
                     <VStack align="start" gap={0}>
@@ -728,12 +749,12 @@ export function NFTPage() {
                     px="2.5"
                     py="1"
                     borderRadius="full"
-                    bg={stakedNFTCount > 0 ? 'rgba(34, 197, 94, 0.2)' : 'rgba(251, 191, 36, 0.2)'}
+                    bg={stakedNFTCount > 0 ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255, 255, 255, 0.15)'}
                   >
                     <Text
                       fontSize="xs"
                       fontWeight="bold"
-                      color={stakedNFTCount > 0 ? '#22C55E' : '#FBBF24'}
+                      color={stakedNFTCount > 0 ? '#22C55E' : 'white'}
                     >
                       {stakedNFTCount > 0
                         ? t('nft.staked_ratio', { staked: stakedNFTCount, total: totalNFTCount })
@@ -765,18 +786,18 @@ export function NFTPage() {
               top="20px"
               left="8%"
               h="2px"
-              bg="linear-gradient(90deg, #292FE1 0%, #D811F0 100%)"
+              bg="linear-gradient(90deg, #4A4A50 0%, #8A8A90 100%)"
               initial={{ width: 0 }}
               animate={{
-                width: currentLevelIndex >= 0
-                  ? `${(currentLevelIndex / (NFT_LEVEL_CONFIGS.length - 1)) * 84}%`
+                width: currentLevelIndex >= 0 && nftLevelConfigs.length > 1
+                  ? `${(currentLevelIndex / (nftLevelConfigs.length - 1)) * 84}%`
                   : '0%',
               }}
               transition={{ duration: 0.8 }}
             />
 
             {/* 等级节点 */}
-            {NFT_LEVEL_CONFIGS.map((config, index) => {
+            {nftLevelConfigs.map((config, index) => {
               const isOwned = currentLevelIndex >= index
               const isCurrent = currentLevel === config.level
               const isSelected = selectedLevel === config.level
@@ -787,18 +808,18 @@ export function NFTPage() {
                   gap={1}
                   zIndex={1}
                   cursor="pointer"
-                  onClick={() => setSelectedLevel(config.level)}
+                  onClick={() => setSelectedLevel(config.level as NFTLevel)}
                 >
                   <MotionBox
                     w={isCurrent || isSelected ? 10 : 8}
                     h={isCurrent || isSelected ? 10 : 8}
                     borderRadius="full"
-                    bg={isOwned ? '#292FE1' : isSelected ? '#D811F0' : 'whiteAlpha.200'}
+                    bg={isOwned ? '#5A5A60' : isSelected ? '#8A8A90' : 'whiteAlpha.200'}
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
                     borderWidth={isSelected ? 2 : 0}
-                    borderColor="#D811F0"
+                    borderColor="#9A9A9F"
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -812,7 +833,7 @@ export function NFTPage() {
                   </MotionBox>
                   <Text
                     fontSize="10px"
-                    color={isCurrent ? 'white' : isSelected ? '#D811F0' : 'whiteAlpha.500'}
+                    color={isCurrent ? 'white' : isSelected ? '#AEAEB3' : 'whiteAlpha.500'}
                     fontWeight={isCurrent || isSelected ? 'bold' : 'normal'}
                   >
                     {config.level}
@@ -842,7 +863,7 @@ export function NFTPage() {
                         </Text>
                       </HStack>
                       <Text fontSize="lg" color="whiteAlpha.700">
-                        {selectedConfig.name}
+                        {t(`nft_level.${selectedConfig.level}`)}
                       </Text>
                     </HStack>
                     {isUpgradeAction && (
@@ -869,7 +890,7 @@ export function NFTPage() {
 
                   <Box bg="whiteAlpha.50" borderRadius="lg" p="3">
                     <HStack gap={1} mb={1}>
-                      <HiOutlineBolt size={12} color="#292FE1" />
+                      <HiOutlineBolt size={12} color="#9A9A9F" />
                       <Text fontSize="xs" color="whiteAlpha.500">{t('nft.base_power')}</Text>
                     </HStack>
                     <Text fontSize="lg" fontWeight="bold" color="white">
@@ -879,7 +900,7 @@ export function NFTPage() {
 
                   <Box bg="whiteAlpha.50" borderRadius="lg" p="3">
                     <HStack gap={1} mb={1}>
-                      <HiOutlineSparkles size={12} color="#D811F0" />
+                      <HiOutlineSparkles size={12} color="#8A8A90" />
                       <Text fontSize="xs" color="whiteAlpha.500">{t('nft.power_coefficient')}</Text>
                     </HStack>
                     <Text fontSize="lg" fontWeight="bold" color="white">
@@ -904,7 +925,7 @@ export function NFTPage() {
                 {/* 获得 PID 预估 */}
                 {priceInfo && priceInfo.pidPrice > 0 && (
                   <Box
-                    bg="rgba(41, 47, 225, 0.1)"
+                    bg="rgba(74, 74, 80, 0.15)"
                     borderRadius="lg"
                     p="3"
                     mb="4"
@@ -912,12 +933,39 @@ export function NFTPage() {
                     <Text fontSize="xs" color="whiteAlpha.600" mb="1">
                       {t('nft.estimated_pid')}
                     </Text>
-                    <Text fontSize="xl" fontWeight="bold" color="#292FE1">
+                    <Text fontSize="xl" fontWeight="bold" color="#9A9A9F">
                       {(selectedConfig.price / priceInfo.pidPrice).toFixed(2)} PID
                     </Text>
                     <Text fontSize="xs" color="whiteAlpha.500">
                       {t('nft.current_pid_price')}: ${priceInfo.pidPrice.toFixed(4)}
                     </Text>
+                  </Box>
+                )}
+
+                {/* 余额不足警告 */}
+                {hasInsufficientBalance && (
+                  <Box
+                    bg="rgba(239, 68, 68, 0.1)"
+                    borderRadius="lg"
+                    p="3"
+                    mb="4"
+                    borderWidth={1}
+                    borderColor="rgba(239, 68, 68, 0.3)"
+                  >
+                    <HStack gap={2}>
+                      <HiOutlineExclamationCircle size={18} color="#EF4444" />
+                      <VStack align="start" gap={0}>
+                        <Text fontSize="sm" color="#EF4444" fontWeight="600">
+                          {t('nft.insufficient_balance')}
+                        </Text>
+                        <Text fontSize="xs" color="whiteAlpha.500">
+                          {t('nft.balance_hint', {
+                            balance: usdtBalance.toFixed(2),
+                            required: selectedPrice.toFixed(2),
+                          })}
+                        </Text>
+                      </VStack>
+                    </HStack>
                   </Box>
                 )}
 
@@ -930,7 +978,7 @@ export function NFTPage() {
                       flex={1}
                       size="lg"
                       onClick={() => handleOpenNFTSelector(selectedLevel)}
-                      disabled={isStakingLoading}
+                      disabled={isStakingLoading || !isStakingEnabled}
                     >
                       <HStack gap={2} justify="center">
                         {isStakingLoading ? (
@@ -951,7 +999,7 @@ export function NFTPage() {
                     flex={1}
                     size="lg"
                     onClick={handlePurchaseOrUpgrade}
-                    disabled={isPurchasing}
+                    disabled={isPurchasing || hasInsufficientBalance}
                   >
                     <HStack gap={2} justify="center">
                       {isPurchasing ? (
@@ -967,6 +1015,15 @@ export function NFTPage() {
                     </HStack>
                   </ActionButton>
                 </HStack>
+
+                {/* USDT 余额显示 - 仅在余额充足时显示 */}
+                {!hasInsufficientBalance && (
+                  <Flex justify="center" mt="3">
+                    <Text fontSize="xs" color="whiteAlpha.500">
+                      {t('nft.wallet_balance')}: {usdtBalance.toFixed(2)} USDT
+                    </Text>
+                  </Flex>
+                )}
               </Box>
             </GradientBorderCard>
           </MotionBox>
@@ -991,7 +1048,7 @@ export function NFTPage() {
             </HStack>
           </Flex>
           <VStack gap={2}>
-            {NFT_LEVEL_CONFIGS.map((config, index) => {
+            {nftLevelConfigs.map((config, index) => {
               const isOwned = currentLevelIndex >= index
               const isCurrent = currentLevel === config.level
 
@@ -999,13 +1056,13 @@ export function NFTPage() {
                 <MotionBox
                   key={config.level}
                   w="full"
-                  bg={isCurrent ? 'rgba(41, 47, 225, 0.15)' : '#17171C'}
+                  bg={isCurrent ? 'rgba(74, 74, 80, 0.15)' : '#17171C'}
                   borderRadius="xl"
                   p="4"
                   borderWidth={isCurrent ? 1 : 0}
-                  borderColor="#292FE1"
+                  borderColor="#4A4A50"
                   cursor="pointer"
-                  onClick={() => setSelectedLevel(config.level)}
+                  onClick={() => setSelectedLevel(config.level as NFTLevel)}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.05 }}
@@ -1017,7 +1074,7 @@ export function NFTPage() {
                       <NFTBadge level={config.level} size="md" />
                       <VStack align="start" gap={0}>
                         <Text fontSize="sm" fontWeight="600" color="white">
-                          {config.name}
+                          {t(`nft_level.${config.level}`)}
                         </Text>
                         <Text fontSize="xs" color="whiteAlpha.500">
                           ${config.price.toLocaleString()} · {t('nft.power')} {config.power}
@@ -1034,7 +1091,7 @@ export function NFTPage() {
                         <Box
                           px="2"
                           py="0.5"
-                          bg="#292FE1"
+                          bg="#4A4A50"
                           borderRadius="full"
                         >
                           <Text fontSize="xs" color="white" fontWeight="bold">

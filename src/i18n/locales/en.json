@@ -31,22 +31,23 @@
     "invitation_rewards": "Invitation Rewards",
     "node_rewards": "Node Rewards",
     "airdrop_rewards": "Airdrop Rewards",
-    "invite_friends": "Invite Friends"
+    "invite_friends": "Invite Friends",
+    "invite_disabled_hint": "Purchase NFT to unlock invite"
   },
   "team": {
     "node_level": "Node Level",
     "upgrade_to": "Upgrade to {{level}} requires",
-    "small_area_perf": "Small Area Performance",
-    "total_perf": "Total Performance",
+    "small_area_perf": "Upgrade Power",
+    "total_perf": "Total Power",
     "performance_stats": "Performance Statistics",
-    "team_total_perf": "Team Total Performance",
-    "small_area_perf_value": "Competing Power Value",
-    "daily_new_power": "Daily New Power",
+    "team_total_perf": "Total Power",
+    "small_area_perf_value": "Small Area Perf",
+    "max_line_perf_value": "Daily New Power",
     "community_count": "Community Count",
     "invite": "Invite",
     "upgrade_requirements": "{{level}} Upgrade Requirements",
-    "small_area_req": "Competing Power ≥ {{req}}K",
-    "total_req": "Total Power ≥ {{req}}K",
+    "small_area_req": "Small Area Perf ≥ {{req}}K",
+    "total_req": "Total Perf ≥ {{req}}K",
     "p9_special_req": "≥ 2 P8 in team",
     "units": "units",
     "ten_thousand": "K",
@@ -98,7 +99,9 @@
     "invite_code_subtitle": "Invite code is required to join PolyFlow",
     "invite_code_placeholder": "Enter invite code",
     "invite_code_notice": "You can get the invite code from your referrer, or register directly via invite link.",
-    "invite_code_required": "Please enter invite code"
+    "invite_code_required": "Please enter invite code",
+    "invalid_invite_code": "Invalid invite code, please enter a valid one",
+    "wallet_switched": "Wallet switched detected, please login again"
   },
   "common": {
     "loading": "Loading...",
@@ -189,7 +192,13 @@
     "full_release": "100% Release",
     "pid_available": "PID Withdrawable",
     "pic_available": "PIC Withdrawable",
-    "pic_released": "PIC Released"
+    "pic_released": "PIC Released",
+    "pic_released_short": "Released",
+    "current_value": "Current Value",
+    "instant_arrival": "Instant Arrival",
+    "fee_label": "Fee",
+    "withdraw_title": "Withdraw",
+    "pic_withdraw_fee_notice": "PIC withdrawal will be charged 3% fee"
   },
   "nft": {
     "current_level": "Current Level",
@@ -234,7 +243,10 @@
     "source_transfer": "Transferred",
     "token_id": "Token ID",
     "acquire_time": "Acquired",
-    "no_nft_holdings": "No NFT Holdings"
+    "no_nft_holdings": "No NFT Holdings",
+    "insufficient_balance": "Insufficient Balance",
+    "balance_hint": "Current balance: {{balance}} USDT, Required: {{required}} USDT",
+    "wallet_balance": "Wallet Balance"
   },
   "reward_list": {
     "total_reward": "Total {{type}}",
@@ -246,14 +258,29 @@
     "title": "Withdraw Records",
     "total_withdrawn": "Total Withdrawn",
     "completed_count": "{{count}} completed",
+    "pending_count": "{{count}} pending",
     "releasing_count": "{{count}} releasing",
     "no_records": "No withdraw records",
     "completed": "Completed",
+    "claimable": "Claimable",
+    "processing": "Processing",
     "releasing": "Releasing",
+    "claim": "Claim",
+    "fee": "Fee",
+    "source": "Source",
+    "source_balance": "Available Balance",
+    "source_released": "Linear Release",
+    "create_time": "Created",
+    "claim_time": "Claimed",
     "linear_progress": "Linear Release Progress",
     "instant_release": "Instant",
     "linear_release": "Linear",
     "withdraw_time": "Withdraw Time"
+  },
+  "withdraw": {
+    "step": "Step",
+    "wallet_confirm_hint": "Please confirm the transaction in your wallet",
+    "view_records": "View Records"
   },
   "team_members": {
     "title": "Team Members",
@@ -264,7 +291,9 @@
     "invite": "Invited",
     "no_direct": "No direct referrals",
     "no_members": "No team members",
-    "invite_friends": "Invite friends to join your team"
+    "invite_friends": "Invite friends to join your team",
+    "activated": "Activated",
+    "not_activated": "Not Activated"
   },
   "burn_records": {
     "title": "Burn Records",

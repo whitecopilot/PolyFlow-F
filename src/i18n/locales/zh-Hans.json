@@ -31,17 +31,18 @@
     "invitation_rewards": "邀请奖励",
     "node_rewards": "节点奖励",
     "airdrop_rewards": "空投奖励",
-    "invite_friends": "邀请好友"
+    "invite_friends": "邀请好友",
+    "invite_disabled_hint": "购买 NFT 开启邀请权限"
   },
   "team": {
     "node_level": "节点等级",
     "upgrade_to": "升级到 {{level}} 还需",
-    "small_area_perf": "小区业绩",
-    "total_perf": "总业绩",
+    "small_area_perf": "竟升算力值",
+    "total_perf": "总算力值",
     "performance_stats": "业绩统计",
-    "team_total_perf": "团队总业绩",
+    "team_total_perf": "总算力值",
     "small_area_perf_value": "竟升算力值",
-    "daily_new_power": "日新增算力值",
+    "max_line_perf_value": "日新增算力值",
     "community_count": "社区人数",
     "invite": "邀请",
     "upgrade_requirements": "{{level}} 升级条件",
@@ -98,7 +99,9 @@
     "invite_code_subtitle": "邀请码是加入 PolyFlow 的必要条件",
     "invite_code_placeholder": "请输入邀请码",
     "invite_code_notice": "您可以从邀请人处获取邀请码，或通过邀请链接直接注册。",
-    "invite_code_required": "请输入邀请码"
+    "invite_code_required": "请输入邀请码",
+    "invalid_invite_code": "邀请码无效，请输入正确的邀请码",
+    "wallet_switched": "检测到钱包切换，请重新登录"
   },
   "common": {
     "loading": "加载中...",
@@ -189,7 +192,13 @@
     "full_release": "100% 到账",
     "pid_available": "PID 可提现",
     "pic_available": "PIC 可提现",
-    "pic_released": "PIC 已释放"
+    "pic_released": "PIC 已释放",
+    "pic_released_short": "已释放",
+    "current_value": "当前估值",
+    "instant_arrival": "即时到账",
+    "fee_label": "手续费",
+    "withdraw_title": "提现",
+    "pic_withdraw_fee_notice": "PIC 提现将收取 3% 手续费"
   },
   "nft": {
     "current_level": "当前等级",
@@ -234,7 +243,10 @@
     "source_transfer": "转入",
     "token_id": "编号",
     "acquire_time": "获得时间",
-    "no_nft_holdings": "暂无 NFT"
+    "no_nft_holdings": "暂无 NFT",
+    "insufficient_balance": "余额不足",
+    "balance_hint": "当前余额: {{balance}} USDT，需要: {{required}} USDT",
+    "wallet_balance": "钱包余额"
   },
   "reward_list": {
     "total_reward": "累计{{type}}",
@@ -246,14 +258,29 @@
     "title": "提现记录",
     "total_withdrawn": "累计提现",
     "completed_count": "已完成 {{count}} 笔",
+    "pending_count": "待处理 {{count}} 笔",
     "releasing_count": "释放中 {{count}} 笔",
     "no_records": "暂无提现记录",
     "completed": "已完成",
+    "claimable": "可提取",
+    "processing": "处理中",
     "releasing": "释放中",
+    "claim": "提取",
+    "fee": "手续费",
+    "source": "来源",
+    "source_balance": "可用余额",
+    "source_released": "线性释放",
+    "create_time": "创建时间",
+    "claim_time": "提取时间",
     "linear_progress": "线性释放进度",
     "instant_release": "即时到账",
     "linear_release": "线性释放",
     "withdraw_time": "提现时间"
+  },
+  "withdraw": {
+    "step": "步骤",
+    "wallet_confirm_hint": "请在钱包中确认交易",
+    "view_records": "查看记录"
   },
   "team_members": {
     "title": "团队成员",
@@ -264,7 +291,9 @@
     "invite": "邀请",
     "no_direct": "暂无直推成员",
     "no_members": "暂无团队成员",
-    "invite_friends": "邀请好友加入你的团队"
+    "invite_friends": "邀请好友加入你的团队",
+    "activated": "已激活",
+    "not_activated": "未激活"
   },
   "burn_records": {
     "title": "销毁记录",

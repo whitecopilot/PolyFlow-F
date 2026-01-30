@@ -23,12 +23,17 @@ import type {
   CreateNFTOrderResponse,
   UserNFTItem,
   NFTHoldingStats,
+  RewardRecordResponse,
+  RewardType as ApiRewardType,
+  NFTLevelConfigItem,
 } from '../api/types'
+import { TokenTypeCode } from '../api/types'
 import type {
   NFTLevel,
   NodeLevel,
   PriceInfo,
   UserAssets,
+  FeatureFlags,
   TeamStats,
   EarningsStats,
   PIDReleasePlan,
@@ -37,6 +42,7 @@ import type {
   WithdrawRecord,
   TeamMember,
   SystemStats,
+  RewardType,
 } from '../types/payfi'
 
 // 重新导出类型供页面使用
@@ -74,6 +80,9 @@ interface PayFiState {
   nftHoldings: UserNFTItem[]
   nftHoldingStats: NFTHoldingStats | null
 
+  // NFT 等级配置（从后端获取）
+  nftLevelConfigs: NFTLevelConfigItem[]
+
   // 加载状态
   isLoading: boolean
   error: string | null
@@ -91,12 +100,14 @@ interface PayFiState {
   fetchEarningsStats: () => Promise<void>
   fetchPIDReleasePlans: () => Promise<void>
   fetchRewardRecords: () => Promise<void>
+  fetchRewardRecordsByType: (type: RewardType, page?: number, pageSize?: number) => Promise<void>
   fetchWithdrawRecords: () => Promise<void>
   fetchTeamMembers: () => Promise<void>
   fetchInviteCode: () => Promise<void>
   fetchNFTOrders: () => Promise<void>
   fetchUserNFTList: (page?: number, pageSize?: number) => Promise<void>
   fetchUserNFTStats: () => Promise<void>
+  fetchNFTLevelConfigs: () => Promise<void>
 
   // Actions - 业务操作
   purchaseNFT: (level: NFTLevel) => Promise<CreateNFTOrderResponse | null>
@@ -119,6 +130,8 @@ interface PayFiState {
 // ================================
 
 const getDefaultUserAssets = (): UserAssets => ({
+  totalAssetValueUSDT: 0,
+  usdtBalance: 0,
   currentNFTLevel: null,
   nftCoefficient: 0,
   nftStaked: false,
@@ -149,7 +162,6 @@ const getDefaultTeamStats = (): TeamStats => ({
   teamCount: 0,
   teamOrderCount: 0,
   teamPerformance: 0,
-  stakingPerformance: 0,
   smallAreaPerf: 0,
   maxLinePerf: 0,
 })
@@ -164,27 +176,61 @@ const convertPriceInfo = (apiPrice: ApiPriceInfo): PriceInfo => ({
 })
 
 // 转换 API UserRelation 到 TeamMember
-const convertToTeamMember = (relation: UserRelation, index: number, isDirectReferral: boolean): TeamMember => ({
-  id: index + 1,
-  address: relation.address,
-  nftLevel: null, // 第一阶段都是 null
-  nodeLevel: 'P0', // 第一阶段都是 P0
-  performance: 0, // 第一阶段都是 0
-  isDirectReferral,
-  joinedAt: new Date(relation.createdAt),
-})
+const convertToTeamMember = (relation: UserRelation, index: number, isDirectReferral: boolean): TeamMember => {
+  // 安全解析日期
+  let joinedAt: Date
+  try {
+    joinedAt = relation.createdAt ? new Date(relation.createdAt) : new Date()
+    // 检查日期是否有效
+    if (isNaN(joinedAt.getTime())) {
+      joinedAt = new Date()
+    }
+  } catch {
+    joinedAt = new Date()
+  }
+
+  return {
+    id: index + 1,
+    address: relation.address,
+    nftLevel: null, // 第一阶段都是 null
+    nodeLevel: 'P0', // 第一阶段都是 P0
+    performance: 0, // 第一阶段都是 0
+    isDirectReferral,
+    joinedAt,
+    state: relation.state,
+  }
+}
 
 // 转换 API WithdrawOrder 到 WithdrawRecord
-const convertToWithdrawRecord = (order: ApiWithdrawOrder): WithdrawRecord => ({
-  id: order.id,
-  totalAmount: parseFloat(order.amount),
-  feeAmount: 0,
-  instantAmount: parseFloat(order.amount),
-  linearAmount: 0,
-  linearReleased: 0,
-  status: order.state === 'claimed' ? 'completed' : 'processing',
-  createdAt: new Date(order.createdAt),
-})
+// 后端状态: 1=Submit(等待签名), 2=Cheque(可提取), 3=Received(已领取)
+// 后端来源: 1=AWT, 2=Balance, 3=Released
+const convertToWithdrawRecord = (order: ApiWithdrawOrder): WithdrawRecord => {
+  // 状态映射
+  const stateMap: Record<number, WithdrawRecord['status']> = {
+    1: 'submit',
+    2: 'cheque',
+    3: 'received',
+  }
+  // 来源映射
+  const sourceMap: Record<number, WithdrawRecord['source']> = {
+    1: 'balance', // AWT 视为 balance
+    2: 'balance',
+    3: 'released',
+  }
+
+  return {
+    id: order.id,
+    orderNum: order.orderNum,
+    tokenType: order.tokenType as 'PID' | 'PIC',
+    amount: parseFloat(order.amount),
+    servicedFee: parseFloat(order.servicedFee || '0'),
+    source: sourceMap[order.source] || 'balance',
+    status: stateMap[order.state] || 'submit',
+    transactionHash: order.transactionHash,
+    createdAt: new Date(order.createdAt),
+    claimedAt: order.claimedAt ? new Date(order.claimedAt) : undefined,
+  }
+}
 
 // 转换 API BurnRecord 到 PICBurnRecord
 const convertToBurnRecord = (record: ApiBurnRecord): PICBurnRecord => ({
@@ -206,6 +252,9 @@ const convertToBurnRecord = (record: ApiBurnRecord): PICBurnRecord => ({
 // 存储正在进行的请求 Promise，避免重复请求
 const pendingRequests = new Map<string, Promise<void>>()
 
+// 已完成请求的时间戳，用于防止 React Strict Mode 双重调用
+const completedRequests = new Map<string, number>()
+
 // 防抖请求包装函数
 async function dedupeRequest(key: string, requestFn: () => Promise<void>): Promise<void> {
   // 如果已有相同请求在进行，返回现有的 Promise
@@ -214,10 +263,17 @@ async function dedupeRequest(key: string, requestFn: () => Promise<void>): Promi
     return existing
   }
 
+  // 检查是否刚完成（100ms 内），防止 React Strict Mode 双重调用
+  const completedAt = completedRequests.get(key)
+  if (completedAt && Date.now() - completedAt < 100) {
+    return Promise.resolve()
+  }
+
   // 创建新请求
   const promise = requestFn().finally(() => {
-    // 请求完成后从 Map 中移除
+    // 请求完成后从 Map 中移除，并记录完成时间
     pendingRequests.delete(key)
+    completedRequests.set(key, Date.now())
   })
 
   pendingRequests.set(key, promise)
@@ -245,6 +301,7 @@ export const usePayFiStore = create<PayFiState>()(
       nftOrders: [],
       nftHoldings: [],
       nftHoldingStats: null,
+      nftLevelConfigs: [],
       isLoading: false,
       error: null,
       inviteCode: '',
@@ -308,19 +365,54 @@ export const usePayFiStore = create<PayFiState>()(
         return dedupeRequest('userAssets', async () => {
           try {
             const apiAssets = await payfiApi.getUserAssets()
-            // 解析 NFT 等级（API 返回字符串如 "N1", "N2" 等）
-            const nftLevel = apiAssets.currentNftLevel as NFTLevel || null
-            // 从 API 响应构建用户资产，使用默认值填充缺失字段
+
+            // 从新 API 结构提取数据
+            const nft = apiAssets.nft
+            const pid = apiAssets.pid
+            const pic = apiAssets.pic
+            const earnings = apiAssets.earnings
+
+            // 解析 NFT 等级
+            const nftLevel = (nft?.stakedLevel || apiAssets.currentNftLevel) as NFTLevel || null
+
+            // 从 API 响应构建用户资产
             const userAssets: UserAssets = {
               ...getDefaultUserAssets(),
+              // 功能开关（直接使用 API 返回的值）
+              featureFlags: apiAssets.featureFlags,
+              // NFT 相关
               currentNFTLevel: nftLevel,
-              pidBalance: apiAssets.release?.availableToRelease || 0,
-              pidTotalLocked: apiAssets.release?.totalLocked || 0,
-              pidReleased: apiAssets.release?.totalReleased || 0,
-              picBalance: apiAssets.picBalance || 0,
-              picReleasedBalance: apiAssets.picReleasedBalance || 0,
+              nftCoefficient: nft?.coefficient || 0,
+              nftStaked: !!nftLevel,
+              powerFromNFT: nft?.totalPower || 0,
+              totalNFTInvest: nft?.totalInvest || 0,
+              exitFromNFT: nft?.exitLimit || 0,
+
+              // PID 相关（使用 ?? 而非 ||，避免 0 被当作 falsy 值）
+              pidTotalLocked: pid?.totalLocked ?? apiAssets.release?.totalLocked ?? 0,
+              pidReleased: pid?.released ?? apiAssets.release?.totalReleased ?? 0,
+              pidBalance: pid?.available ?? 0, // 可用余额：已释放且可提取的 PID
+
+              // PIC 相关
+              picBalance: pic?.available ?? apiAssets.picBalance ?? 0,
+              picReleasedBalance: pic?.releasedBalance ?? apiAssets.picReleasedBalance ?? 0,
+
+              // 收益和出局相关
+              earnedRewards: earnings?.earnedRewardsUSDT ?? 0,
+              totalExitLimit: earnings?.totalExitLimit ?? 0,
+              remainingLimit: earnings?.remainingLimit ?? 0,
+
+              // 总算力（NFT + 销毁）
+              totalPower: (nft?.totalPower || 0),
+
+              // 总资产估值
+              totalAssetValueUSDT: apiAssets.totalAssetValueUSDT || 0,
+
+              // 钱包 USDT 余额
+              usdtBalance: apiAssets.usdtBalance || 0,
             }
-            // 同时从 assets API 提取价格信息，避免额外的价格请求
+
+            // 同时从 assets API 提取价格信息
             const updates: Partial<PayFiState> = { userAssets }
             if (apiAssets.prices) {
               updates.priceInfo = convertPriceInfo(apiAssets.prices)
@@ -347,7 +439,6 @@ export const usePayFiStore = create<PayFiState>()(
               teamCount: apiStats.teamCount || 0,
               teamOrderCount: apiStats.teamOrderCount || 0,
               teamPerformance: parseFloat(apiStats.teamPerformance) || 0,
-              stakingPerformance: parseFloat(apiStats.stakingPerformance) || 0,
               maxLinePerf: parseFloat(apiStats.maxLinePerf) || 0,
               smallAreaPerf: parseFloat(apiStats.smallAreaPerf) || 0,
               nodeLevel: (apiStats.nodeLevel as TeamStats['nodeLevel']) || 'P0',
@@ -364,12 +455,19 @@ export const usePayFiStore = create<PayFiState>()(
           try {
             const summary = await payfiApi.getRewardSummary()
             const earningsStats: EarningsStats = {
+              // 累计收益
               totalStaticEarned: summary.totalStaticProfit,
               totalReferralEarned: summary.totalInviteProfit,
-              totalNodeEarned: 0, // 第一阶段无节点奖励
-              totalSameLevelEarned: 0,
-              totalGlobalEarned: 0,
+              totalNodeEarned: summary.totalNodeProfit || 0,
+              totalSameLevelEarned: summary.totalSameLevelProfit || 0,
+              totalGlobalEarned: summary.totalGlobalProfit || 0,
+              // 今日收益
               todayEarnings: summary.todayProfit,
+              todayStaticEarned: summary.todayStaticProfit || 0,
+              todayReferralEarned: summary.todayInviteProfit || 0,
+              todayNodeEarned: summary.todayNodeProfit || 0,
+              todaySameLevelEarned: summary.todaySameLevelProfit || 0,
+              todayGlobalEarned: summary.todayGlobalProfit || 0,
               withdrawableAmount: summary.totalProfit,
             }
             set({ earningsStats })
@@ -427,8 +525,32 @@ export const usePayFiStore = create<PayFiState>()(
       },
 
       fetchRewardRecords: async () => {
-        // 第一阶段暂无奖励记录 API，使用空数组
+        // 保留用于向后兼容，具体类型请使用 fetchRewardRecordsByType
         set({ rewardRecords: [] })
+      },
+
+      fetchRewardRecordsByType: async (type: RewardType, page = 1, pageSize = 20) => {
+        return dedupeRequest(`rewardRecords-${type}-${page}`, async () => {
+          try {
+            const result = await payfiApi.getRewardsByType(type as ApiRewardType, page, pageSize)
+            // 转换后端响应格式到前端类型
+            const records: RewardRecord[] = (result.items || []).map((item: RewardRecordResponse) => ({
+              id: item.ID,
+              rewardType: item.RewardType as RewardType,
+              sourceUserId: item.SourceUserID,
+              sourceAddress: null, // 后端暂未返回地址
+              picAmount: item.PICAmount,
+              usdtValue: item.USDTValue,
+              picPrice: item.PICPrice,
+              rewardDate: new Date(item.RewardDate),
+              createdAt: new Date(item.CreatedAt),
+            }))
+            set({ rewardRecords: records })
+          } catch (error) {
+            console.error('获取奖励记录失败:', error)
+            set({ rewardRecords: [] })
+          }
+        })
       },
 
       fetchWithdrawRecords: async () => {
@@ -442,24 +564,32 @@ export const usePayFiStore = create<PayFiState>()(
       },
 
       fetchTeamMembers: async () => {
-        try {
-          // 先获取直推，再获取间推
-          const [directResult, indirectResult] = await Promise.all([
-            userApi.getUserRelations(UserRelationType.Direct, 1, 50),
-            userApi.getUserRelations(UserRelationType.Indirect, 1, 50),
-          ])
+        return dedupeRequest('teamMembers', async () => {
+          try {
+            // 先获取直推，再获取间推
+            const [directResult, indirectResult] = await Promise.all([
+              userApi.getUserRelations(UserRelationType.Direct, 1, 50),
+              userApi.getUserRelations(UserRelationType.Indirect, 1, 50),
+            ])
 
-          const directMembers = (directResult.items || []).map((r, i) =>
-            convertToTeamMember(r, i, true)
-          )
-          const indirectMembers = (indirectResult.items || []).map((r, i) =>
-            convertToTeamMember(r, directMembers.length + i, false)
-          )
+            const directMembers = (directResult.items || []).map((r, i) =>
+              convertToTeamMember(r, i, true)
+            )
+            const indirectMembers = (indirectResult.items || []).map((r, i) =>
+              convertToTeamMember(r, directMembers.length + i, false)
+            )
 
-          set({ teamMembers: [...directMembers, ...indirectMembers] })
-        } catch (error) {
-          console.error('获取团队成员失败:', error)
-        }
+            // 合并并按地址去重，直推优先
+            const allMembers = [...directMembers, ...indirectMembers]
+            const uniqueMembers = allMembers.filter((member, index, self) =>
+              index === self.findIndex((m) => m.address.toLowerCase() === member.address.toLowerCase())
+            )
+
+            set({ teamMembers: uniqueMembers })
+          } catch (error) {
+            console.error('获取团队成员失败:', error)
+          }
+        })
       },
 
       fetchInviteCode: async () => {
@@ -485,21 +615,36 @@ export const usePayFiStore = create<PayFiState>()(
       },
 
       fetchUserNFTList: async (page = 1, pageSize = 50) => {
-        try {
-          const result = await nftApi.getUserNFTList(page, pageSize)
-          set({ nftHoldings: result.items || [] })
-        } catch (error) {
-          console.error('获取用户NFT列表失败:', error)
-        }
+        return dedupeRequest(`nftList-${page}-${pageSize}`, async () => {
+          try {
+            const result = await nftApi.getUserNFTList(page, pageSize)
+            set({ nftHoldings: result.items || [] })
+          } catch (error) {
+            console.error('获取用户NFT列表失败:', error)
+          }
+        })
       },
 
       fetchUserNFTStats: async () => {
-        try {
-          const stats = await nftApi.getUserNFTStats()
-          set({ nftHoldingStats: stats })
-        } catch (error) {
-          console.error('获取用户NFT统计失败:', error)
-        }
+        return dedupeRequest('nftStats', async () => {
+          try {
+            const stats = await nftApi.getUserNFTStats()
+            set({ nftHoldingStats: stats })
+          } catch (error) {
+            console.error('获取用户NFT统计失败:', error)
+          }
+        })
+      },
+
+      fetchNFTLevelConfigs: async () => {
+        return dedupeRequest('nftLevelConfigs', async () => {
+          try {
+            const configs = await payfiApi.getNFTLevelConfigs()
+            set({ nftLevelConfigs: configs })
+          } catch (error) {
+            console.error('获取NFT等级配置失败:', error)
+          }
+        })
       },
 
       // ================================
@@ -592,9 +737,10 @@ export const usePayFiStore = create<PayFiState>()(
       withdraw: async (amount: number, tokenType: 'PID' | 'PIC' = 'PID') => {
         set({ isLoading: true, error: null })
         try {
+          const typeCode = tokenType === 'PID' ? TokenTypeCode.PID : TokenTypeCode.PIC
           await withdrawApi.createWithdrawOrder({
             amount,
-            type: tokenType,
+            type: typeCode,
           })
           await Promise.all([
             get().fetchWithdrawRecords(),
@@ -658,6 +804,7 @@ export const usePayFiStore = create<PayFiState>()(
         nftOrders: [],
         nftHoldings: [],
         nftHoldingStats: null,
+        nftLevelConfigs: [],
         isLoading: false,
         error: null,
         inviteCode: '',

@@ -33,7 +33,7 @@ export function NFTListPage() {
   const transferCount = nftHoldings.filter((nft) => nft.source === 'transfer').length
 
   return (
-    <Box minH="100vh" bg="black">
+    <Box minH="100vh" bg="#111111">
       <SecondaryPageHeader title={t('nft.nft_list_title')} />
 
       <VStack gap="4" p="4" align="stretch">

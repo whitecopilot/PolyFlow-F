@@ -1,8 +1,8 @@
 import { Box, Button, Flex, Input, Text, VStack } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
-import { HiOutlineTicket, HiOutlineWallet } from 'react-icons/hi2'
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { HiOutlineTicket, HiOutlineWallet, HiOutlineExclamationCircle } from 'react-icons/hi2'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useConnect } from 'wagmi'
 import { useTranslation } from 'react-i18next'
 import { PolyFlowLogo } from '../components/common'
@@ -14,17 +14,26 @@ const MotionFlex = motion.create(Flex)
 export function LoginPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const location = useLocation()
   const [searchParams] = useSearchParams()
   const { connectors, connect, isPending: isConnecting } = useConnect()
-  const { isAuthenticated, isConnected, signIn, isLoading, needsBindInviter } = useAuth()
+  const {
+    isAuthenticated,
+    isConnected,
+    address,
+    signIn,
+    isLoading,
+    needsBindInviter,
+    walletSwitched,
+    clearWalletSwitchedFlag,
+  } = useAuth()
   const [step, setStep] = useState<'connect' | 'sign' | 'invite'>('connect')
   const [inviteCode, setInviteCode] = useState('')
   const [loginError, setLoginError] = useState<string | null>(null)
-  // 是否已经尝试过无邀请码登录
-  const [hasTriedWithoutCode, setHasTriedWithoutCode] = useState(false)
+  // 本地钱包切换提示状态
+  const [showWalletSwitchedNotice, setShowWalletSwitchedNotice] = useState(false)
 
-  const from = (location.state as { from?: Location })?.from?.pathname || '/'
+  // 登录成功后始终跳转到首页
+  const from = '/'
 
   // 从 URL 中提取邀请码
   const urlInviteCode = useMemo(() => {
@@ -42,11 +51,35 @@ export function LoginPage() {
   }, [isAuthenticated, needsBindInviter, navigate, from])
 
   // 钱包已连接但未签名，直接进入签名步骤
+  // 注意：必须同时检查 address 存在，因为切换钱包时 isConnected 可能仍为 true 但 address 为 null
   useEffect(() => {
-    if (isConnected && !isAuthenticated && step === 'connect') {
+    if (isConnected && address && !isAuthenticated && step === 'connect') {
       setStep('sign')
     }
-  }, [isConnected, isAuthenticated, step])
+  }, [isConnected, address, isAuthenticated, step])
+
+  // 处理钱包切换时的中间状态：如果在签名步骤但 address 变为 null，返回连接步骤
+  useEffect(() => {
+    if (step === 'sign' && !address) {
+      console.log('[LoginPage] 检测到 address 为空，返回连接步骤')
+      setStep('connect')
+      setLoginError(null)
+    }
+  }, [step, address])
+
+  // 监听钱包切换事件，显示提示
+  useEffect(() => {
+    if (walletSwitched) {
+      setShowWalletSwitchedNotice(true)
+      // 清除全局标志，但保留本地提示显示
+      clearWalletSwitchedFlag()
+      // 5秒后自动隐藏提示
+      const timer = setTimeout(() => {
+        setShowWalletSwitchedNotice(false)
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [walletSwitched, clearWalletSwitchedFlag])
 
   // 使用第一个可用的 connector 连接钱包
   const handleConnect = async () => {
@@ -66,20 +99,24 @@ export function LoginPage() {
   const handleSign = async () => {
     setLoginError(null)
 
-    // 如果有 URL 邀请码或用户输入了邀请码，直接使用
-    const codeToUse = finalInviteCode || undefined
+    // 如果有 URL 邀请码，优先使用
+    const codeToUse = urlInviteCode || undefined
 
     const result = await signIn(codeToUse)
 
     if (result.success) {
+      // 登录成功（已有用户或新用户带有效邀请码）
       navigate(from, { replace: true })
-    } else if (result.needsInviteCode && !hasTriedWithoutCode) {
+    } else if (result.needsInviteCode) {
       // 新用户需要邀请码，显示邀请码输入界面
-      setHasTriedWithoutCode(true)
       setStep('invite')
       setLoginError(null)
+    } else if (result.invalidInviteCode && urlInviteCode) {
+      // URL 中的邀请码无效，显示邀请码输入界面让用户输入正确的
+      setStep('invite')
+      setLoginError(result.errorMessage || t('login.invalid_invite_code'))
     } else {
-      // 其他错误
+      // 其他错误（签名失败等）
       setLoginError(result.errorMessage || t('login.sign_failed'))
     }
   }
@@ -96,7 +133,11 @@ export function LoginPage() {
 
     if (result.success) {
       navigate(from, { replace: true })
+    } else if (result.invalidInviteCode) {
+      // 邀请码无效，继续停留在邀请码输入页面，显示错误
+      setLoginError(result.errorMessage || t('login.invalid_invite_code'))
     } else {
+      // 其他错误
       setLoginError(result.errorMessage || t('login.sign_failed'))
     }
   }
@@ -178,6 +219,31 @@ export function LoginPage() {
             </VStack>
           </MotionFlex>
 
+          {/* 钱包切换提示 */}
+          {showWalletSwitchedNotice && (
+            <MotionBox
+              w="100%"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              <Box
+                bg="rgba(251, 191, 36, 0.1)"
+                border="1px solid"
+                borderColor="rgba(251, 191, 36, 0.3)"
+                borderRadius="12px"
+                p="3"
+              >
+                <Flex align="center" justify="center" gap="2">
+                  <HiOutlineExclamationCircle size={18} color="#FBBF24" />
+                  <Text fontSize="sm" color="yellow.400" textAlign="center">
+                    {t('login.wallet_switched')}
+                  </Text>
+                </Flex>
+              </Box>
+            </MotionBox>
+          )}
+
           {/* 错误提示 */}
           {loginError && (
             <MotionBox
@@ -210,7 +276,9 @@ export function LoginPage() {
               <Button
                 w="100%"
                 h="56px"
-                bg="linear-gradient(135deg, #292FE1 0%, #D811F0 100%)"
+                bg="#2A2A30"
+                border="1px solid"
+                borderColor="#4A4A50"
                 color="white"
                 fontSize="md"
                 fontWeight="600"
@@ -231,14 +299,14 @@ export function LoginPage() {
               {urlInviteCode && (
                 <Box
                   mt="4"
-                  bg="rgba(41, 47, 225, 0.1)"
+                  bg="rgba(74, 74, 80, 0.15)"
                   borderRadius="12px"
                   p="3"
                   border="1px solid"
-                  borderColor="rgba(41, 47, 225, 0.2)"
+                  borderColor="rgba(74, 74, 80, 0.3)"
                 >
                   <Flex align="center" justify="center" gap="2">
-                    <HiOutlineTicket size={16} color="#292FE1" />
+                    <HiOutlineTicket size={16} color="#9A9A9F" />
                     <Text fontSize="sm" color="text.secondary">
                       {t('login.invite_code')}: <Text as="span" color="brand.primary" fontWeight="600">{urlInviteCode}</Text>
                     </Text>
@@ -275,11 +343,11 @@ export function LoginPage() {
                     w="44px"
                     h="44px"
                     borderRadius="12px"
-                    bg="rgba(41, 47, 225, 0.15)"
+                    bg="rgba(255, 255, 255, 0.1)"
                     align="center"
                     justify="center"
                   >
-                    <HiOutlineWallet size={22} color="#292FE1" />
+                    <HiOutlineWallet size={22} color="white" />
                   </Flex>
                   <Box>
                     <Text fontSize="sm" fontWeight="600" color="text.primary">
@@ -294,13 +362,13 @@ export function LoginPage() {
                 {/* 显示邀请码（如果有） */}
                 {finalInviteCode && (
                   <Box
-                    bg="rgba(41, 47, 225, 0.1)"
+                    bg="rgba(74, 74, 80, 0.15)"
                     borderRadius="10px"
                     p="3"
                     mb="4"
                   >
                     <Flex align="center" justify="center" gap="2">
-                      <HiOutlineTicket size={16} color="#292FE1" />
+                      <HiOutlineTicket size={16} color="#9A9A9F" />
                       <Text fontSize="sm" color="text.secondary">
                         {t('login.invite_code')}: <Text as="span" color="brand.primary" fontWeight="600">{finalInviteCode}</Text>
                       </Text>
@@ -331,21 +399,6 @@ export function LoginPage() {
                   <HiOutlineWallet size={22} />
                   <Text>{t('login.sign_to_login')}</Text>
                 </Flex>
-              </Button>
-
-              <Button
-                w="100%"
-                h="44px"
-                bg="transparent"
-                color="text.muted"
-                fontSize="sm"
-                fontWeight="500"
-                borderRadius="12px"
-                mt="3"
-                _hover={{ color: 'text.primary' }}
-                onClick={() => setStep('connect')}
-              >
-                {t('login.use_other_wallet')}
               </Button>
             </MotionBox>
           ) : (
@@ -428,23 +481,6 @@ export function LoginPage() {
                 <Text>{t('login.continue')}</Text>
               </Button>
 
-              <Button
-                w="100%"
-                h="44px"
-                bg="transparent"
-                color="text.muted"
-                fontSize="sm"
-                fontWeight="500"
-                borderRadius="12px"
-                mt="3"
-                _hover={{ color: 'text.primary' }}
-                onClick={() => {
-                  setStep('connect')
-                  setHasTriedWithoutCode(false)
-                }}
-              >
-                {t('login.use_other_wallet')}
-              </Button>
             </MotionBox>
           )}
         </VStack>
