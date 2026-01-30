@@ -88,7 +88,9 @@ function buildUrl(path: string, params?: Record<string, string | number | boolea
   // 判断 API_BASE_URL 是否为绝对路径
   const isAbsoluteUrl = API_BASE_URL.startsWith('http://') || API_BASE_URL.startsWith('https://')
   const baseUrl = isAbsoluteUrl ? API_BASE_URL : window.location.origin + API_BASE_URL
-  const url = new URL(path, baseUrl + '/')
+  // 移除路径前导斜杠，避免被 URL 构造函数解释为绝对路径
+  const normalizedPath = path.startsWith('/') ? path.slice(1) : path
+  const url = new URL(normalizedPath, baseUrl + '/')
 
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
