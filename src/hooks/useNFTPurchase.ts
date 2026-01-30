@@ -3,7 +3,7 @@
 
 import { useState, useCallback } from 'react'
 import { useAccount, useSendTransaction } from 'wagmi'
-import { type Hex, parseTransaction } from 'viem'
+import { type Hex } from 'viem'
 import { waitForTransactionReceipt } from '@wagmi/core'
 import { config as wagmiConfig } from '../config/wagmi'
 import { nftApi, ApiError } from '../api'
@@ -25,187 +25,6 @@ export interface NFTPurchaseState {
   error: string | null
   orderId: number | null
   txHash: string | null
-}
-
-/**
- * 手动解析 EIP-155 未签名交易 hex 字符串
- * 后端格式：rlp([nonce, gasPrice, gasLimit, to, value, data, chainId, 0, 0])
- *
- * 注意：viem 的 parseTransaction 是为已签名交易设计的，
- * 但 EIP-155 未签名交易的格式 [chainId, 0, 0] 会被误解析。
- * 我们只需要提取 to 和 data 字段，让钱包重新处理其他参数。
- */
-function parseUnsignedTransactionManual(unsignedTxHex: string): {
-  to: Hex
-  data: Hex
-  value: bigint
-} | null {
-  try {
-    // 确保有 0x 前缀
-    const hexData = unsignedTxHex.startsWith('0x')
-      ? unsignedTxHex
-      : `0x${unsignedTxHex}`
-
-    console.log('[NFTPurchase] 开始解析交易数据，长度:', hexData.length)
-
-    // 尝试使用 viem 的 parseTransaction
-    // 对于 EIP-155 未签名交易，它可能会将 chainId 误解析为 v
-    // 但 to 和 data 字段应该能正确提取
-    try {
-      const parsed = parseTransaction(hexData as Hex)
-      console.log('[NFTPurchase] viem 解析结果:', {
-        to: parsed.to,
-        value: parsed.value?.toString(),
-        dataLength: parsed.data?.length,
-        nonce: parsed.nonce,
-        chainId: parsed.chainId,
-      })
-
-      if (parsed.to) {
-        return {
-          to: parsed.to,
-          data: parsed.data || '0x',
-          value: parsed.value || BigInt(0),
-        }
-      }
-    } catch (viemError) {
-      console.log('[NFTPurchase] viem 解析失败，尝试手动解析:', viemError)
-    }
-
-    // 手动解析 RLP 数据
-    // RLP 格式: f8 XX [items...]
-    // 跳过 RLP list 前缀，直接查找关键字段
-    const bytes = hexToBytes(hexData)
-    console.log('[NFTPurchase] 交易字节数:', bytes.length)
-
-    // 解码 RLP list
-    const decoded = decodeRlpList(bytes)
-    if (!decoded || decoded.length < 6) {
-      console.error('[NFTPurchase] RLP 解码失败或字段不足')
-      return null
-    }
-
-    console.log('[NFTPurchase] RLP 解码成功，字段数:', decoded.length)
-
-    // 提取字段: [nonce, gasPrice, gasLimit, to, value, data, ...]
-    const toBytes = decoded[3]
-    const valueBytes = decoded[4]
-    const dataBytes = decoded[5]
-
-    const to = bytesToHex(toBytes) as Hex
-    const data = bytesToHex(dataBytes) as Hex
-    const value = bytesToBigInt(valueBytes)
-
-    console.log('[NFTPurchase] 手动解析结果:', {
-      to,
-      dataLength: data.length,
-      value: value.toString(),
-    })
-
-    if (!to || to.length !== 42) {
-      console.error('[NFTPurchase] 无效的 to 地址:', to)
-      return null
-    }
-
-    return { to, data, value }
-  } catch (error) {
-    console.error('[NFTPurchase] 解析未签名交易失败:', error)
-    return null
-  }
-}
-
-// 辅助函数：hex 转字节数组
-function hexToBytes(hex: string): Uint8Array {
-  const cleanHex = hex.startsWith('0x') ? hex.slice(2) : hex
-  const bytes = new Uint8Array(cleanHex.length / 2)
-  for (let i = 0; i < bytes.length; i++) {
-    bytes[i] = parseInt(cleanHex.slice(i * 2, i * 2 + 2), 16)
-  }
-  return bytes
-}
-
-// 辅助函数：字节数组转 hex
-function bytesToHex(bytes: Uint8Array): string {
-  if (bytes.length === 0) return '0x'
-  return '0x' + Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('')
-}
-
-// 辅助函数：字节数组转 BigInt
-function bytesToBigInt(bytes: Uint8Array): bigint {
-  if (bytes.length === 0) return BigInt(0)
-  return BigInt(bytesToHex(bytes))
-}
-
-// 简单的 RLP list 解码器
-function decodeRlpList(data: Uint8Array): Uint8Array[] {
-  if (data.length === 0) return []
-
-  const firstByte = data[0]
-  let offset = 0
-  let listLength = 0
-
-  // 解析 list 前缀
-  if (firstByte >= 0xf8) {
-    // 长 list: 0xf8 + (length of length) + length bytes + data
-    const lengthOfLength = firstByte - 0xf7
-    offset = 1 + lengthOfLength
-    listLength = 0
-    for (let i = 0; i < lengthOfLength; i++) {
-      listLength = listLength * 256 + data[1 + i]
-    }
-  } else if (firstByte >= 0xc0) {
-    // 短 list: 0xc0 + length + data
-    listLength = firstByte - 0xc0
-    offset = 1
-  } else {
-    console.error('[NFTPurchase] 不是有效的 RLP list')
-    return []
-  }
-
-  // 解析 list 中的每个元素
-  const items: Uint8Array[] = []
-  let pos = offset
-  const endPos = offset + listLength
-
-  while (pos < endPos) {
-    const itemByte = data[pos]
-    let itemOffset = 0
-    let itemLength = 0
-
-    if (itemByte < 0x80) {
-      // 单字节值
-      items.push(new Uint8Array([itemByte]))
-      pos += 1
-      continue
-    } else if (itemByte === 0x80) {
-      // 空字节
-      items.push(new Uint8Array([]))
-      pos += 1
-      continue
-    } else if (itemByte <= 0xb7) {
-      // 短字符串: 0x80 + length
-      itemLength = itemByte - 0x80
-      itemOffset = 1
-    } else if (itemByte <= 0xbf) {
-      // 长字符串: 0xb7 + (length of length)
-      const lengthOfLength = itemByte - 0xb7
-      itemLength = 0
-      for (let i = 0; i < lengthOfLength; i++) {
-        itemLength = itemLength * 256 + data[pos + 1 + i]
-      }
-      itemOffset = 1 + lengthOfLength
-    } else {
-      // 嵌套 list - 简单跳过
-      console.warn('[NFTPurchase] 遇到嵌套 list，跳过')
-      break
-    }
-
-    const item = data.slice(pos + itemOffset, pos + itemOffset + itemLength)
-    items.push(item)
-    pos += itemOffset + itemLength
-  }
-
-  return items
 }
 
 export function useNFTPurchase() {
@@ -278,37 +97,31 @@ export function useNFTPurchase() {
           step: 'signing',
         }))
 
-        // ========== 步骤 2: 解析并发送交易 ==========
-        console.log('[NFTPurchase] 步骤 2: 解析交易数据...')
-        console.log('[NFTPurchase] unsignedTx:', orderResponse.unsignedTx?.substring(0, 100) + '...')
+        // ========== 步骤 2: 发送交易（钱包自动处理 gas 和 nonce）==========
+        console.log('[NFTPurchase] 步骤 2: 准备交易数据...')
 
-        if (!orderResponse.unsignedTx) {
-          console.error('[NFTPurchase] 错误: 后端未返回 unsignedTx')
+        if (!orderResponse.transactionParams) {
+          console.error('[NFTPurchase] 错误: 后端未返回 transactionParams')
           setError('服务器未返回交易数据')
           return false
         }
 
-        const txParams = parseUnsignedTransactionManual(orderResponse.unsignedTx)
-        if (!txParams) {
-          console.error('[NFTPurchase] 错误: 无法解析交易数据')
-          setError('无法解析交易数据')
-          return false
-        }
-
+        const txParams = orderResponse.transactionParams
         console.log('[NFTPurchase] 交易参数:', {
           to: txParams.to,
-          value: txParams.value.toString(),
+          value: txParams.value,
           dataLength: txParams.data.length,
+          chainId: txParams.chainId,
         })
 
-        // 发送交易
+        // 发送交易（钱包自动处理 nonce、gasPrice、gasLimit）
         console.log('[NFTPurchase] 步骤 2.5: 请求钱包签名...')
         let txHash: string
         try {
           const result = await sendTransactionAsync({
-            to: txParams.to,
-            data: txParams.data,
-            value: txParams.value,
+            to: txParams.to as Hex,
+            data: txParams.data as Hex,
+            value: BigInt(txParams.value),
           })
           txHash = result
           console.log('[NFTPurchase] 交易已发送, hash:', txHash)

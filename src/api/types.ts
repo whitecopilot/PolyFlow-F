@@ -280,6 +280,14 @@ export interface CreateNFTOrderRequest {
   isUpgrade?: boolean
 }
 
+// 钱包交易参数（由钱包处理 gas 和签名）
+export interface WalletTransactionParams {
+  to: string      // 目标合约地址
+  value: string   // 转账金额（wei），ERC20 代币转账为 "0"
+  data: string    // 编码后的合约调用数据（hex 格式，带 0x 前缀）
+  chainId: number // 链 ID
+}
+
 export interface CreateNFTOrderResponse {
   orderId: number
   nftLevel: string
@@ -288,7 +296,7 @@ export interface CreateNFTOrderResponse {
   pidAmount: number
   toAddress: string
   randomNumber: string
-  unsignedTx: string
+  transactionParams: WalletTransactionParams // 交易参数（由钱包处理 gas 和签名）
 }
 
 export interface SubmitPaymentRequest {
