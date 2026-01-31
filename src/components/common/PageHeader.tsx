@@ -3,9 +3,11 @@
 import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
-import { HiBars3, HiCheck, HiOutlineWallet, HiXMark } from 'react-icons/hi2'
+import { HiBars3, HiCheck, HiOutlineGift, HiOutlineWallet, HiXMark } from 'react-icons/hi2'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
+import { useAuthStore } from '../../stores/authStore'
 import { PolyFlowLogo } from './PolyFlowLogo'
 import { LANGUAGES } from '../../i18n/config'
 
@@ -17,6 +19,8 @@ interface PageHeaderProps {
 
 export function PageHeader({ title }: PageHeaderProps) {
   const { t, i18n } = useTranslation()
+  const navigate = useNavigate()
+  const { user } = useAuthStore()
   const { shortAddress, isAuthenticated, disconnect } = useAuth()
   const [showDrawer, setShowDrawer] = useState(false)
 
@@ -70,17 +74,31 @@ export function PageHeader({ title }: PageHeaderProps) {
             </Text>
           </HStack>
 
-          {/* 右侧：汉堡菜单 */}
-          <Box
-            p="1"
-            cursor="pointer"
-            color="whiteAlpha.800"
-            _hover={{ color: 'white' }}
-            transition="color 0.2s"
-            onClick={() => setShowDrawer(true)}
-          >
-            <HiBars3 size={26} />
-          </Box>
+          {/* 右侧：邀请按钮 + 汉堡菜单 */}
+          <HStack gap={3}>
+            {/* 邀请按钮 */}
+            <Box
+              p="1"
+              cursor={user?.is_active ? 'pointer' : 'not-allowed'}
+              color={user?.is_active ? 'whiteAlpha.800' : 'whiteAlpha.300'}
+              _hover={user?.is_active ? { color: 'white' } : undefined}
+              transition="color 0.2s"
+              onClick={() => user?.is_active && navigate('/invite')}
+            >
+              <HiOutlineGift size={20} />
+            </Box>
+            {/* 汉堡菜单 */}
+            <Box
+              p="1"
+              cursor="pointer"
+              color="whiteAlpha.800"
+              _hover={{ color: 'white' }}
+              transition="color 0.2s"
+              onClick={() => setShowDrawer(true)}
+            >
+              <HiBars3 size={26} />
+            </Box>
+          </HStack>
         </Flex>
       </Box>
 
