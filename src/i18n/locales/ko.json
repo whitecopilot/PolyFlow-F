@@ -35,7 +35,8 @@
     "invite_disabled_hint": "NFT 구매로 초대 권한 잠금 해제",
     "help_title": "도움이 필요하신가요?",
     "help_subtitle": "관심 가질만한 다른 정보",
-    "partners": "파트너"
+    "partners": "파트너",
+    "backers": "후원자 & 투자자"
   },
   "team": {
     "node_level": "노드 레벨",

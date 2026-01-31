@@ -35,7 +35,8 @@
     "invite_disabled_hint": "Purchase NFT to unlock invite",
     "help_title": "How can we help?",
     "help_subtitle": "Anything else you might be interested.",
-    "partners": "Partners"
+    "partners": "Partners",
+    "backers": "Backer & Investor"
   },
   "team": {
     "node_level": "Node Level",

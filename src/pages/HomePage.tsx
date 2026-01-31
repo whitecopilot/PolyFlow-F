@@ -26,6 +26,14 @@ import XIcon from '../assets/svg/x.svg'
 import MediumIcon from '../assets/svg/medium.svg'
 import TgIcon from '../assets/svg/tg.svg'
 import DcIcon from '../assets/svg/dc.svg'
+// 投资者图片
+import Investor10k from '../assets/png/10k-3x.png'
+import InvestorCeic from '../assets/png/ceic-3x.png'
+import InvestorStellar from '../assets/png/Stellar-3x.png'
+import InvestorKucoin from '../assets/png/kucoin-3x.png'
+import InvestorMeter from '../assets/png/meter-3x.png'
+import InvestorZc from '../assets/png/zc-3x.png'
+import InvestorSolana from '../assets/png/solana-3x.png'
 import { usePayFiStore } from '../stores/payfiStore'
 import { useAuthStore } from '../stores/authStore'
 
@@ -362,12 +370,124 @@ export function HomePage() {
           </VStack>
         </MotionBox>
 
-        {/* 合作伙伴 */}
+        {/* 支持者 & 投资者 */}
         <MotionBox
           mt="6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.4 }}
+        >
+          <Text fontSize="lg" fontWeight="600" color="white" mb="4">
+            {t('home.backers')}
+          </Text>
+          <VStack gap="2" align="stretch">
+            {/* 第一行 - 3列 */}
+            <SimpleGrid columns={3} gap="2">
+              <Box
+                bg="#1A1A1F"
+                borderRadius="lg"
+                border="1px solid"
+                borderColor="whiteAlpha.100"
+                p="3"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                minH="50px"
+              >
+                <ChakraImage src={Investor10k} h="18px" objectFit="contain" />
+              </Box>
+              <Box
+                bg="#1A1A1F"
+                borderRadius="lg"
+                border="1px solid"
+                borderColor="whiteAlpha.100"
+                p="3"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                minH="50px"
+              >
+                <ChakraImage src={InvestorCeic} h="18px" objectFit="contain" />
+              </Box>
+              <Box
+                bg="#1A1A1F"
+                borderRadius="lg"
+                border="1px solid"
+                borderColor="whiteAlpha.100"
+                p="3"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                minH="50px"
+              >
+                <ChakraImage src={InvestorStellar} h="18px" objectFit="contain" />
+              </Box>
+            </SimpleGrid>
+            {/* 第二行 - 3列 */}
+            <SimpleGrid columns={3} gap="2">
+              <Box
+                bg="#1A1A1F"
+                borderRadius="lg"
+                border="1px solid"
+                borderColor="whiteAlpha.100"
+                p="3"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                minH="50px"
+              >
+                <ChakraImage src={InvestorKucoin} h="18px" objectFit="contain" />
+              </Box>
+              <Box
+                bg="#1A1A1F"
+                borderRadius="lg"
+                border="1px solid"
+                borderColor="whiteAlpha.100"
+                p="3"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                minH="50px"
+              >
+                <ChakraImage src={InvestorMeter} h="18px" objectFit="contain" />
+              </Box>
+              <Box
+                bg="#1A1A1F"
+                borderRadius="lg"
+                border="1px solid"
+                borderColor="whiteAlpha.100"
+                p="3"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                minH="50px"
+              >
+                <ChakraImage src={InvestorZc} h="18px" objectFit="contain" />
+              </Box>
+            </SimpleGrid>
+            {/* 第三行 - 全宽 */}
+            <Box
+              bg="#1A1A1F"
+              borderRadius="lg"
+              border="1px solid"
+              borderColor="whiteAlpha.100"
+              p="4"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              minH="55px"
+            >
+              <ChakraImage src={InvestorSolana} h="24px" objectFit="contain" />
+            </Box>
+          </VStack>
+        </MotionBox>
+
+        {/* 合作伙伴 */}
+        <MotionBox
+          mt="6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.45 }}
         >
           <VStack gap="3" align="center">
             <Text fontSize="md" fontWeight="600" color="white">
