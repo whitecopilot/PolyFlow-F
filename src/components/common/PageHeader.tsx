@@ -64,7 +64,7 @@ export function PageHeader({ title }: PageHeaderProps) {
         >
           {/* 左侧：Logo + 标题 */}
           <HStack gap={2}>
-            <PolyFlowLogo size={28} showText={false} colorMode="white" />
+            <PolyFlowLogo size={28} showText={false} colorMode="gradient" />
             <Text fontSize="lg" fontWeight="600" color="white">
               {title || t('app.name')}
             </Text>

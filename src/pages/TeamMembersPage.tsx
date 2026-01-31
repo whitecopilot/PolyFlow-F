@@ -52,11 +52,11 @@ export function TeamMembersPage() {
                 w="12"
                 h="12"
                 borderRadius="xl"
-                bg="rgba(6, 182, 212, 0.15)"
+                bg="whiteAlpha.100"
                 align="center"
                 justify="center"
               >
-                <HiOutlineUserGroup size={20} color="#06B6D4" />
+                <HiOutlineUserGroup size={20} color="#8A8A90" />
               </Flex>
               <Box>
                 <Text fontSize="sm" color="whiteAlpha.600">
@@ -68,7 +68,7 @@ export function TeamMembersPage() {
               </Box>
             </HStack>
             <VStack align="end" gap={0}>
-              <Text fontSize="sm" color="#D811F0">
+              <Text fontSize="sm" color="white">
                 {t('team_members.invite_count', { count: directCount })}
               </Text>
             </VStack>
@@ -121,7 +121,7 @@ function FilterTab({ active, onClick, label }: FilterTabProps) {
       px="4"
       py="2"
       borderRadius="full"
-      bg={active ? '#292FE1' : 'whiteAlpha.100'}
+      bg={active ? 'whiteAlpha.300' : 'whiteAlpha.100'}
       color={active ? 'white' : 'whiteAlpha.600'}
       fontSize="sm"
       fontWeight="600"
@@ -192,7 +192,7 @@ function TeamMemberItem({ member, delay }: TeamMemberItemProps) {
           <Text
             fontSize="sm"
             fontWeight="600"
-            color={isUserActivated(member.state) ? '#22C55E' : 'whiteAlpha.500'}
+            color={isUserActivated(member.state) ? 'white' : 'whiteAlpha.500'}
           >
             {isUserActivated(member.state) ? t('team_members.activated') : t('team_members.not_activated')}
           </Text>

@@ -57,7 +57,7 @@ export function HomePage() {
 
       <VStack gap="5" p="4" align="stretch">
         {/* 资产总览卡片 */}
-        <GradientBorderCard glowIntensity="high">
+        <GradientBorderCard glowIntensity="high" colorScheme="purple">
           <MotionBox
             p="5"
             initial={{ opacity: 0, y: 20 }}
@@ -68,7 +68,7 @@ export function HomePage() {
             <Flex justify="space-between" align="flex-start" mb="4">
               <Box>
                 <HStack gap={2} mb="1">
-                  <PolyFlowLogo size={16} colorMode="white" />
+                  <PolyFlowLogo size={28} colorMode="gradient" />
                   <Text fontSize="sm" color="whiteAlpha.600">
                     {t('home.total_asset_value')}
                   </Text>

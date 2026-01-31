@@ -146,7 +146,7 @@ export function AssetsPage() {
                   alignItems="center"
                   justifyContent="center"
                 >
-                  <ChakraImage src={LogoIcon} boxSize="18px" filter="grayscale(100%) brightness(1.5)" />
+                  <ChakraImage src={LogoIcon} boxSize="18px" />
                 </Box>
                 <Text fontSize="md" fontWeight="600" color="white">
                   PID
@@ -182,7 +182,7 @@ export function AssetsPage() {
               </Box>
               <Box>
                 <HStack gap={1} mb={1}>
-                  <ChakraImage src={LogoIcon} boxSize="12px" filter="grayscale(100%) brightness(1.2)" />
+                  <ChakraImage src={LogoIcon} boxSize="12px" />
                   <Text fontSize="xs" color="whiteAlpha.500">
                     {t('assets.available')}
                   </Text>
@@ -215,7 +215,7 @@ export function AssetsPage() {
                   alignItems="center"
                   justifyContent="center"
                 >
-                  <ChakraImage src={PicLogoIcon} boxSize="18px" filter="brightness(0) invert(1)" />
+                  <ChakraImage src={PicLogoIcon} boxSize="18px" />
                 </Box>
                 <Text fontSize="md" fontWeight="600" color="white">
                   PIC
@@ -252,7 +252,7 @@ export function AssetsPage() {
               </Box>
               <Box>
                 <HStack gap={1} mb={1}>
-                  <ChakraImage src={PicLogoIcon} boxSize="12px" filter="grayscale(100%) brightness(1.2)" />
+                  <ChakraImage src={PicLogoIcon} boxSize="12px" />
                   <Text fontSize="xs" color="whiteAlpha.500">
                     {t('assets.available')}
                   </Text>
