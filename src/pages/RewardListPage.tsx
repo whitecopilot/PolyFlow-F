@@ -19,21 +19,21 @@ import {
 
 const MotionBox = motion.create(Box)
 
-// 奖励类型图标映射
+// 奖励类型图标映射 - 统一使用灰白配色
 const REWARD_ICONS: Record<RewardType, React.ReactNode> = {
-  static: <HiOutlineBolt size={20} color="#292FE1" />,
-  referral: <HiOutlineUserGroup size={20} color="#D811F0" />,
-  node: <HiOutlineBuildingLibrary size={20} color="#22C55E" />,
-  same_level: <HiOutlineScale size={20} color="#EAB308" />,
-  global: <HiOutlineGlobeAlt size={20} color="#06B6D4" />,
+  static: <HiOutlineBolt size={20} color="#8A8A90" />,
+  referral: <HiOutlineUserGroup size={20} color="#8A8A90" />,
+  node: <HiOutlineBuildingLibrary size={20} color="#8A8A90" />,
+  same_level: <HiOutlineScale size={20} color="#8A8A90" />,
+  global: <HiOutlineGlobeAlt size={20} color="#8A8A90" />,
 }
 
 const REWARD_COLORS: Record<RewardType, string> = {
-  static: '#292FE1',
-  referral: '#D811F0',
-  node: '#22C55E',
-  same_level: '#EAB308',
-  global: '#06B6D4',
+  static: '#FFFFFF',
+  referral: '#FFFFFF',
+  node: '#FFFFFF',
+  same_level: '#FFFFFF',
+  global: '#FFFFFF',
 }
 
 export function RewardListPage() {
