@@ -80,11 +80,11 @@ export function WithdrawRecordsPage() {
   const getStatusColor = (status: WithdrawRecord['status']) => {
     switch (status) {
       case 'received':
-        return '#22C55E'
+        return 'white'
       case 'cheque':
-        return '#D811F0'
+        return 'white'
       case 'submit':
-        return '#EAB308'
+        return 'whiteAlpha.600'
       default:
         return 'whiteAlpha.600'
     }
@@ -120,17 +120,17 @@ export function WithdrawRecordsPage() {
                 w="12"
                 h="12"
                 borderRadius="xl"
-                bg="rgba(34, 197, 94, 0.15)"
+                bg="whiteAlpha.100"
                 align="center"
                 justify="center"
               >
-                <HiOutlineBanknotes size={20} color="#22C55E" />
+                <HiOutlineBanknotes size={20} color="#8A8A90" />
               </Flex>
               <Box>
                 <Text fontSize="sm" color="whiteAlpha.600">
                   {t('withdraw_records.total_withdrawn')}
                 </Text>
-                <Text fontSize="xl" fontWeight="bold" color="#22C55E">
+                <Text fontSize="xl" fontWeight="bold" color="white">
                   {totalWithdrawn.toFixed(2)}
                 </Text>
               </Box>
@@ -140,7 +140,7 @@ export function WithdrawRecordsPage() {
                 {t('withdraw_records.completed_count', { count: completedCount })}
               </Text>
               {pendingCount > 0 && (
-                <Text fontSize="xs" color="#D811F0">
+                <Text fontSize="xs" color="whiteAlpha.600">
                   {t('withdraw_records.pending_count', { count: pendingCount })}
                 </Text>
               )}
@@ -179,11 +179,11 @@ export function WithdrawRecordsPage() {
                 <Flex justify="space-between" align="center" mb="3">
                   <HStack gap={2}>
                     {record.status === 'received' ? (
-                      <HiOutlineCheckCircle size={18} color="#22C55E" />
+                      <HiOutlineCheckCircle size={18} color="#8A8A90" />
                     ) : record.status === 'cheque' ? (
-                      <HiOutlineArrowPath size={18} color="#D811F0" />
+                      <HiOutlineArrowPath size={18} color="#FFFFFF" />
                     ) : (
-                      <HiOutlineClock size={18} color="#EAB308" />
+                      <HiOutlineClock size={18} color="#8A8A90" />
                     )}
                     <Text fontSize="lg" fontWeight="600" color="white">
                       {record.amount.toFixed(2)} {record.tokenType}
@@ -217,7 +217,7 @@ export function WithdrawRecordsPage() {
                   {record.servicedFee > 0 && (
                     <Box>
                       <Text fontSize="xs" color="whiteAlpha.400">{t('withdraw_records.fee')}</Text>
-                      <Text fontSize="sm" color="#EAB308">
+                      <Text fontSize="sm" color="whiteAlpha.600">
                         -{record.servicedFee.toFixed(2)} {record.tokenType}
                       </Text>
                     </Box>
@@ -245,7 +245,7 @@ export function WithdrawRecordsPage() {
                   {record.claimedAt && (
                     <Box>
                       <Text fontSize="xs" color="whiteAlpha.400">{t('withdraw_records.claim_time')}</Text>
-                      <Text fontSize="sm" color="#22C55E">
+                      <Text fontSize="sm" color="white">
                         {formatDate(record.claimedAt)}
                       </Text>
                     </Box>
