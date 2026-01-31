@@ -2,6 +2,7 @@
 // 1. 获取交易数据 → 2. 发送交易 → 3. 等待链上确认 → 4. 提交验证（同步验证）
 
 import { useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAccount, useSendTransaction } from 'wagmi'
 import { type Hex } from 'viem'
 import { waitForTransactionReceipt } from '@wagmi/core'
@@ -29,6 +30,7 @@ export interface NFTStakeState {
 }
 
 export function useNFTStake() {
+  const { t } = useTranslation()
   const [state, setState] = useState<NFTStakeState>({
     step: 'idle',
     error: null,
@@ -67,19 +69,19 @@ export function useNFTStake() {
 
       if (!nft || !nft.tokenId) {
         console.error('[NFTStake] 错误: 无效的 NFT')
-        setError('请选择要质押的 NFT')
+        setError(t('staking.error_no_nft'))
         return false
       }
 
       if (!isConnected || !address) {
         console.error('[NFTStake] 错误: 钱包未连接')
-        setError('请先连接钱包')
+        setError(t('staking.error_wallet_not_connected'))
         return false
       }
 
       if (nft.isStaked) {
         console.error('[NFTStake] 错误: NFT 已质押')
-        setError('该 NFT 已经质押')
+        setError(t('staking.error_already_staked'))
         return false
       }
 
@@ -98,7 +100,7 @@ export function useNFTStake() {
           console.log('[NFTStake] 交易数据获取成功:', txResponse)
         } catch (error) {
           console.error('[NFTStake] 获取交易数据失败:', error)
-          const message = error instanceof ApiError ? error.message : '获取交易数据失败'
+          const message = error instanceof ApiError ? error.message : t('staking.error_get_tx_data')
           setError(message)
           return false
         }
@@ -123,9 +125,9 @@ export function useNFTStake() {
               err.message?.includes('rejected') ||
               err.message?.includes('denied') ||
               err.code === 4001) {
-            setError('交易被用户取消')
+            setError(t('staking.error_user_cancelled'))
           } else {
-            setError(err.message || '交易失败')
+            setError(err.message || t('staking.error_tx_failed'))
           }
           return false
         }
@@ -146,13 +148,13 @@ export function useNFTStake() {
           console.log('[NFTStake] 交易已确认, status:', receipt.status)
 
           if (receipt.status === 'reverted') {
-            setError('交易在链上执行失败')
+            setError(t('staking.error_tx_reverted'))
             return false
           }
         } catch (error: unknown) {
           console.error('[NFTStake] 等待交易确认失败:', error)
           const err = error as { message?: string }
-          setError(err.message || '等待交易确认失败')
+          setError(err.message || t('staking.error_wait_confirmation'))
           return false
         }
 
@@ -180,7 +182,7 @@ export function useNFTStake() {
             return true
           } else if (verifyResult.status === 'failed') {
             // 验证失败
-            setError(verifyResult.errorMessage || '质押验证失败')
+            setError(verifyResult.errorMessage || t('staking.error_verify_failed'))
             return false
           } else {
             // pending 状态 - 后台任务会继续处理，可以认为提交成功
@@ -190,17 +192,17 @@ export function useNFTStake() {
           }
         } catch (error) {
           console.error('[NFTStake] 提交质押验证失败:', error)
-          const message = error instanceof ApiError ? error.message : '提交质押验证失败'
+          const message = error instanceof ApiError ? error.message : t('staking.error_submit_verify')
           setError(message)
           return false
         }
       } catch (error) {
         console.error('[NFTStake] 质押流程异常:', error)
-        setError('质押流程失败')
+        setError(t('staking.error_stake_failed'))
         return false
       }
     },
-    [address, isConnected, sendTransactionAsync, setError]
+    [address, isConnected, sendTransactionAsync, setError, t]
   )
 
   const isLoading = state.step !== 'idle' && state.step !== 'success' && state.step !== 'error'
@@ -208,15 +210,15 @@ export function useNFTStake() {
   // 获取当前步骤描述
   const getStatusText = useCallback(() => {
     switch (state.step) {
-      case 'preparing': return '准备交易数据...'
-      case 'signing': return '请在钱包中确认交易...'
-      case 'confirming': return '等待链上确认...'
-      case 'submitting': return '验证质押状态...'
-      case 'success': return '质押成功!'
-      case 'error': return state.error || '质押失败'
+      case 'preparing': return t('staking.status_preparing')
+      case 'signing': return t('staking.status_signing')
+      case 'confirming': return t('staking.status_confirming')
+      case 'submitting': return t('staking.status_submitting')
+      case 'success': return t('staking.status_success')
+      case 'error': return state.error || t('staking.error_stake_failed')
       default: return ''
     }
-  }, [state.step, state.error])
+  }, [state.step, state.error, t])
 
   return {
     ...state,

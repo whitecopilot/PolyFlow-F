@@ -96,23 +96,23 @@ function PurchaseOverlay({ step, statusText, onClose }: PurchaseOverlayProps) {
             animate={{ scale: 1 }}
             transition={{ type: 'spring', damping: 10 }}
           >
-            <CheckCircle size={64} weight="fill" color="#22C55E" />
+            <CheckCircle size={64} weight="fill" color="#FFFFFF" />
           </MotionBox>
         ) : isError ? (
           <Box
             w={16}
             h={16}
             borderRadius="full"
-            bg="rgba(239, 68, 68, 0.2)"
+            bg="rgba(156, 163, 175, 0.2)"
             display="flex"
             alignItems="center"
             justifyContent="center"
           >
-            <HiOutlineXMark size={32} color="#EF4444" />
+            <HiOutlineXMark size={32} color="#9CA3AF" />
           </Box>
         ) : (
           <Spinner
-            color="#8A8A90"
+            color="whiteAlpha.700"
             w={16}
             h={16}
             borderWidth="4px"
@@ -124,7 +124,7 @@ function PurchaseOverlay({ step, statusText, onClose }: PurchaseOverlayProps) {
           <Text
             fontSize="lg"
             fontWeight="bold"
-            color={isError ? '#EF4444' : isSuccess ? '#22C55E' : 'white'}
+            color={isError ? 'whiteAlpha.600' : 'white'}
             textAlign="center"
           >
             {statusText}
@@ -147,7 +147,7 @@ function PurchaseOverlay({ step, statusText, onClose }: PurchaseOverlayProps) {
                 w={2}
                 h={2}
                 borderRadius="full"
-                bg={i <= progress ? '#6A6A70' : 'whiteAlpha.200'}
+                bg={i <= progress ? 'white' : 'whiteAlpha.200'}
                 transition="background-color 0.3s"
               />
             ))}
@@ -235,23 +235,23 @@ function StakeOverlay({ step, statusText, onClose }: StakeOverlayProps) {
             animate={{ scale: 1 }}
             transition={{ type: 'spring', damping: 10 }}
           >
-            <CheckCircle size={64} weight="fill" color="#22C55E" />
+            <CheckCircle size={64} weight="fill" color="#FFFFFF" />
           </MotionBox>
         ) : isError ? (
           <Box
             w={16}
             h={16}
             borderRadius="full"
-            bg="rgba(239, 68, 68, 0.2)"
+            bg="rgba(156, 163, 175, 0.2)"
             display="flex"
             alignItems="center"
             justifyContent="center"
           >
-            <HiOutlineXMark size={32} color="#EF4444" />
+            <HiOutlineXMark size={32} color="#9CA3AF" />
           </Box>
         ) : (
           <Spinner
-            color="#8A8A90"
+            color="whiteAlpha.700"
             w={16}
             h={16}
             borderWidth="4px"
@@ -263,7 +263,7 @@ function StakeOverlay({ step, statusText, onClose }: StakeOverlayProps) {
           <Text
             fontSize="lg"
             fontWeight="bold"
-            color={isError ? '#EF4444' : isSuccess ? '#22C55E' : 'white'}
+            color={isError ? 'whiteAlpha.600' : 'white'}
             textAlign="center"
           >
             {statusText}
@@ -286,7 +286,7 @@ function StakeOverlay({ step, statusText, onClose }: StakeOverlayProps) {
                 w={2}
                 h={2}
                 borderRadius="full"
-                bg={i <= progress ? '#6A6A70' : 'whiteAlpha.200'}
+                bg={i <= progress ? 'white' : 'whiteAlpha.200'}
                 transition="background-color 0.3s"
               />
             ))}
@@ -730,14 +730,14 @@ export function NFTPage() {
                       w="8"
                       h="8"
                       borderRadius="lg"
-                      bg={stakedNFTCount > 0 ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255, 255, 255, 0.1)'}
+                      bg={stakedNFTCount > 0 ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.1)'}
                       display="flex"
                       alignItems="center"
                       justifyContent="center"
                     >
                       <HiOutlineCube
                         size={18}
-                        color={stakedNFTCount > 0 ? '#22C55E' : 'white'}
+                        color="white"
                       />
                     </Box>
                     <VStack align="start" gap={0}>
@@ -754,12 +754,12 @@ export function NFTPage() {
                     px="2.5"
                     py="1"
                     borderRadius="full"
-                    bg={stakedNFTCount > 0 ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255, 255, 255, 0.15)'}
+                    bg={stakedNFTCount > 0 ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.1)'}
                   >
                     <Text
                       fontSize="xs"
                       fontWeight="bold"
-                      color={stakedNFTCount > 0 ? '#22C55E' : 'white'}
+                      color="white"
                     >
                       {stakedNFTCount > 0
                         ? t('nft.staked_ratio', { staked: stakedNFTCount, total: totalNFTCount })
@@ -870,8 +870,8 @@ export function NFTPage() {
                     </HStack>
                     {isUpgradeAction && (
                       <HStack gap={1}>
-                        <HiOutlineArrowUp size={14} color="#22C55E" />
-                        <Text fontSize="sm" color="#22C55E">
+                        <HiOutlineArrowUp size={14} color="#9CA3AF" />
+                        <Text fontSize="sm" color="#9CA3AF">
                           {t('nft.upgrade_from', { from: currentLevel })}
                         </Text>
                       </HStack>

@@ -29,11 +29,11 @@ export function WithdrawOverlay({ step, statusText, onClose, onRetry }: Withdraw
   const getStepIcon = () => {
     switch (step) {
       case 'success':
-        return <HiOutlineCheckCircle size={48} color="#10B981" />
+        return <HiOutlineCheckCircle size={48} color="#FFFFFF" />
       case 'error':
-        return <HiOutlineExclamationCircle size={48} color="#EF4444" />
+        return <HiOutlineExclamationCircle size={48} color="#9CA3AF" />
       default:
-        return <Spinner size="xl" color="brand.primary" borderWidth="4px" />
+        return <Spinner size="xl" color="whiteAlpha.700" borderWidth="4px" />
     }
   }
 
@@ -88,7 +88,7 @@ export function WithdrawOverlay({ step, statusText, onClose, onRetry }: Withdraw
             <Text
               fontSize="lg"
               fontWeight="600"
-              color={step === 'error' ? 'red.500' : step === 'success' ? 'green.500' : 'text.primary'}
+              color={step === 'error' ? 'whiteAlpha.600' : 'white'}
               mb="3"
             >
               {statusText}
@@ -104,7 +104,7 @@ export function WithdrawOverlay({ step, statusText, onClose, onRetry }: Withdraw
                       w="8px"
                       h="8px"
                       borderRadius="full"
-                      bg={i <= getStepProgress() ? 'brand.primary' : 'gray.600'}
+                      bg={i <= getStepProgress() ? 'white' : 'whiteAlpha.300'}
                       transition="background 0.3s"
                     />
                   ))}

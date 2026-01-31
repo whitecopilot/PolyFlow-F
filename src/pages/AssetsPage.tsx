@@ -1,6 +1,6 @@
 // 资产页面 - 数字金库（一级页面）
 
-import { Box, Button, Image as ChakraImage, Flex, HStack, Input, SimpleGrid, Text, VStack } from '@chakra-ui/react'
+import { Box, Button, Flex, HStack, Input, SimpleGrid, Text, VStack } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -14,12 +14,12 @@ import {
   HiOutlineShieldCheck,
 } from 'react-icons/hi2'
 import { useNavigate } from 'react-router-dom'
-import LogoIcon from '../assets/svg/logo.svg'
-import PicLogoIcon from '../assets/svg/pic_logo.svg'
 import {
   ActionButton,
   GradientBorderCard,
   PageHeader,
+  PicLogo,
+  PolyFlowLogo,
   ProgressBar,
 } from '../components/common'
 import { getNFTConfig, PAYFI_CONFIG } from '../mocks/payfiConfig'
@@ -138,15 +138,15 @@ export function AssetsPage() {
             <HStack justify="space-between" mb="3">
               <HStack gap={2}>
                 <Box
-                  w="8"
-                  h="8"
-                  borderRadius="lg"
-                  bg="rgba(255, 255, 255, 0.1)"
+                  w="7"
+                  h="7"
+                  borderRadius="full"
+                  bg="white"
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
                 >
-                  <ChakraImage src={LogoIcon} boxSize="18px" />
+                  <PolyFlowLogo size={22} />
                 </Box>
                 <Text fontSize="md" fontWeight="600" color="white">
                   PID
@@ -182,7 +182,17 @@ export function AssetsPage() {
               </Box>
               <Box>
                 <HStack gap={1} mb={1}>
-                  <ChakraImage src={LogoIcon} boxSize="12px" />
+                  <Box
+                    w="14px"
+                    h="14px"
+                    borderRadius="sm"
+                    bg="white"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <PolyFlowLogo size={10} />
+                  </Box>
                   <Text fontSize="xs" color="whiteAlpha.500">
                     {t('assets.available')}
                   </Text>
@@ -207,15 +217,15 @@ export function AssetsPage() {
             <HStack justify="space-between" mb="3">
               <HStack gap={2}>
                 <Box
-                  w="8"
-                  h="8"
-                  borderRadius="lg"
-                  bg="rgba(255, 255, 255, 0.1)"
+                  w="7"
+                  h="7"
+                  borderRadius="full"
+                  bg="white"
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
                 >
-                  <ChakraImage src={PicLogoIcon} boxSize="18px" />
+                  <PicLogo size={22} />
                 </Box>
                 <Text fontSize="md" fontWeight="600" color="white">
                   PIC
@@ -252,7 +262,17 @@ export function AssetsPage() {
               </Box>
               <Box>
                 <HStack gap={1} mb={1}>
-                  <ChakraImage src={PicLogoIcon} boxSize="12px" />
+                  <Box
+                    w="14px"
+                    h="14px"
+                    borderRadius="sm"
+                    bg="white"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <PicLogo size={10} />
+                  </Box>
                   <Text fontSize="xs" color="whiteAlpha.500">
                     {t('assets.available')}
                   </Text>
@@ -403,8 +423,10 @@ export function AssetsPage() {
               <Input
                 disabled={!isStakingEnabled}
                 type="number"
+                min="0"
                 placeholder={t('assets.enter_stake_amount')}
                 value={stakeAmount}
+                autoComplete="off"
                 onChange={(e) => {
                   setStakeAmount(e.target.value)
                   setStakeError(null)
@@ -420,8 +442,8 @@ export function AssetsPage() {
                 pr="20"
                 _placeholder={{ color: 'whiteAlpha.400' }}
                 _focus={{
-                  borderColor: '#5A5A60',
-                  boxShadow: '0 0 0 1px #292FE1',
+                  borderColor: 'whiteAlpha.600',
+                  boxShadow: '0 0 0 1px rgba(255, 255, 255, 0.5)',
                 }}
               />
               <Button
@@ -531,8 +553,10 @@ export function AssetsPage() {
               <Input
                 disabled={!isStakingEnabled}
                 type="number"
+                min="0"
                 placeholder={t('assets.enter_burn_amount')}
                 value={burnAmount}
+                autoComplete="off"
                 onChange={(e) => {
                   setBurnAmount(e.target.value)
                   setBurnError(null)
@@ -547,8 +571,8 @@ export function AssetsPage() {
                 pl="4"
                 _placeholder={{ color: 'whiteAlpha.400' }}
                 _focus={{
-                  borderColor: '#5A5A60',
-                  boxShadow: '0 0 0 1px #D811F0',
+                  borderColor: 'whiteAlpha.600',
+                  boxShadow: '0 0 0 1px rgba(255, 255, 255, 0.5)',
                 }}
               />
               <Flex justify="space-between" mt="1">

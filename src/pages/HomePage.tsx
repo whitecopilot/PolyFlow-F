@@ -34,6 +34,7 @@ import InvestorKucoin from '../assets/png/kucoin-3x.png'
 import InvestorMeter from '../assets/png/meter-3x.png'
 import InvestorZc from '../assets/png/zc-3x.png'
 import InvestorSolana from '../assets/png/solana-3x.png'
+import InvestorHash from '../assets/png/hash-3x.png'
 import { usePayFiStore } from '../stores/payfiStore'
 import { useAuthStore } from '../stores/authStore'
 
@@ -381,6 +382,20 @@ export function HomePage() {
             {t('home.backers')}
           </Text>
           <VStack gap="2" align="stretch">
+            {/* 首行 - 全宽 */}
+            <Box
+              bg="#1A1A1F"
+              borderRadius="lg"
+              border="1px solid"
+              borderColor="whiteAlpha.100"
+              p="4"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              minH="60px"
+            >
+              <ChakraImage src={InvestorHash} h="24px" objectFit="contain" />
+            </Box>
             {/* 第一行 - 3列 */}
             <SimpleGrid columns={3} gap="2">
               <Box

@@ -3,6 +3,7 @@
 import { Box, Flex, HStack, SimpleGrid, Text, VStack } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   HiOutlineArrowTrendingUp,
   HiOutlineChartBar,
@@ -16,7 +17,6 @@ import {
   HiOutlineXCircle,
 } from 'react-icons/hi2'
 import { useNavigate } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
 import {
   ActionButton,
   GradientBorderCard,
@@ -24,8 +24,8 @@ import {
   PageHeader,
 } from '../components/common'
 import { getNextNodeLevel } from '../mocks/payfiConfig'
-import { usePayFiStore } from '../stores/payfiStore'
 import { useAuthStore } from '../stores/authStore'
+import { usePayFiStore } from '../stores/payfiStore'
 
 const MotionBox = motion.create(Box)
 
@@ -71,9 +71,9 @@ export function TeamPage() {
           >
             <Flex justify="space-between" align="flex-start" mb="4">
               <VStack align="start" gap={2}>
-                <Text fontSize="sm" color="whiteAlpha.600">
-                  🏛️ {t('team.node_level')}
-                </Text>
+                {/* <Text fontSize="sm" color="whiteAlpha.600">
+                  {t('team.node_level')}
+                </Text> */}
                 <NodeBadge
                   level={teamStats?.nodeLevel || 'P0'}
                   size="lg"
@@ -157,7 +157,7 @@ export function TeamPage() {
                 <HiOutlineUserPlus size={14} color="#8A8A90" />
                 <Text fontSize="xs" color="whiteAlpha.500">{t('team.invite_count')}</Text>
                 <Text fontSize="sm" fontWeight="600" color="white">
-                  {teamStats?.directCount || 0}
+                  {' '}{teamStats?.directCount || 0}{' '}
                   <Text as="span" fontSize="xs" color="whiteAlpha.400">{t('team.person_unit')}</Text>
                 </Text>
               </HStack>
@@ -165,7 +165,7 @@ export function TeamPage() {
                 <HiOutlineDocumentText size={14} color="#8A8A90" />
                 <Text fontSize="xs" color="whiteAlpha.500">{t('team.invite_orders')}</Text>
                 <Text fontSize="sm" fontWeight="600" color="white">
-                  {teamStats?.directOrderCount || 0}
+                  {' '}{teamStats?.directOrderCount || 0}{' '}
                   <Text as="span" fontSize="xs" color="whiteAlpha.400">{t('team.order_unit')}</Text>
                 </Text>
               </HStack>

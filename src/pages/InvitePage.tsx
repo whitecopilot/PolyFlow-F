@@ -122,7 +122,7 @@ export function InvitePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <PolyFlowLogo size={64} colorMode="white" showText />
+          <PolyFlowLogo size={92} colorMode="white" />
         </MotionBox>
 
         {/* 邀请码 */}

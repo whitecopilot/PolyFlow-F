@@ -337,9 +337,9 @@ export function RewardsPage() {
                     py="2"
                     borderRadius="lg"
                     cursor="pointer"
-                    bg={selectedTokenType === token.type ? 'rgba(216, 17, 240, 0.2)' : 'whiteAlpha.100'}
+                    bg={selectedTokenType === token.type ? 'rgba(255, 255, 255, 0.15)' : 'whiteAlpha.100'}
                     border="1px solid"
-                    borderColor={selectedTokenType === token.type ? '#5A5A60' : 'transparent'}
+                    borderColor={selectedTokenType === token.type ? 'whiteAlpha.400' : 'transparent'}
                     onClick={() => {
                       setSelectedTokenType(token.type)
                       setWithdrawAmount('')
@@ -384,8 +384,8 @@ export function RewardsPage() {
                 px="4"
                 _placeholder={{ color: 'whiteAlpha.400', paddingLeft: '16px' }}
                 _focus={{
-                  borderColor: '#5A5A60',
-                  boxShadow: '0 0 0 1px #D811F0',
+                  borderColor: 'whiteAlpha.600',
+                  boxShadow: '0 0 0 1px rgba(255, 255, 255, 0.5)',
                 }}
               />
             </Box>

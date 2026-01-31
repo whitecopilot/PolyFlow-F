@@ -1,13 +1,14 @@
 // NFT 购买钩子 - 处理完整的购买流程
 // 1. 创建订单 → 2. 发送交易（使用后端返回的未签名交易数据） → 3. 提交支付确认
 
-import { useState, useCallback } from 'react'
-import { useAccount, useSendTransaction } from 'wagmi'
-import { type Hex } from 'viem'
 import { waitForTransactionReceipt } from '@wagmi/core'
+import { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { type Hex } from 'viem'
+import { useAccount, useSendTransaction } from 'wagmi'
+import { ApiError, nftApi } from '../api'
+import type { CreateNFTOrderResponse, NFTLevel } from '../api/types'
 import { config as wagmiConfig } from '../config/wagmi'
-import { nftApi, ApiError } from '../api'
-import type { NFTLevel, CreateNFTOrderResponse } from '../api/types'
 
 // 购买状态枚举
 export type PurchaseStep =
@@ -28,6 +29,7 @@ export interface NFTPurchaseState {
 }
 
 export function useNFTPurchase() {
+  const { t } = useTranslation()
   const [state, setState] = useState<NFTPurchaseState>({
     step: 'idle',
     error: null,
@@ -62,13 +64,13 @@ export function useNFTPurchase() {
 
       if (!level) {
         console.error('[NFTPurchase] 错误: 未选择 NFT 等级')
-        setError('请选择 NFT 等级')
+        setError(t('purchase.error_no_level'))
         return false
       }
 
       if (!isConnected || !address) {
         console.error('[NFTPurchase] 错误: 钱包未连接')
-        setError('请先连接钱包')
+        setError(t('purchase.error_wallet_not_connected'))
         return false
       }
 
@@ -86,7 +88,7 @@ export function useNFTPurchase() {
           console.log('[NFTPurchase] 订单创建成功:', orderResponse)
         } catch (error) {
           console.error('[NFTPurchase] 创建订单失败:', error)
-          const message = error instanceof ApiError ? error.message : '创建订单失败'
+          const message = error instanceof ApiError ? error.message : t('purchase.error_create_order')
           setError(message)
           return false
         }
@@ -102,7 +104,7 @@ export function useNFTPurchase() {
 
         if (!orderResponse.transactionParams) {
           console.error('[NFTPurchase] 错误: 后端未返回 transactionParams')
-          setError('服务器未返回交易数据')
+          setError(t('purchase.error_no_tx_data'))
           return false
         }
 
@@ -131,9 +133,9 @@ export function useNFTPurchase() {
               error.message?.includes('rejected') ||
               error.message?.includes('denied') ||
               error.code === 4001) {
-            setError('交易被用户取消')
+            setError(t('purchase.error_user_cancelled'))
           } else {
-            setError(error.message || '交易失败')
+            setError(error.message || t('purchase.error_tx_failed'))
           }
           return false
         }
@@ -154,12 +156,12 @@ export function useNFTPurchase() {
           console.log('[NFTPurchase] 交易已确认, status:', receipt.status)
 
           if (receipt.status === 'reverted') {
-            setError('交易在链上执行失败')
+            setError(t('purchase.error_tx_reverted'))
             return false
           }
         } catch (error: any) {
           console.error('[NFTPurchase] 等待交易确认失败:', error)
-          setError(error.message || '等待交易确认失败')
+          setError(error.message || t('purchase.error_wait_confirmation'))
           return false
         }
 
@@ -178,7 +180,7 @@ export function useNFTPurchase() {
           console.log('[NFTPurchase] 支付确认提交成功')
         } catch (error) {
           console.error('[NFTPurchase] 提交支付确认失败:', error)
-          const message = error instanceof ApiError ? error.message : '提交支付确认失败'
+          const message = error instanceof ApiError ? error.message : t('purchase.error_submit_payment')
           setError(message)
           return false
         }
@@ -201,11 +203,11 @@ export function useNFTPurchase() {
         }
       } catch (error) {
         console.error('[NFTPurchase] 购买流程异常:', error)
-        setError('购买流程失败')
+        setError(t('purchase.error_purchase_failed'))
         return false
       }
     },
-    [address, isConnected, sendTransactionAsync, setError]
+    [address, isConnected, sendTransactionAsync, setError, t]
   )
 
   const isLoading = state.step !== 'idle' && state.step !== 'success' && state.step !== 'error'
@@ -213,16 +215,16 @@ export function useNFTPurchase() {
   // 获取当前步骤描述
   const getStatusText = useCallback(() => {
     switch (state.step) {
-      case 'creating': return '创建订单中...'
-      case 'signing': return '请在钱包中确认交易...'
-      case 'submitting': return '提交支付确认...'
-      case 'verifying': return '验证交易中...'
-      case 'minting': return 'NFT Mint 中...'
-      case 'success': return '购买成功!'
-      case 'error': return state.error || '购买失败'
+      case 'creating': return t('purchase.status_creating')
+      case 'signing': return t('purchase.status_signing')
+      case 'submitting': return t('purchase.status_submitting')
+      case 'verifying': return t('purchase.status_verifying')
+      case 'minting': return t('purchase.status_minting')
+      case 'success': return t('purchase.status_success')
+      case 'error': return state.error || t('purchase.error_purchase_failed')
       default: return ''
     }
-  }, [state.step, state.error])
+  }, [state.step, state.error, t])
 
   return {
     ...state,

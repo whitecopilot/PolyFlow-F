@@ -51,11 +51,11 @@ export function NFTListPage() {
                 w="12"
                 h="12"
                 borderRadius="xl"
-                bg="rgba(216, 17, 240, 0.15)"
+                bg="rgba(255, 255, 255, 0.1)"
                 align="center"
                 justify="center"
               >
-                <HiOutlineCube size={20} color="#D811F0" />
+                <HiOutlineCube size={20} color="#9CA3AF" />
               </Flex>
               <Box>
                 <Text fontSize="sm" color="whiteAlpha.600">
@@ -68,14 +68,14 @@ export function NFTListPage() {
             </HStack>
             <VStack align="end" gap={0}>
               <HStack gap={1}>
-                <HiOutlineShoppingCart size={12} color="#22C55E" />
-                <Text fontSize="sm" color="#22C55E">
+                <HiOutlineShoppingCart size={12} color="#9CA3AF" />
+                <Text fontSize="sm" color="#9CA3AF">
                   {purchaseCount}
                 </Text>
               </HStack>
               <HStack gap={1}>
-                <HiOutlineArrowDownLeft size={12} color="#06B6D4" />
-                <Text fontSize="sm" color="#06B6D4">
+                <HiOutlineArrowDownLeft size={12} color="#71717A" />
+                <Text fontSize="sm" color="#71717A">
                   {transferCount}
                 </Text>
               </HStack>
@@ -132,8 +132,8 @@ function FilterTab({ active, onClick, label }: FilterTabProps) {
       px="4"
       py="2"
       borderRadius="full"
-      bg={active ? '#D811F0' : 'whiteAlpha.100'}
-      color={active ? 'white' : 'whiteAlpha.600'}
+      bg={active ? 'white' : 'whiteAlpha.100'}
+      color={active ? '#111111' : 'whiteAlpha.600'}
       fontSize="sm"
       fontWeight="600"
       cursor="pointer"
@@ -177,18 +177,18 @@ function NFTItem({ nft, delay }: NFTItemProps) {
                 px="2"
                 py="0.5"
                 borderRadius="full"
-                bg={isPurchase ? 'rgba(34, 197, 94, 0.2)' : 'rgba(6, 182, 212, 0.2)'}
+                bg="rgba(255, 255, 255, 0.1)"
               >
                 <HStack gap={1}>
                   {isPurchase ? (
-                    <HiOutlineShoppingCart size={10} color="#22C55E" />
+                    <HiOutlineShoppingCart size={10} color="#9CA3AF" />
                   ) : (
-                    <HiOutlineArrowDownLeft size={10} color="#06B6D4" />
+                    <HiOutlineArrowDownLeft size={10} color="#71717A" />
                   )}
                   <Text
                     fontSize="10px"
                     fontWeight="600"
-                    color={isPurchase ? '#22C55E' : '#06B6D4'}
+                    color={isPurchase ? '#9CA3AF' : '#71717A'}
                   >
                     {isPurchase ? t('nft.source_purchase') : t('nft.source_transfer')}
                   </Text>
@@ -206,9 +206,9 @@ function NFTItem({ nft, delay }: NFTItemProps) {
               px="2"
               py="0.5"
               borderRadius="full"
-              bg="rgba(34, 197, 94, 0.2)"
+              bg="rgba(255, 255, 255, 0.15)"
             >
-              <Text fontSize="10px" color="#22C55E" fontWeight="600">
+              <Text fontSize="10px" color="white" fontWeight="600">
                 {t('nft.mining')}
               </Text>
             </Box>

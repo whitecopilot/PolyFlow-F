@@ -509,11 +509,11 @@ function PurchaseOverlay({ step, statusText, onClose }: PurchaseOverlayProps) {
   const getStepIcon = () => {
     switch (step) {
       case 'success':
-        return <HiOutlineCheckCircle size={48} color="#10B981" />
+        return <HiOutlineCheckCircle size={48} color="#FFFFFF" />
       case 'error':
-        return <HiOutlineExclamationCircle size={48} color="#EF4444" />
+        return <HiOutlineExclamationCircle size={48} color="#9CA3AF" />
       default:
-        return <Spinner size="xl" color="brand.primary" borderWidth="4px" />
+        return <Spinner size="xl" color="whiteAlpha.700" borderWidth="4px" />
     }
   }
 
@@ -568,7 +568,7 @@ function PurchaseOverlay({ step, statusText, onClose }: PurchaseOverlayProps) {
             <Text
               fontSize="lg"
               fontWeight="600"
-              color={step === 'error' ? 'red.500' : step === 'success' ? 'green.500' : 'text.primary'}
+              color={step === 'error' ? 'whiteAlpha.600' : 'white'}
               mb="3"
             >
               {statusText}
@@ -584,12 +584,12 @@ function PurchaseOverlay({ step, statusText, onClose }: PurchaseOverlayProps) {
                       w="8px"
                       h="8px"
                       borderRadius="full"
-                      bg={i <= getStepProgress() ? 'brand.primary' : 'gray.600'}
+                      bg={i <= getStepProgress() ? 'white' : 'whiteAlpha.300'}
                       transition="background 0.3s"
                     />
                   ))}
                 </Flex>
-                <Text fontSize="xs" color="text.muted">
+                <Text fontSize="xs" color="whiteAlpha.500">
                   {t('mint.step')} {getStepProgress()} / 5
                 </Text>
               </Box>
