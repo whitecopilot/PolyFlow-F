@@ -33,6 +33,11 @@ import type { UserNFTItem } from '../api/types'
 
 const MotionBox = motion.create(Box)
 
+// NFT 视频配置
+const NFT_VIDEO_BASE_URL = 'https://static.polyflow.global/'
+const NFT_VIDEO_SUFFIX = '.mp4'
+const getNFTVideoUrl = (level: string) => `${NFT_VIDEO_BASE_URL}${level.toLowerCase()}${NFT_VIDEO_SUFFIX}`
+
 // 购买进度蒙版组件
 interface PurchaseOverlayProps {
   step: PurchaseStep
@@ -921,22 +926,46 @@ export function NFTPage() {
 
                 {/* 获得 PID 预估 */}
                 {priceInfo && priceInfo.pidPrice > 0 && (
-                  <Box
+                  <Flex
                     bg="rgba(74, 74, 80, 0.15)"
                     borderRadius="lg"
                     p="3"
                     mb="4"
+                    justify="space-between"
+                    align="center"
                   >
-                    <Text fontSize="xs" color="whiteAlpha.600" mb="1">
-                      {t('nft.estimated_pid')}
-                    </Text>
-                    <Text fontSize="xl" fontWeight="bold" color="#9A9A9F">
-                      {(selectedConfig.price / priceInfo.pidPrice).toFixed(2)} PID
-                    </Text>
-                    <Text fontSize="xs" color="whiteAlpha.500">
-                      {t('nft.current_pid_price')}: ${priceInfo.pidPrice.toFixed(4)}
-                    </Text>
-                  </Box>
+                    <Box>
+                      <Text fontSize="xs" color="whiteAlpha.600" mb="1">
+                        {t('nft.estimated_pid')}
+                      </Text>
+                      <Text fontSize="xl" fontWeight="bold" color="#9A9A9F">
+                        {(selectedConfig.price / priceInfo.pidPrice).toFixed(2)} PID
+                      </Text>
+                      <Text fontSize="xs" color="whiteAlpha.500">
+                        {t('nft.current_pid_price')}: ${priceInfo.pidPrice.toFixed(4)}
+                      </Text>
+                    </Box>
+                    <Box
+                      w="72px"
+                      h="72px"
+                      borderRadius="lg"
+                      overflow="hidden"
+                      flexShrink={0}
+                    >
+                      <video
+                        src={getNFTVideoUrl(selectedConfig.level)}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                        }}
+                      />
+                    </Box>
+                  </Flex>
                 )}
 
                 {/* 余额不足警告 */}
@@ -1068,10 +1097,29 @@ export function NFTPage() {
                 >
                   <Flex justify="space-between" align="center">
                     <HStack gap={3}>
-                      <NFTBadge level={config.level as NFTLevel} size="md" />
+                      <Box
+                        w="56px"
+                        h="56px"
+                        borderRadius="lg"
+                        overflow="hidden"
+                        flexShrink={0}
+                      >
+                        <video
+                          src={getNFTVideoUrl(config.level)}
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                          }}
+                        />
+                      </Box>
                       <VStack align="start" gap={0}>
                         <Text fontSize="sm" fontWeight="600" color="white">
-                          {t(`nft_level.${config.level}`)}
+                          {config.level} {t(`nft_level.${config.level}`)}
                         </Text>
                         <Text fontSize="xs" color="whiteAlpha.500">
                           ${config.price.toLocaleString()} · {t('nft.power')} {config.power}
