@@ -17,7 +17,7 @@ import {
   HiOutlineXMark,
 } from 'react-icons/hi2'
 import { useNavigate } from 'react-router-dom'
-import { Sparkle, Trophy, CheckCircle } from '@phosphor-icons/react'
+import { Sparkle, CheckCircle } from '@phosphor-icons/react'
 import { useTranslation } from 'react-i18next'
 import {
   ActionButton,
@@ -856,12 +856,9 @@ export function NFTPage() {
                 <HStack justify="space-between" mb="4">
                   <VStack align="start" gap={1}>
                     <HStack gap={2}>
-                      <HStack gap={1}>
-                        <Trophy size={20} weight="fill" color="#ECC94B" />
-                        <Text fontSize="xl" fontWeight="bold" color="white">
-                          {selectedConfig.level}
-                        </Text>
-                      </HStack>
+                      <Text fontSize="xl" fontWeight="bold" color="white">
+                        {selectedConfig.level}
+                      </Text>
                       <Text fontSize="lg" color="whiteAlpha.700">
                         {t(`nft_level.${selectedConfig.level}`)}
                       </Text>
@@ -910,7 +907,7 @@ export function NFTPage() {
 
                   <Box bg="whiteAlpha.50" borderRadius="lg" p="3">
                     <HStack gap={1} mb={1}>
-                      <HiOutlineShieldCheck size={12} color="#22C55E" />
+                      <HiOutlineShieldCheck size={12} color="#8A8A90" />
                       <Text fontSize="xs" color="whiteAlpha.500">{t('nft.pool_multiplier')}</Text>
                     </HStack>
                     <Text fontSize="lg" fontWeight="bold" color="white">
