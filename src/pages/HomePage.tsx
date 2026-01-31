@@ -1,6 +1,6 @@
 // PayFi 首页 - 资产驾驶舱
 
-import { Box, Flex, HStack, SimpleGrid, Text, VStack } from '@chakra-ui/react'
+import { Box, Flex, HStack, Image as ChakraImage, Link, SimpleGrid, Text, VStack } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import { useEffect } from 'react'
 import {
@@ -21,6 +21,11 @@ import {
   ProgressBar,
   StatCard,
 } from '../components/common'
+import MirrorIcon from '../assets/svg/mirror.svg'
+import XIcon from '../assets/svg/x.svg'
+import MediumIcon from '../assets/svg/medium.svg'
+import TgIcon from '../assets/svg/tg.svg'
+import DcIcon from '../assets/svg/dc.svg'
 import { usePayFiStore } from '../stores/payfiStore'
 import { useAuthStore } from '../stores/authStore'
 
@@ -321,6 +326,58 @@ export function HomePage() {
               </svg>
             </Box>
           </Flex>
+        </MotionBox>
+
+        {/* 帮助区块 */}
+        <MotionBox
+          mt="4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.35 }}
+        >
+          <VStack gap="3" align="center">
+            <Text fontSize="md" fontWeight="600" color="white">
+              {t('home.help_title')}
+            </Text>
+            <Text fontSize="sm" color="whiteAlpha.600">
+              {t('home.help_subtitle')}
+            </Text>
+            <HStack gap="6" mt="2">
+              <Link href="https://mirror.xyz" target="_blank">
+                <ChakraImage src={MirrorIcon} w="28px" h="28px" opacity={0.7} _hover={{ opacity: 1 }} />
+              </Link>
+              <Link href="https://x.com" target="_blank">
+                <ChakraImage src={XIcon} w="28px" h="28px" opacity={0.7} _hover={{ opacity: 1 }} />
+              </Link>
+              <Link href="https://medium.com" target="_blank">
+                <ChakraImage src={MediumIcon} w="28px" h="28px" opacity={0.7} _hover={{ opacity: 1 }} />
+              </Link>
+              <Link href="https://telegram.org" target="_blank">
+                <ChakraImage src={TgIcon} w="28px" h="28px" opacity={0.7} _hover={{ opacity: 1 }} />
+              </Link>
+              <Link href="https://discord.com" target="_blank">
+                <ChakraImage src={DcIcon} w="28px" h="28px" opacity={0.7} _hover={{ opacity: 1 }} />
+              </Link>
+            </HStack>
+          </VStack>
+        </MotionBox>
+
+        {/* 合作伙伴 */}
+        <MotionBox
+          mt="6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.4 }}
+        >
+          <VStack gap="3" align="center">
+            <Text fontSize="md" fontWeight="600" color="white">
+              {t('home.partners')}
+            </Text>
+            <ChakraImage
+              src="https://static.polyflow.global/partners-mobile.png"
+              w="100%"
+            />
+          </VStack>
         </MotionBox>
 
         {/* 底部间距 */}

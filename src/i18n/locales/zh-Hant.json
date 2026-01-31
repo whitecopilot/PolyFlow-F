@@ -32,7 +32,10 @@
     "node_rewards": "節點獎勵",
     "airdrop_rewards": "空投獎勵",
     "invite_friends": "邀請好友",
-    "invite_disabled_hint": "購買 NFT 開啟邀請權限"
+    "invite_disabled_hint": "購買 NFT 開啟邀請權限",
+    "help_title": "需要幫助嗎？",
+    "help_subtitle": "您可能感興趣的其他內容",
+    "partners": "合作夥伴"
   },
   "team": {
     "node_level": "節點等級",

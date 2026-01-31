@@ -29,8 +29,8 @@ i18n
       ko: { translation: ko },
       ja: { translation: ja },
     },
-    fallbackLng: 'zh-Hans', // 默认语言
-    lng: localStorage.getItem('i18nextLng') || 'zh-Hans', // 从 localStorage 读取保存的语言
+    fallbackLng: 'en', // 默认语言
+    lng: localStorage.getItem('i18nextLng') || 'en', // 从 localStorage 读取保存的语言
     
     interpolation: {
       escapeValue: false, // React 已经做了 XSS 防护

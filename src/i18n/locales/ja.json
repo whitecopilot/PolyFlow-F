@@ -32,7 +32,10 @@
     "node_rewards": "ノード報酬",
     "airdrop_rewards": "エアドロップ報酬",
     "invite_friends": "友達を招待",
-    "invite_disabled_hint": "NFTを購入して招待権限を解除"
+    "invite_disabled_hint": "NFTを購入して招待権限を解除",
+    "help_title": "何かお困りですか？",
+    "help_subtitle": "その他のお役立ち情報",
+    "partners": "パートナー"
   },
   "team": {
     "node_level": "ノードレベル",

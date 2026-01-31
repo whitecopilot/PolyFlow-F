@@ -32,7 +32,10 @@
     "node_rewards": "Node Rewards",
     "airdrop_rewards": "Airdrop Rewards",
     "invite_friends": "Invite Friends",
-    "invite_disabled_hint": "Purchase NFT to unlock invite"
+    "invite_disabled_hint": "Purchase NFT to unlock invite",
+    "help_title": "How can we help?",
+    "help_subtitle": "Anything else you might be interested.",
+    "partners": "Partners"
   },
   "team": {
     "node_level": "Node Level",
