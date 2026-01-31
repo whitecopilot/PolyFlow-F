@@ -68,7 +68,7 @@ export function PriceCompact({
         ${price.toFixed(2)}
       </Text>
       {showChange && change !== undefined && (
-        <Text color={isPositive ? 'green.400' : 'red.400'}>
+        <Text color="whiteAlpha.500">
           {isPositive ? '+' : ''}
           {(change * 100).toFixed(2)}%
         </Text>

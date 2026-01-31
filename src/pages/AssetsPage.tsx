@@ -141,12 +141,12 @@ export function AssetsPage() {
                   w="8"
                   h="8"
                   borderRadius="lg"
-                  bg="rgba(41, 47, 225, 0.2)"
+                  bg="rgba(255, 255, 255, 0.1)"
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
                 >
-                  <ChakraImage src={LogoIcon} boxSize="18px" />
+                  <ChakraImage src={LogoIcon} boxSize="18px" filter="grayscale(100%) brightness(1.5)" />
                 </Box>
                 <Text fontSize="md" fontWeight="600" color="white">
                   PID
@@ -182,7 +182,7 @@ export function AssetsPage() {
               </Box>
               <Box>
                 <HStack gap={1} mb={1}>
-                  <ChakraImage src={LogoIcon} boxSize="12px" />
+                  <ChakraImage src={LogoIcon} boxSize="12px" filter="grayscale(100%) brightness(1.2)" />
                   <Text fontSize="xs" color="whiteAlpha.500">
                     {t('assets.available')}
                   </Text>
@@ -210,12 +210,12 @@ export function AssetsPage() {
                   w="8"
                   h="8"
                   borderRadius="lg"
-                  bg="rgba(216, 17, 240, 0.2)"
+                  bg="rgba(255, 255, 255, 0.1)"
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
                 >
-                  <ChakraImage src={PicLogoIcon} boxSize="18px" />
+                  <ChakraImage src={PicLogoIcon} boxSize="18px" filter="brightness(0) invert(1)" />
                 </Box>
                 <Text fontSize="md" fontWeight="600" color="white">
                   PIC
@@ -252,7 +252,7 @@ export function AssetsPage() {
               </Box>
               <Box>
                 <HStack gap={1} mb={1}>
-                  <ChakraImage src={PicLogoIcon} boxSize="12px" />
+                  <ChakraImage src={PicLogoIcon} boxSize="12px" filter="grayscale(100%) brightness(1.2)" />
                   <Text fontSize="xs" color="whiteAlpha.500">
                     {t('assets.available')}
                   </Text>
