@@ -193,6 +193,7 @@
     "no_nft": "NFT未所持",
     "power_coefficient": "パワー係数",
     "pool_multiplier": "プール倍率",
+    "pic_burn_multiplier": "燃焼倍率",
     "stake_mining": "ステーキングマイニング",
     "stake_to_mine": "NFTステーキングでマイニング報酬開始",
     "mining": "マイニング中",

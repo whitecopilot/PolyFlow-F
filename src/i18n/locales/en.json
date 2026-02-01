@@ -210,6 +210,7 @@
     "not_staked_hint": "NFT Not Staked",
     "power_coefficient": "Power Coefficient",
     "pool_multiplier": "Pool Multiplier",
+    "pic_burn_multiplier": "Burn Multiplier",
     "stake_mining": "Stake Mining",
     "stake_to_mine": "Stake NFT to start mining rewards",
     "mining": "Mining",

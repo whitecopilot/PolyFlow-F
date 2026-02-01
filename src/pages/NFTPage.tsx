@@ -698,6 +698,9 @@ export function NFTPage() {
                   <Text fontSize="xs" color="whiteAlpha.500">
                     {t('nft.pool_multiplier')} {currentConfig.nftExitMultiplier}x
                   </Text>
+                  <Text fontSize="xs" color="whiteAlpha.500">
+                    {t('nft.pic_burn_multiplier')} {userAssets?.nft?.picBurnExitMultiplier ?? 0}x
+                  </Text>
                 </VStack>
               )}
             </HStack>

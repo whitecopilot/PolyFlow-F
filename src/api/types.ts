@@ -156,6 +156,7 @@ export interface NFTAssetsResponse {
   totalPower: number     // NFT 总算力
   exitLimit: number      // NFT 产生的出局额度
   coefficient: number    // 质押系数
+  picBurnExitMultiplier?: number  // PIC 销毁倍数
 }
 
 // 代币余额响应

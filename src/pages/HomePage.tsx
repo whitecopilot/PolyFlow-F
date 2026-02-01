@@ -1,8 +1,9 @@
 // PayFi 首页 - 资产驾驶舱
 
-import { Box, Flex, HStack, Image as ChakraImage, Link, SimpleGrid, Text, VStack } from '@chakra-ui/react'
+import { Box, Image as ChakraImage, Flex, HStack, Link, SimpleGrid, Text, VStack } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   HiOutlineArrowTrendingUp,
   HiOutlineBolt,
@@ -11,7 +12,11 @@ import {
   HiOutlineUserPlus,
 } from 'react-icons/hi2'
 import { useNavigate } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
+import DcIcon from '../assets/svg/dc.svg'
+import MediumIcon from '../assets/svg/medium.svg'
+import MirrorIcon from '../assets/svg/mirror.svg'
+import TgIcon from '../assets/svg/tg.svg'
+import XIcon from '../assets/svg/x.svg'
 import {
   GradientBorderCard,
   NFTBadge,
@@ -21,22 +26,17 @@ import {
   ProgressBar,
   StatCard,
 } from '../components/common'
-import MirrorIcon from '../assets/svg/mirror.svg'
-import XIcon from '../assets/svg/x.svg'
-import MediumIcon from '../assets/svg/medium.svg'
-import TgIcon from '../assets/svg/tg.svg'
-import DcIcon from '../assets/svg/dc.svg'
 // 投资者图片
 import Investor10k from '../assets/png/10k-3x.png'
 import InvestorCeic from '../assets/png/ceic-3x.png'
-import InvestorStellar from '../assets/png/Stellar-3x.png'
+import InvestorHash from '../assets/png/hash-3x.png'
 import InvestorKucoin from '../assets/png/kucoin-3x.png'
 import InvestorMeter from '../assets/png/meter-3x.png'
-import InvestorZc from '../assets/png/zc-3x.png'
 import InvestorSolana from '../assets/png/solana-3x.png'
-import InvestorHash from '../assets/png/hash-3x.png'
-import { usePayFiStore } from '../stores/payfiStore'
+import InvestorStellar from '../assets/png/Stellar-3x.png'
+import InvestorZc from '../assets/png/zc-3x.png'
 import { useAuthStore } from '../stores/authStore'
+import { usePayFiStore } from '../stores/payfiStore'
 
 const MotionBox = motion.create(Box)
 const MotionFlex = motion.create(Flex)
@@ -109,12 +109,12 @@ export function HomePage() {
               <PriceCompact
                 label="PID"
                 price={priceInfo?.pidPrice || 0}
-                change={priceInfo?.pidChange ? priceInfo.pidChange / (priceInfo.pidPrice - priceInfo.pidChange) : 0}
+                // change={priceInfo?.pidChange ? priceInfo.pidChange / (priceInfo.pidPrice - priceInfo.pidChange) : 0}
               />
               <PriceCompact
                 label="PIC"
                 price={priceInfo?.picPrice || 0}
-                change={priceInfo?.picChange ? priceInfo.picChange / (priceInfo.picPrice - priceInfo.picChange) : 0}
+                // change={priceInfo?.picChange ? priceInfo.picChange / (priceInfo.picPrice - priceInfo.picChange) : 0}
               />
             </HStack>
 

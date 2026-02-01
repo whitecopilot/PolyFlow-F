@@ -210,6 +210,7 @@
     "not_staked_hint": "NFT 未质押",
     "power_coefficient": "算力系数",
     "pool_multiplier": "矿池倍数",
+    "pic_burn_multiplier": "销毁倍数",
     "stake_mining": "质押挖矿",
     "stake_to_mine": "质押 NFT 开启挖矿收益",
     "mining": "挖矿中",

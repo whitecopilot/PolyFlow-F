@@ -56,7 +56,7 @@ export function NFTBadge({ level, size = 'md', showName = false }: NFTBadgeProps
   }
 
   const colors = NFT_COLORS[level] || NFT_COLORS.N1
-  const name = NFT_NAMES[level]
+  const name = t(`nft_level.${level}`) || NFT_NAMES[level]
 
   const sizeStyles = {
     sm: { px: 2, py: 0.5, fontSize: 'xs' },

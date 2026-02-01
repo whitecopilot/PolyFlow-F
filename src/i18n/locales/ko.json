@@ -193,6 +193,7 @@
     "no_nft": "NFT 미보유",
     "power_coefficient": "파워 계수",
     "pool_multiplier": "풀 배수",
+    "pic_burn_multiplier": "소각 배수",
     "stake_mining": "스테이킹 마이닝",
     "stake_to_mine": "NFT 스테이킹으로 마이닝 보상 시작",
     "mining": "마이닝 중",

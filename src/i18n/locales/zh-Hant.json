@@ -193,6 +193,7 @@
     "no_nft": "未持有 NFT",
     "power_coefficient": "算力係數",
     "pool_multiplier": "礦池倍數",
+    "pic_burn_multiplier": "銷毀倍數",
     "stake_mining": "質押挖礦",
     "stake_to_mine": "質押 NFT 開啟挖礦收益",
     "mining": "挖礦中",
