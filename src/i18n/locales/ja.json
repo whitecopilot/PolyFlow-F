@@ -40,7 +40,7 @@
   },
   "team": {
     "node_level": "ノードレベル",
-    "upgrade_to": "{{level}}にアップグレードするには",
+    "upgrade_to": "P{{level}}にアップグレードするには",
     "small_area_perf": "昇格パワー",
     "total_perf": "総パワー",
     "performance_stats": "実績統計",

@@ -40,7 +40,7 @@
   },
   "team": {
     "node_level": "노드 레벨",
-    "upgrade_to": "{{level}}로 업그레이드하려면",
+    "upgrade_to": "P{{level}}로 업그레이드하려면",
     "small_area_perf": "승급 파워",
     "total_perf": "총 파워",
     "performance_stats": "실적 통계",

@@ -29,8 +29,16 @@ import { usePayFiStore } from '../stores/payfiStore'
 const MotionBox = motion.create(Box)
 
 export function TeamPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const navigate = useNavigate()
+
+  // 单位转换：中文/日文使用"万"，英文/韩文使用"K"（千）
+  // 1 万 = 10K，所以非中日环境下配置值需要乘以 10
+  const isWanUnit = ['zh-Hans', 'zh-Hant', 'ja'].includes(i18n.language)
+  // 配置值转换（配置以"万"为单位存储）
+  const formatConfigValue = (value: number) => isWanUnit ? value : value * 10
+  // 业绩值转换（业绩以 USDT 为单位存储）
+  const formatPerfValue = (value: number) => isWanUnit ? value / 10000 : value / 1000
   const { user } = useAuthStore()
   const {
     teamStats,
@@ -107,13 +115,13 @@ export function TeamPage() {
                   <Box>
                     <Text fontSize="xs" color="whiteAlpha.500">{t('team.small_area_perf')}</Text>
                     <Text fontSize="sm" color={smallAreaProgress >= 100 ? '#22C55E' : 'white'}>
-                      {(teamStats?.smallAreaPerf || 0) / 10000}{t('team.ten_thousand')} / {nextNodeConfig.smallAreaReq}{t('team.ten_thousand')}
+                      {formatPerfValue(teamStats?.smallAreaPerf || 0)}{t('team.ten_thousand')} / {formatConfigValue(nextNodeConfig.smallAreaReq)}{t('team.ten_thousand')}
                     </Text>
                   </Box>
                   <Box>
                     <Text fontSize="xs" color="whiteAlpha.500">{t('team.total_perf')}</Text>
                     <Text fontSize="sm" color={totalPerfProgress >= 100 ? '#22C55E' : 'white'}>
-                      {(teamStats?.teamPerformance || 0) / 10000}{t('team.ten_thousand')} / {nextNodeConfig.totalReq}{t('team.ten_thousand')}
+                      {formatPerfValue(teamStats?.teamPerformance || 0)}{t('team.ten_thousand')} / {formatConfigValue(nextNodeConfig.totalReq)}{t('team.ten_thousand')}
                     </Text>
                   </Box>
                 </SimpleGrid>
@@ -290,11 +298,11 @@ export function TeamPage() {
                       <HiOutlineXCircle size={18} color="#71717A" />
                     )}
                     <Text fontSize="sm" color="white">
-                      {t('team.small_area_req', { req: nextNodeConfig.smallAreaReq })}
+                      {t('team.small_area_req', { req: formatConfigValue(nextNodeConfig.smallAreaReq) })}
                     </Text>
                   </HStack>
                   <Text fontSize="sm" color={smallAreaProgress >= 100 ? '#22C55E' : 'whiteAlpha.500'}>
-                    {(teamStats?.smallAreaPerf || 0) / 10000}{t('team.ten_thousand')}
+                    {formatPerfValue(teamStats?.smallAreaPerf || 0)}{t('team.ten_thousand')}
                   </Text>
                 </Flex>
 
@@ -306,11 +314,11 @@ export function TeamPage() {
                       <HiOutlineXCircle size={18} color="#71717A" />
                     )}
                     <Text fontSize="sm" color="white">
-                      {t('team.total_req', { req: nextNodeConfig.totalReq })}
+                      {t('team.total_req', { req: formatConfigValue(nextNodeConfig.totalReq) })}
                     </Text>
                   </HStack>
                   <Text fontSize="sm" color={totalPerfProgress >= 100 ? '#22C55E' : 'whiteAlpha.500'}>
-                    {(teamStats?.teamPerformance || 0) / 10000}{t('team.ten_thousand')}
+                    {formatPerfValue(teamStats?.teamPerformance || 0)}{t('team.ten_thousand')}
                   </Text>
                 </Flex>
 

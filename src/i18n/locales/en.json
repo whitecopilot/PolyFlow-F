@@ -40,7 +40,7 @@
   },
   "team": {
     "node_level": "Node Level",
-    "upgrade_to": "Upgrade to {{level}} requires",
+    "upgrade_to": "Upgrade to P{{level}} requires",
     "small_area_perf": "Upgrade Power",
     "total_perf": "Total Power",
     "performance_stats": "Performance Statistics",

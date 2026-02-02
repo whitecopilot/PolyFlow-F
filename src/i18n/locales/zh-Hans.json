@@ -40,7 +40,7 @@
   },
   "team": {
     "node_level": "节点等级",
-    "upgrade_to": "升级到 {{level}} 还需",
+    "upgrade_to": "升级到 P{{level}} 还需",
     "small_area_perf": "晋升算力值",
     "total_perf": "总算力值",
     "performance_stats": "业绩统计",
