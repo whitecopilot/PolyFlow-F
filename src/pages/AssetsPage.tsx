@@ -64,8 +64,7 @@ export function AssetsPage() {
   const [isStaking, setIsStaking] = useState(false)
   const [stakeError, setStakeError] = useState<string | null>(null)
 
-  // 兑换相关状态
-  const [swapFromToken, setSwapFromToken] = useState<'PID' | 'PIC'>('PID')
+  // 兑换相关状态（仅支持 PIC -> PID）
   const [swapAmount, setSwapAmount] = useState('')
   const [isSwapping, setIsSwapping] = useState(false)
 
@@ -142,23 +141,16 @@ export function AssetsPage() {
   // 快捷金额按钮
   const quickAmounts = [100, 500, 1000, 3000, 10000]
 
-  // 兑换计算
-  const swapToToken = swapFromToken === 'PID' ? 'PIC' : 'PID'
-  const swapFromPrice = swapFromToken === 'PID' ? (priceInfo?.pidPrice || 0) : (priceInfo?.picPrice || 0)
-  const swapToPrice = swapToToken === 'PID' ? (priceInfo?.pidPrice || 0) : (priceInfo?.picPrice || 0)
-  const swapFromBalance = swapFromToken === 'PID' ? (userAssets?.pidBalance || 0) : (userAssets?.picBalance || 0)
+  // 兑换计算（仅支持 PIC -> PID）
+  const swapFromPrice = priceInfo?.picPrice || 0
+  const swapToPrice = priceInfo?.pidPrice || 0
+  const swapFromBalance = userAssets?.picBalance || 0
   const swapAmountNum = parseFloat(swapAmount) || 0
   const swapUsdtValue = swapAmountNum * swapFromPrice
   const swapFee = swapUsdtValue * 0.03 // 3% 服务费
   const swapReceiveUsdt = swapUsdtValue - swapFee
   const swapReceiveAmount = swapToPrice > 0 ? swapReceiveUsdt / swapToPrice : 0
   const isValidSwapAmount = swapAmountNum > 0 && swapAmountNum <= swapFromBalance
-
-  // 切换兑换方向
-  const handleSwapToggle = () => {
-    setSwapFromToken(swapFromToken === 'PID' ? 'PIC' : 'PID')
-    setSwapAmount('')
-  }
 
   // 处理兑换（暂不实现）
   const handleSwap = async () => {
@@ -732,25 +724,11 @@ export function AssetsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.22 }}
           >
-            {/* 支付代币 */}
+            {/* 支付代币 (PIC) */}
             <Box mb="3">
-              <Flex justify="space-between" align="center" mb="2">
-                <Text fontSize="xs" color="whiteAlpha.500">
-                  {t('assets.swap_from')}
-                </Text>
-                <HStack
-                  gap={1}
-                  cursor={isStakingEnabled ? 'pointer' : 'not-allowed'}
-                  onClick={isStakingEnabled ? handleSwapToggle : undefined}
-                  opacity={isStakingEnabled ? 1 : 0.5}
-                  _hover={isStakingEnabled ? { color: 'white' } : undefined}
-                >
-                  <HiOutlineArrowPath size={14} color="#8A8A90" />
-                  <Text fontSize="xs" color="whiteAlpha.500">
-                    {t('assets.swap_switch')}
-                  </Text>
-                </HStack>
-              </Flex>
+              <Text fontSize="xs" color="whiteAlpha.500" mb="2">
+                {t('assets.swap_from')}
+              </Text>
               <Box position="relative">
                 <Input
                   disabled={!isStakingEnabled}
@@ -803,16 +781,16 @@ export function AssetsPage() {
                       alignItems="center"
                       justifyContent="center"
                     >
-                      {swapFromToken === 'PID' ? <PolyFlowLogo size={12} /> : <PicLogo size={12} />}
+                      <PicLogo size={12} />
                     </Box>
                     <Text fontSize="sm" fontWeight="600" color="white">
-                      {swapFromToken}
+                      PIC
                     </Text>
                   </HStack>
                 </HStack>
               </Box>
               <Text fontSize="xs" color="whiteAlpha.400" mt="1">
-                {t('assets.available')}: {swapFromBalance.toFixed(2)} {swapFromToken}
+                {t('assets.available')}: {swapFromBalance.toFixed(2)} PIC
               </Text>
             </Box>
 
@@ -860,10 +838,10 @@ export function AssetsPage() {
                     alignItems="center"
                     justifyContent="center"
                   >
-                    {swapToToken === 'PID' ? <PolyFlowLogo size={12} /> : <PicLogo size={12} />}
+                    <PolyFlowLogo size={12} />
                   </Box>
                   <Text fontSize="sm" fontWeight="600" color="white">
-                    {swapToToken}
+                    PID
                   </Text>
                 </HStack>
               </Box>
@@ -877,7 +855,7 @@ export function AssetsPage() {
                     {t('assets.swap_rate')}
                   </Text>
                   <Text fontSize="xs" color="white">
-                    1 {swapFromToken} = {swapToPrice > 0 ? (swapFromPrice / swapToPrice).toFixed(4) : '0'} {swapToToken}
+                    1 PIC = {swapToPrice > 0 ? (swapFromPrice / swapToPrice).toFixed(4) : '0'} PID
                   </Text>
                 </HStack>
                 <HStack justify="space-between" mb="2">
