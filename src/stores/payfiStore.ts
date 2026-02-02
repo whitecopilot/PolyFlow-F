@@ -413,6 +413,9 @@ export const usePayFiStore = create<PayFiState>()(
             // 从 API 响应构建用户资产
             const userAssets: UserAssets = {
               ...getDefaultUserAssets(),
+              // 用户状态（原 /me 接口字段，合并到 /assets 接口）
+              is_active: apiAssets.is_active,
+              hasInviter: apiAssets.hasInviter,
               // 功能开关（直接使用 API 返回的值）
               featureFlags: apiAssets.featureFlags,
               // NFT 相关
