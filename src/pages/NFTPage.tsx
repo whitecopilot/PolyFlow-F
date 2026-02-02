@@ -1,6 +1,6 @@
 // NFT 页面 - 等级殿堂
 
-import { Box, Flex, HStack, SimpleGrid, Spinner, Text, VStack } from '@chakra-ui/react'
+import { Box, Flex, HStack, SimpleGrid, Skeleton, Spinner, Text, VStack } from '@chakra-ui/react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import {
@@ -323,6 +323,36 @@ interface NFTSelectorOverlayProps {
   filterLevel?: string | null
   onSelect: (nft: UserNFTItem) => void
   onClose: () => void
+}
+
+// NFT 卡片骨架屏组件
+function NFTCardSkeleton({ index }: { index: number }) {
+  return (
+    <MotionBox
+      w="full"
+      bg="#17171C"
+      borderRadius="xl"
+      p="4"
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.05 }}
+    >
+      <Flex justify="space-between" align="center">
+        <HStack gap={3}>
+          {/* 视频占位 */}
+          <Box w="56px" h="56px" borderRadius="lg" bg="#2A2A30" />
+          <VStack align="start" gap={1}>
+            {/* 等级名称 */}
+            <Box h="14px" w="80px" borderRadius="md" bg="#2A2A30" />
+            {/* 价格和算力 */}
+            <Box h="12px" w="120px" borderRadius="md" bg="#2A2A30" />
+          </VStack>
+        </HStack>
+        {/* 右侧持有数量 */}
+        <Box h="12px" w="40px" borderRadius="md" bg="#2A2A30" />
+      </Flex>
+    </MotionBox>
+  )
 }
 
 function NFTSelectorOverlay({ nfts, filterLevel, onSelect, onClose }: NFTSelectorOverlayProps) {
@@ -672,41 +702,52 @@ export function NFTPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <HStack justify="space-between" align="center">
-              <VStack align="start" gap={1}>
-                <HStack gap={1}>
-                  <Sparkle size={14} weight="fill" color="#8A8A90" />
-                  <Text fontSize="sm" color="whiteAlpha.600">{t('nft.current_level')}</Text>
-                </HStack>
-                {currentLevel ? (
-                  <HStack gap={2}>
-                    <NFTBadge level={currentLevel} size="lg" showName />
-                  </HStack>
-                ) : hasNFTHoldings ? (
-                  <Text fontSize="lg" fontWeight="bold" color="white">
-                    {t('nft.not_staked_hint')}
-                  </Text>
-                ) : (
-                  <Text fontSize="lg" fontWeight="bold" color="whiteAlpha.400">
-                    {t('nft.no_nft')}
-                  </Text>
-                )}
-              </VStack>
-
-              {currentConfig && (
-                <VStack align="end" gap={0}>
-                  <Text fontSize="xs" color="whiteAlpha.500">
-                    {t('nft.power_coefficient')} {currentConfig.coefficient}x
-                  </Text>
-                  <Text fontSize="xs" color="whiteAlpha.500">
-                    {t('nft.pool_multiplier')} {currentConfig.nftExitMultiplier}x
-                  </Text>
-                  <Text fontSize="xs" color="whiteAlpha.500">
-                    {t('nft.pic_burn_multiplier')} {userAssets?.picBurnExitMultiplier ?? 0}x
-                  </Text>
+            {nftLevelConfigs.length === 0 ? (
+              // 加载中显示骨架屏
+              <HStack justify="space-between" align="center">
+                <VStack align="start" gap={2}>
+                  <Skeleton h="14px" w="80px" borderRadius="md" />
+                  <Skeleton h="24px" w="120px" borderRadius="md" />
                 </VStack>
-              )}
-            </HStack>
+              </HStack>
+            ) : (
+              // 数据加载完成显示实际内容
+              <HStack justify="space-between" align="center">
+                <VStack align="start" gap={1}>
+                  <HStack gap={1}>
+                    <Sparkle size={14} weight="fill" color="#8A8A90" />
+                    <Text fontSize="sm" color="whiteAlpha.600">{t('nft.current_level')}</Text>
+                  </HStack>
+                  {currentLevel ? (
+                    <HStack gap={2}>
+                      <NFTBadge level={currentLevel} size="lg" showName />
+                    </HStack>
+                  ) : hasNFTHoldings ? (
+                    <Text fontSize="lg" fontWeight="bold" color="white">
+                      {t('nft.not_staked_hint')}
+                    </Text>
+                  ) : (
+                    <Text fontSize="lg" fontWeight="bold" color="whiteAlpha.400">
+                      {t('nft.no_nft')}
+                    </Text>
+                  )}
+                </VStack>
+
+                {currentConfig && (
+                  <VStack align="end" gap={0}>
+                    <Text fontSize="xs" color="whiteAlpha.500">
+                      {t('nft.power_coefficient')} {currentConfig.coefficient}x
+                    </Text>
+                    <Text fontSize="xs" color="whiteAlpha.500">
+                      {t('nft.pool_multiplier')} {currentConfig.nftExitMultiplier}x
+                    </Text>
+                    <Text fontSize="xs" color="whiteAlpha.500">
+                      {t('nft.pic_burn_multiplier')} {userAssets?.picBurnExitMultiplier ?? 0}x
+                    </Text>
+                  </VStack>
+                )}
+              </HStack>
+            )}
           </MotionBox>
         </GradientBorderCard>
 
@@ -780,79 +821,100 @@ export function NFTPage() {
 
         {/* 等级进度条 */}
         <Box px="2">
-          <HStack justify="space-between" position="relative">
-            {/* 背景线 - 固定在圆圈中心位置 */}
-            <Box
-              position="absolute"
-              top="20px"
-              left="8%"
-              right="8%"
-              h="2px"
-              bg="whiteAlpha.200"
-            />
-
-            {/* 进度线 */}
-            <MotionBox
-              position="absolute"
-              top="20px"
-              left="8%"
-              h="2px"
-              bg="linear-gradient(90deg, #4A4A50 0%, #8A8A90 100%)"
-              initial={{ width: 0 }}
-              animate={{
-                width: currentLevelIndex >= 0 && nftLevelConfigs.length > 1
-                  ? `${(currentLevelIndex / (nftLevelConfigs.length - 1)) * 84}%`
-                  : '0%',
-              }}
-              transition={{ duration: 0.8 }}
-            />
-
-            {/* 等级节点 */}
-            {nftLevelConfigs.map((config, index) => {
-              const isOwned = currentLevelIndex >= index
-              const isCurrent = currentLevel === config.level
-              const isSelected = selectedLevel === config.level
-
-              return (
-                <VStack
-                  key={config.level}
-                  gap={1}
-                  zIndex={1}
-                  cursor="pointer"
-                  onClick={() => setSelectedLevel(config.level as NFTLevel)}
-                >
-                  <MotionBox
-                    w={isCurrent || isSelected ? 10 : 8}
-                    h={isCurrent || isSelected ? 10 : 8}
-                    borderRadius="full"
-                    bg={isOwned ? '#5A5A60' : isSelected ? '#8A8A90' : 'whiteAlpha.200'}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    borderWidth={isSelected ? 2 : 0}
-                    borderColor="#9A9A9F"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    {isOwned ? (
-                      <HiOutlineCheck size={16} color="white" />
-                    ) : (
-                      <Text fontSize="xs" color="white" fontWeight="bold">
-                        {config.level}
-                      </Text>
-                    )}
-                  </MotionBox>
-                  <Text
-                    fontSize="10px"
-                    color={isCurrent ? 'white' : isSelected ? '#AEAEB3' : 'whiteAlpha.500'}
-                    fontWeight={isCurrent || isSelected ? 'bold' : 'normal'}
-                  >
-                    {config.level}
-                  </Text>
+          {nftLevelConfigs.length === 0 ? (
+            // 加载中显示骨架屏
+            <HStack justify="space-between" position="relative">
+              <Box
+                position="absolute"
+                top="20px"
+                left="8%"
+                right="8%"
+                h="2px"
+                bg="whiteAlpha.200"
+              />
+              {[0, 1, 2, 3, 4].map((index) => (
+                <VStack key={index} gap={1} zIndex={1}>
+                  <Skeleton w={8} h={8} borderRadius="full" />
+                  <Skeleton h="10px" w="20px" borderRadius="md" />
                 </VStack>
-              )
-            })}
-          </HStack>
+              ))}
+            </HStack>
+          ) : (
+            // 数据加载完成显示实际内容
+            <HStack justify="space-between" position="relative">
+              {/* 背景线 - 固定在圆圈中心位置 */}
+              <Box
+                position="absolute"
+                top="20px"
+                left="8%"
+                right="8%"
+                h="2px"
+                bg="whiteAlpha.200"
+              />
+
+              {/* 进度线 */}
+              <MotionBox
+                position="absolute"
+                top="20px"
+                left="8%"
+                h="2px"
+                bg="linear-gradient(90deg, #4A4A50 0%, #8A8A90 100%)"
+                initial={{ width: 0 }}
+                animate={{
+                  width: currentLevelIndex >= 0 && nftLevelConfigs.length > 1
+                    ? `${(currentLevelIndex / (nftLevelConfigs.length - 1)) * 84}%`
+                    : '0%',
+                }}
+                transition={{ duration: 0.8 }}
+              />
+
+              {/* 等级节点 */}
+              {nftLevelConfigs.map((config, index) => {
+                const isOwned = currentLevelIndex >= index
+                const isCurrent = currentLevel === config.level
+                const isSelected = selectedLevel === config.level
+
+                return (
+                  <VStack
+                    key={config.level}
+                    gap={1}
+                    zIndex={1}
+                    cursor="pointer"
+                    onClick={() => setSelectedLevel(config.level as NFTLevel)}
+                  >
+                    <MotionBox
+                      w={isCurrent || isSelected ? 10 : 8}
+                      h={isCurrent || isSelected ? 10 : 8}
+                      borderRadius="full"
+                      bg={isOwned ? '#5A5A60' : isSelected ? '#8A8A90' : 'whiteAlpha.200'}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      borderWidth={isSelected ? 2 : 0}
+                      borderColor="#9A9A9F"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {isOwned ? (
+                        <HiOutlineCheck size={16} color="white" />
+                      ) : (
+                        <Text fontSize="xs" color="white" fontWeight="bold">
+                          {config.level}
+                        </Text>
+                      )}
+                    </MotionBox>
+                    <Text
+                      fontSize="10px"
+                      color={isCurrent ? 'white' : isSelected ? '#AEAEB3' : 'whiteAlpha.500'}
+                      fontWeight={isCurrent || isSelected ? 'bold' : 'normal'}
+                    >
+                      {config.level}
+                    </Text>
+                  </VStack>
+                )
+              })}
+            </HStack>
+          )}
         </Box>
 
         {/* 升级/购买卡片 */}
@@ -1101,84 +1163,94 @@ export function NFTPage() {
             </HStack>
           </Flex>
           <VStack gap={2}>
-            {nftLevelConfigs.map((config, index) => {
-              const isOwned = currentLevelIndex >= index
-              const isCurrent = currentLevel === config.level
+            {nftLevelConfigs.length === 0 ? (
+              // 加载中显示骨架屏
+              <>
+                {[0, 1, 2, 3, 4].map((index) => (
+                  <NFTCardSkeleton key={index} index={index} />
+                ))}
+              </>
+            ) : (
+              // 数据加载完成显示实际内容
+              nftLevelConfigs.map((config, index) => {
+                const isOwned = currentLevelIndex >= index
+                const isCurrent = currentLevel === config.level
 
-              return (
-                <MotionBox
-                  key={config.level}
-                  w="full"
-                  bg={isCurrent ? 'rgba(74, 74, 80, 0.15)' : '#17171C'}
-                  borderRadius="xl"
-                  p="4"
-                  borderWidth={isCurrent ? 1 : 0}
-                  borderColor="#4A4A50"
-                  cursor="pointer"
-                  onClick={() => setSelectedLevel(config.level as NFTLevel)}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Flex justify="space-between" align="center">
-                    <HStack gap={3}>
-                      <Box
-                        w="56px"
-                        h="56px"
-                        borderRadius="lg"
-                        overflow="hidden"
-                        flexShrink={0}
-                      >
-                        <video
-                          src={getNFTVideoUrl(config.level)}
-                          autoPlay
-                          loop
-                          muted
-                          playsInline
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover',
-                          }}
-                        />
-                      </Box>
-                      <VStack align="start" gap={0}>
-                        <Text fontSize="sm" fontWeight="600" color="white">
-                          {config.level} {t(`nft_level.${config.level}`)}
-                        </Text>
-                        <Text fontSize="xs" color="whiteAlpha.500">
-                          ${config.price.toLocaleString()} · {t('nft.power')} {config.power}
-                        </Text>
-                      </VStack>
-                    </HStack>
-
-                    <HStack gap={2}>
-                      {/* 持有数量 - 始终显示 */}
-                      <Text fontSize="xs" color="whiteAlpha.500">
-                        {t('nft.holding_count', { count: config.level ? (nftHoldingStats?.byType?.[config.level] ?? 0) : 0 })}
-                      </Text>
-                      {isCurrent && (
+                return (
+                  <MotionBox
+                    key={config.level}
+                    w="full"
+                    bg={isCurrent ? 'rgba(74, 74, 80, 0.15)' : '#17171C'}
+                    borderRadius="xl"
+                    p="4"
+                    borderWidth={isCurrent ? 1 : 0}
+                    borderColor="#4A4A50"
+                    cursor="pointer"
+                    onClick={() => setSelectedLevel(config.level as NFTLevel)}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Flex justify="space-between" align="center">
+                      <HStack gap={3}>
                         <Box
-                          px="2"
-                          py="0.5"
-                          bg="#4A4A50"
-                          borderRadius="full"
+                          w="56px"
+                          h="56px"
+                          borderRadius="lg"
+                          overflow="hidden"
+                          flexShrink={0}
                         >
-                          <Text fontSize="xs" color="white" fontWeight="bold">
-                            {t('nft.current')}
-                          </Text>
+                          <video
+                            src={getNFTVideoUrl(config.level)}
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                            }}
+                          />
                         </Box>
-                      )}
-                      {isOwned && !isCurrent && (
-                        <HiOutlineCheck size={20} color="#22C55E" />
-                      )}
-                    </HStack>
-                  </Flex>
-                </MotionBox>
-              )
-            })}
+                        <VStack align="start" gap={0}>
+                          <Text fontSize="sm" fontWeight="600" color="white">
+                            {config.level} {t(`nft_level.${config.level}`)}
+                          </Text>
+                          <Text fontSize="xs" color="whiteAlpha.500">
+                            ${config.price.toLocaleString()} · {t('nft.power')} {config.power}
+                          </Text>
+                        </VStack>
+                      </HStack>
+
+                      <HStack gap={2}>
+                        {/* 持有数量 - 始终显示 */}
+                        <Text fontSize="xs" color="whiteAlpha.500">
+                          {t('nft.holding_count', { count: config.level ? (nftHoldingStats?.byType?.[config.level] ?? 0) : 0 })}
+                        </Text>
+                        {isCurrent && (
+                          <Box
+                            px="2"
+                            py="0.5"
+                            bg="#4A4A50"
+                            borderRadius="full"
+                          >
+                            <Text fontSize="xs" color="white" fontWeight="bold">
+                              {t('nft.current')}
+                            </Text>
+                          </Box>
+                        )}
+                        {isOwned && !isCurrent && (
+                          <HiOutlineCheck size={20} color="#22C55E" />
+                        )}
+                      </HStack>
+                    </Flex>
+                  </MotionBox>
+                )
+              })
+            )}
           </VStack>
         </Box>
 
