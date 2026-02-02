@@ -378,7 +378,7 @@ export function HomePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.4 }}
         >
-          <Text fontSize="lg" fontWeight="600" color="white" mb="4">
+          <Text fontSize="md" fontWeight="600" color="white" mb="4" textAlign="center">
             {t('home.backers')}
           </Text>
           <VStack gap="2" align="stretch">

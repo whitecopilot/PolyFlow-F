@@ -150,7 +150,17 @@
     "stake_days": "일",
     "stake_period_m3": "3개월",
     "stake_period_m6": "6개월",
-    "stake_period_m12": "12개월"
+    "stake_period_m12": "12개월",
+    "swap_title": "PID / PIC 스왑",
+    "swap_from": "지불",
+    "swap_to": "수령",
+    "swap_switch": "전환",
+    "enter_swap_amount": "스왑 수량 입력",
+    "swap_rate": "환율",
+    "swap_value": "스왑 가치",
+    "swap_fee": "서비스 수수료",
+    "confirm_swap": "스왑 확인",
+    "swap_hint": "실시간 가격으로 환산, 3% 서비스 수수료"
   },
   "rewards": {
     "title": "내 보상",
@@ -221,6 +231,8 @@
     "all_levels": "모든 레벨",
     "power": "파워",
     "current": "현재",
+    "not_available": "판매 준비 중",
+    "level_not_available_hint": "이 레벨은 아직 판매되지 않습니다. 기대해 주세요",
     "insufficient_balance": "잔액 부족",
     "balance_hint": "현재 잔액: {{balance}} USDT, 필요: {{required}} USDT",
     "wallet_balance": "지갑 잔액"
@@ -247,7 +259,8 @@
     "total_reward": "누적 {{type}}",
     "total_records": "총 {{count}} 건",
     "no_records": "{{type}} 기록 없음",
-    "from": "来自"
+    "from": "출처",
+    "no_more": "더 이상 없습니다"
   },
   "withdraw_records": {
     "title": "출금 기록",

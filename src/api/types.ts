@@ -17,6 +17,11 @@ export interface PaginatedData<T> {
   total_pages: number
 }
 
+// 带汇总数据的分页响应（用于奖励列表）
+export interface PaginatedDataWithSummary<T> extends PaginatedData<T> {
+  total_amount: number  // 总金额 (USDT)
+}
+
 // 业务错误码
 export const ErrorCodes = {
   Success: 0,
@@ -274,6 +279,47 @@ export interface NFTLevelConfigItem {
   coefficient: number        // 挖矿系数
   nftExitMultiplier: number  // NFT 出局倍数
   burnExitMultiplier: number // PIC 销毁出局倍数
+  enable: boolean            // 是否开启销售
+}
+
+// 节点等级配置（从后端获取）
+export interface NodeLevelConfigItem {
+  level: number              // P0-P9
+  smallAreaReq: number       // 小区业绩要求（万U）
+  totalReq: number           // 总业绩要求（万U）
+  sharePercent: number       // 极差分成比例
+  globalSharePercent: number // 全网加权比例
+  specialCondition?: string  // 特殊条件描述（可选）
+}
+
+// 系统配置（从后端获取）
+export interface SystemConfig {
+  // 价格相关
+  pidInitPrice: number       // PID初始价格
+  pidDailyIncrement: number  // PID每日涨幅(单利)
+  picInitPrice: number       // PIC初始价格
+  picDailyRate: number       // PIC每日涨幅(复利)
+
+  // 挖矿收益率
+  baseMiningRate: number     // 基础挖矿日化
+  nftSalesBonusRate: number  // NFT销售加成
+  nftSalesCap: number        // NFT销售额上限
+  picBurnBonusRate: number   // PIC销毁加成
+
+  // 手续费率
+  withdrawFeeRate: number    // 提现手续费率
+  swapFeeRate: number        // 兑换手续费率
+
+  // 释放参数
+  instantReleaseRate: number // 即时释放比例
+  linearReleaseDays: number  // 线性释放天数
+  pidReleaseMonths: number   // PID释放周期(月)
+  pidMonthlyRate: number     // PID每月释放比例
+
+  // 奖励比例
+  referralL1Rate: number     // 一代推荐奖励
+  referralL2Rate: number     // 二代推荐奖励
+  sameLevelRate: number      // 平级奖励
 }
 
 export interface CreateNFTOrderRequest {

@@ -17,7 +17,7 @@ import {
 
 const MotionBox = motion.create(Box)
 
-// NFT 等级配置 - 与后端 nft_level_config 保持一致
+// NFT 等级配置 - 从后端获取
 interface NFTTier {
   id: NFTLevel
   name: string
@@ -25,58 +25,27 @@ interface NFTTier {
   power: number       // 基础算力
   coefficient: number // 挖矿系数
   boost: string       // 显示用的加成百分比
+  enable: boolean     // 是否开启销售
 }
-
-const nftTiers: NFTTier[] = [
-  {
-    id: 'N1',
-    name: 'N1',
-    price: 100,
-    power: 100,
-    coefficient: 0.7,
-    boost: '0.7x',
-  },
-  {
-    id: 'N2',
-    name: 'N2',
-    price: 500,
-    power: 500,
-    coefficient: 0.8,
-    boost: '0.8x',
-  },
-  {
-    id: 'N3',
-    name: 'N3',
-    price: 1000,
-    power: 1000,
-    coefficient: 0.9,
-    boost: '0.9x',
-  },
-  {
-    id: 'N4',
-    name: 'N4',
-    price: 3000,
-    power: 3000,
-    coefficient: 1.0,
-    boost: '1.0x',
-  },
-  {
-    id: 'N5',
-    name: 'N5',
-    price: 10000,
-    power: 10000,
-    coefficient: 1.1,
-    boost: '1.1x',
-  },
-]
 
 export function MintPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [selectedTier, setSelectedTier] = useState<NFTLevel>(null)
 
-  // 从 payfiStore 获取价格信息
-  const { priceInfo, fetchHomeData } = usePayFiStore()
+  // 从 payfiStore 获取价格信息和 NFT 配置
+  const { priceInfo, fetchHomeData, nftLevelConfigs, fetchNFTLevelConfigs } = usePayFiStore()
+
+  // 将后端配置转换为 NFTTier 格式
+  const nftTiers: NFTTier[] = nftLevelConfigs.map((config) => ({
+    id: config.level as NFTLevel,
+    name: config.level,
+    price: config.price,
+    power: config.power,
+    coefficient: config.coefficient,
+    boost: `${config.coefficient}x`,
+    enable: config.enable,
+  }))
 
   // 使用 NFT 购买钩子
   const {
@@ -92,7 +61,8 @@ export function MintPage() {
   // 页面加载时获取数据
   useEffect(() => {
     fetchHomeData()
-  }, [fetchHomeData])
+    fetchNFTLevelConfigs()
+  }, [fetchHomeData, fetchNFTLevelConfigs])
 
   // 购买成功后跳转
   useEffect(() => {
@@ -211,6 +181,7 @@ export function MintPage() {
                 onSelect={() => setSelectedTier(tier.id)}
                 delay={index * 0.05}
                 pidAmount={getRequiredPID(tier.price)}
+                enabled={tier.enable}
               />
             ))}
           </VStack>
@@ -346,10 +317,17 @@ interface NFTTierCardProps {
   onSelect: () => void
   delay: number
   pidAmount: string
+  enabled: boolean
 }
 
-function NFTTierCard({ tier, selected, onSelect, delay, pidAmount }: NFTTierCardProps) {
+function NFTTierCard({ tier, selected, onSelect, delay, pidAmount, enabled }: NFTTierCardProps) {
   const { t } = useTranslation()
+
+  const handleClick = () => {
+    if (enabled) {
+      onSelect()
+    }
+  }
 
   return (
     <MotionBox
@@ -358,13 +336,14 @@ function NFTTierCard({ tier, selected, onSelect, delay, pidAmount }: NFTTierCard
       p="4"
       border="2px solid"
       borderColor={selected ? 'brand.primary' : 'border.default'}
-      cursor="pointer"
-      onClick={onSelect}
+      cursor={enabled ? 'pointer' : 'not-allowed'}
+      onClick={handleClick}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay }}
-      whileTap={{ scale: 0.98 }}
+      whileTap={enabled ? { scale: 0.98 } : undefined}
       position="relative"
+      opacity={enabled ? 1 : 0.5}
     >
       {selected && (
         <Box

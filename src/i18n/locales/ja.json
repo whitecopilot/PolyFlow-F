@@ -150,7 +150,17 @@
     "stake_days": "日",
     "stake_period_m3": "3ヶ月",
     "stake_period_m6": "6ヶ月",
-    "stake_period_m12": "12ヶ月"
+    "stake_period_m12": "12ヶ月",
+    "swap_title": "PID / PIC スワップ",
+    "swap_from": "支払い",
+    "swap_to": "受取",
+    "swap_switch": "切替",
+    "enter_swap_amount": "スワップ数量を入力",
+    "swap_rate": "交換レート",
+    "swap_value": "スワップ価値",
+    "swap_fee": "手数料",
+    "confirm_swap": "スワップ確認",
+    "swap_hint": "リアルタイム価格で換算、3%手数料"
   },
   "rewards": {
     "title": "マイ報酬",
@@ -221,6 +231,8 @@
     "all_levels": "すべてのレベル",
     "power": "パワー",
     "current": "現在",
+    "not_available": "準備中",
+    "level_not_available_hint": "このレベルはまだ販売されていません。ご期待ください",
     "insufficient_balance": "残高不足",
     "balance_hint": "現在残高: {{balance}} USDT、必要: {{required}} USDT",
     "wallet_balance": "ウォレット残高"
@@ -247,7 +259,8 @@
     "total_reward": "累計{{type}}",
     "total_records": "計{{count}}件",
     "no_records": "{{type}}記録なし",
-    "from": "来自"
+    "from": "から",
+    "no_more": "これ以上ありません"
   },
   "withdraw_records": {
     "title": "出金記録",

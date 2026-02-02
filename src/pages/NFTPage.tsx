@@ -552,6 +552,9 @@ export function NFTPage() {
   // 检查 USDT 余额是否足够购买选中的 NFT
   const hasInsufficientBalance = !!selectedLevel && usdtBalance < selectedPrice
 
+  // 检查选中等级是否开启销售
+  const isSelectedLevelEnabled = selectedConfig?.enable ?? true
+
   // 处理购买/升级
   const handlePurchaseOrUpgrade = async () => {
     if (!selectedLevel || isPurchasing) return
@@ -699,7 +702,7 @@ export function NFTPage() {
                     {t('nft.pool_multiplier')} {currentConfig.nftExitMultiplier}x
                   </Text>
                   <Text fontSize="xs" color="whiteAlpha.500">
-                    {t('nft.pic_burn_multiplier')} {userAssets?.nft?.picBurnExitMultiplier ?? 0}x
+                    {t('nft.pic_burn_multiplier')} {userAssets?.picBurnExitMultiplier ?? 0}x
                   </Text>
                 </VStack>
               )}
@@ -971,8 +974,27 @@ export function NFTPage() {
                   </Flex>
                 )}
 
+                {/* 暂未开放提示 */}
+                {!isSelectedLevelEnabled && (
+                  <Box
+                    bg="rgba(156, 163, 175, 0.1)"
+                    borderRadius="lg"
+                    p="3"
+                    mb="4"
+                    borderWidth={1}
+                    borderColor="rgba(156, 163, 175, 0.3)"
+                  >
+                    <HStack gap={2}>
+                      <HiOutlineExclamationCircle size={18} color="#9CA3AF" />
+                      <Text fontSize="sm" color="#9CA3AF" fontWeight="600">
+                        {t('nft.level_not_available_hint')}
+                      </Text>
+                    </HStack>
+                  </Box>
+                )}
+
                 {/* 余额不足警告 */}
-                {hasInsufficientBalance && (
+                {isSelectedLevelEnabled && hasInsufficientBalance && (
                   <Box
                     bg="rgba(239, 68, 68, 0.1)"
                     borderRadius="lg"
@@ -1028,11 +1050,13 @@ export function NFTPage() {
                     flex={1}
                     size="lg"
                     onClick={handlePurchaseOrUpgrade}
-                    disabled={isPurchasing || hasInsufficientBalance}
+                    disabled={isPurchasing || hasInsufficientBalance || !isSelectedLevelEnabled}
                   >
                     <HStack gap={2} justify="center">
                       {isPurchasing ? (
                         <Text>{t('common.processing')}</Text>
+                      ) : !isSelectedLevelEnabled ? (
+                        <Text>{t('nft.not_available')}</Text>
                       ) : isUpgradeAction ? (
                         <Text>{t('nft.upgrade_to', { level: selectedConfig.level })}</Text>
                       ) : (
@@ -1156,6 +1180,27 @@ export function NFTPage() {
               )
             })}
           </VStack>
+        </Box>
+
+        {/* N5 展示视频 */}
+        <Box
+          w="full"
+          borderRadius="xl"
+          overflow="hidden"
+          bg="#17171C"
+        >
+          <video
+            src={getNFTVideoUrl('N5')}
+            autoPlay
+            loop
+            muted
+            playsInline
+            style={{
+              width: '100%',
+              height: 'auto',
+              display: 'block',
+            }}
+          />
         </Box>
 
         {/* 底部间距 */}

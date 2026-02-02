@@ -150,7 +150,17 @@
     "stake_days": "天",
     "stake_period_m3": "3個月",
     "stake_period_m6": "6個月",
-    "stake_period_m12": "12個月"
+    "stake_period_m12": "12個月",
+    "swap_title": "PID / PIC 兌換",
+    "swap_from": "支付",
+    "swap_to": "獲得",
+    "swap_switch": "切換",
+    "enter_swap_amount": "輸入兌換數量",
+    "swap_rate": "兌換匯率",
+    "swap_value": "兌換價值",
+    "swap_fee": "服務費",
+    "confirm_swap": "確認兌換",
+    "swap_hint": "按實時價格換算，收取 3% 服務費"
   },
   "rewards": {
     "title": "我的收益",
@@ -221,6 +231,8 @@
     "all_levels": "全部等級",
     "power": "算力",
     "current": "當前",
+    "not_available": "暫未開放",
+    "level_not_available_hint": "該等級暫未開放銷售，敬請期待",
     "insufficient_balance": "餘額不足",
     "balance_hint": "當前餘額: {{balance}} USDT，需要: {{required}} USDT",
     "wallet_balance": "錢包餘額"
@@ -247,7 +259,8 @@
     "total_reward": "累計{{type}}",
     "total_records": "共 {{count}} 筆",
     "no_records": "暫無{{type}}記錄",
-    "from": "來自"
+    "from": "來自",
+    "no_more": "沒有更多了"
   },
   "withdraw_records": {
     "title": "提現記錄",

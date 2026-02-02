@@ -22,7 +22,6 @@ import {
   PolyFlowLogo,
   ProgressBar,
 } from '../components/common'
-import { getNFTConfig, PAYFI_CONFIG } from '../mocks/payfiConfig'
 import { usePayFiStore } from '../stores/payfiStore'
 
 const MotionBox = motion.create(Box)
@@ -40,10 +39,20 @@ export function AssetsPage() {
     userAssets,
     priceInfo,
     pidReleasePlans,
+    nftLevelConfigs,
+    systemConfig,
     burnPIC,
     fetchUserAssets,
     fetchPIDReleasePlans,
+    fetchNFTLevelConfigs,
+    fetchSystemConfig,
   } = usePayFiStore()
+
+  // 根据等级获取 NFT 配置
+  const getNFTConfig = (level: string | null) => {
+    if (!level || nftLevelConfigs.length === 0) return null
+    return nftLevelConfigs.find(c => c.level === level) || null
+  }
 
   const [burnAmount, setBurnAmount] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
@@ -55,13 +64,20 @@ export function AssetsPage() {
   const [isStaking, setIsStaking] = useState(false)
   const [stakeError, setStakeError] = useState<string | null>(null)
 
+  // 兑换相关状态
+  const [swapFromToken, setSwapFromToken] = useState<'PID' | 'PIC'>('PID')
+  const [swapAmount, setSwapAmount] = useState('')
+  const [isSwapping, setIsSwapping] = useState(false)
+
   // 质押功能是否启用（由后端配置控制）
   const isStakingEnabled = userAssets?.featureFlags?.pidStakingEnabled ?? false
 
   useEffect(() => {
     fetchUserAssets()
     fetchPIDReleasePlans()
-  }, [fetchUserAssets, fetchPIDReleasePlans])
+    fetchNFTLevelConfigs()
+    fetchSystemConfig()
+  }, [fetchUserAssets, fetchPIDReleasePlans, fetchNFTLevelConfigs, fetchSystemConfig])
 
   // 计算销毁预估
   const burnUsdtValue =
@@ -125,6 +141,33 @@ export function AssetsPage() {
 
   // 快捷金额按钮
   const quickAmounts = [100, 500, 1000, 3000, 10000]
+
+  // 兑换计算
+  const swapToToken = swapFromToken === 'PID' ? 'PIC' : 'PID'
+  const swapFromPrice = swapFromToken === 'PID' ? (priceInfo?.pidPrice || 0) : (priceInfo?.picPrice || 0)
+  const swapToPrice = swapToToken === 'PID' ? (priceInfo?.pidPrice || 0) : (priceInfo?.picPrice || 0)
+  const swapFromBalance = swapFromToken === 'PID' ? (userAssets?.pidBalance || 0) : (userAssets?.picBalance || 0)
+  const swapAmountNum = parseFloat(swapAmount) || 0
+  const swapUsdtValue = swapAmountNum * swapFromPrice
+  const swapFee = swapUsdtValue * 0.03 // 3% 服务费
+  const swapReceiveUsdt = swapUsdtValue - swapFee
+  const swapReceiveAmount = swapToPrice > 0 ? swapReceiveUsdt / swapToPrice : 0
+  const isValidSwapAmount = swapAmountNum > 0 && swapAmountNum <= swapFromBalance
+
+  // 切换兑换方向
+  const handleSwapToggle = () => {
+    setSwapFromToken(swapFromToken === 'PID' ? 'PIC' : 'PID')
+    setSwapAmount('')
+  }
+
+  // 处理兑换（暂不实现）
+  const handleSwap = async () => {
+    if (!isValidSwapAmount || isSwapping) return
+    setIsSwapping(true)
+    // TODO: 后端功能暂不实现
+    await new Promise(resolve => setTimeout(resolve, 500))
+    setIsSwapping(false)
+  }
 
   return (
     <Box minH="100vh" bg="#111111">
@@ -358,7 +401,7 @@ export function AssetsPage() {
                       {t('assets.monthly_rate')}
                     </Text>
                     <Text fontSize="sm" fontWeight="medium" color="white">
-                      {(PAYFI_CONFIG.PID_MONTHLY_RATE * 100).toFixed(0)}%
+                      {((systemConfig?.pidMonthlyRate ?? 0.04) * 100).toFixed(0)}%
                     </Text>
                   </Box>
                 </SimpleGrid>
@@ -669,6 +712,206 @@ export function AssetsPage() {
                 {t('assets.need_nft_to_burn')}
               </Text>
             )}
+          </MotionBox>
+        </Box>
+
+        {/* PID/PIC 兑换区域 */}
+        <Box>
+          <HStack gap={2} mb="3">
+            <HiOutlineArrowPath size={18} color="#8A8A90" />
+            <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600">
+              {t('assets.swap_title')}
+            </Text>
+          </HStack>
+
+          <MotionBox
+            bg="#17171C"
+            borderRadius="xl"
+            p="4"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.22 }}
+          >
+            {/* 支付代币 */}
+            <Box mb="3">
+              <Flex justify="space-between" align="center" mb="2">
+                <Text fontSize="xs" color="whiteAlpha.500">
+                  {t('assets.swap_from')}
+                </Text>
+                <HStack
+                  gap={1}
+                  cursor={isStakingEnabled ? 'pointer' : 'not-allowed'}
+                  onClick={isStakingEnabled ? handleSwapToggle : undefined}
+                  opacity={isStakingEnabled ? 1 : 0.5}
+                  _hover={isStakingEnabled ? { color: 'white' } : undefined}
+                >
+                  <HiOutlineArrowPath size={14} color="#8A8A90" />
+                  <Text fontSize="xs" color="whiteAlpha.500">
+                    {t('assets.swap_switch')}
+                  </Text>
+                </HStack>
+              </Flex>
+              <Box position="relative">
+                <Input
+                  disabled={!isStakingEnabled}
+                  type="number"
+                  min="0"
+                  placeholder={t('assets.enter_swap_amount')}
+                  value={swapAmount}
+                  autoComplete="off"
+                  onChange={(e) => setSwapAmount(e.target.value)}
+                  bg="whiteAlpha.50"
+                  border="1px solid"
+                  borderColor="whiteAlpha.200"
+                  borderRadius="xl"
+                  color="white"
+                  fontSize="lg"
+                  h="12"
+                  pl="4"
+                  pr="24"
+                  _placeholder={{ color: 'whiteAlpha.400' }}
+                  _focus={{
+                    borderColor: 'whiteAlpha.600',
+                    boxShadow: '0 0 0 1px rgba(255, 255, 255, 0.5)',
+                  }}
+                />
+                <HStack
+                  position="absolute"
+                  right="3"
+                  top="50%"
+                  transform="translateY(-50%)"
+                  zIndex={2}
+                  gap={2}
+                >
+                  <Button
+                    disabled={!isStakingEnabled}
+                    size="xs"
+                    bg="whiteAlpha.200"
+                    color="whiteAlpha.800"
+                    _hover={{ bg: 'whiteAlpha.300' }}
+                    onClick={() => setSwapAmount(swapFromBalance.toString())}
+                  >
+                    ALL
+                  </Button>
+                  <HStack gap={1}>
+                    <Box
+                      w="16px"
+                      h="16px"
+                      borderRadius="full"
+                      bg="white"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      {swapFromToken === 'PID' ? <PolyFlowLogo size={12} /> : <PicLogo size={12} />}
+                    </Box>
+                    <Text fontSize="sm" fontWeight="600" color="white">
+                      {swapFromToken}
+                    </Text>
+                  </HStack>
+                </HStack>
+              </Box>
+              <Text fontSize="xs" color="whiteAlpha.400" mt="1">
+                {t('assets.available')}: {swapFromBalance.toFixed(2)} {swapFromToken}
+              </Text>
+            </Box>
+
+            {/* 兑换箭头 */}
+            <Flex justify="center" my="2">
+              <Box
+                w="8"
+                h="8"
+                borderRadius="full"
+                bg="whiteAlpha.100"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Text fontSize="lg" color="whiteAlpha.600">↓</Text>
+              </Box>
+            </Flex>
+
+            {/* 获得代币 */}
+            <Box mb="4">
+              <Text fontSize="xs" color="whiteAlpha.500" mb="2">
+                {t('assets.swap_to')}
+              </Text>
+              <Box
+                bg="whiteAlpha.50"
+                border="1px solid"
+                borderColor="whiteAlpha.200"
+                borderRadius="xl"
+                h="12"
+                px="4"
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Text fontSize="lg" fontWeight="600" color={swapReceiveAmount > 0 ? 'white' : 'whiteAlpha.400'}>
+                  {swapReceiveAmount > 0 ? swapReceiveAmount.toFixed(4) : '0.00'}
+                </Text>
+                <HStack gap={1}>
+                  <Box
+                    w="16px"
+                    h="16px"
+                    borderRadius="full"
+                    bg="white"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    {swapToToken === 'PID' ? <PolyFlowLogo size={12} /> : <PicLogo size={12} />}
+                  </Box>
+                  <Text fontSize="sm" fontWeight="600" color="white">
+                    {swapToToken}
+                  </Text>
+                </HStack>
+              </Box>
+            </Box>
+
+            {/* 兑换信息 */}
+            {swapAmountNum > 0 && (
+              <Box bg="whiteAlpha.50" borderRadius="lg" p="3" mb="4">
+                <HStack justify="space-between" mb="2">
+                  <Text fontSize="xs" color="whiteAlpha.500">
+                    {t('assets.swap_rate')}
+                  </Text>
+                  <Text fontSize="xs" color="white">
+                    1 {swapFromToken} = {swapToPrice > 0 ? (swapFromPrice / swapToPrice).toFixed(4) : '0'} {swapToToken}
+                  </Text>
+                </HStack>
+                <HStack justify="space-between" mb="2">
+                  <Text fontSize="xs" color="whiteAlpha.500">
+                    {t('assets.swap_value')}
+                  </Text>
+                  <Text fontSize="xs" color="white">
+                    ${swapUsdtValue.toFixed(2)} USDT
+                  </Text>
+                </HStack>
+                <HStack justify="space-between">
+                  <Text fontSize="xs" color="whiteAlpha.500">
+                    {t('assets.swap_fee')} (3%)
+                  </Text>
+                  <Text fontSize="xs" color="whiteAlpha.500">
+                    -${swapFee.toFixed(2)} USDT
+                  </Text>
+                </HStack>
+              </Box>
+            )}
+
+            {/* 兑换按钮 */}
+            <ActionButton
+              variant="primary"
+              w="full"
+              onClick={handleSwap}
+              disabled={!isStakingEnabled || !isValidSwapAmount}
+            >
+              {isSwapping ? t('assets.processing') : t('assets.confirm_swap')}
+            </ActionButton>
+
+            <Text fontSize="xs" color="whiteAlpha.400" textAlign="center" mt="2">
+              {t('assets.swap_hint')}
+            </Text>
           </MotionBox>
         </Box>
 

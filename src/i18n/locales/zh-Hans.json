@@ -161,7 +161,17 @@
     "stake_days": "天",
     "stake_period_m3": "3个月",
     "stake_period_m6": "6个月",
-    "stake_period_m12": "12个月"
+    "stake_period_m12": "12个月",
+    "swap_title": "PID / PIC 兑换",
+    "swap_from": "支付",
+    "swap_to": "获得",
+    "swap_switch": "切换",
+    "enter_swap_amount": "输入兑换数量",
+    "swap_rate": "兑换汇率",
+    "swap_value": "兑换价值",
+    "swap_fee": "服务费",
+    "confirm_swap": "确认兑换",
+    "swap_hint": "按实时价格换算，收取 3% 服务费"
   },
   "rewards": {
     "title": "我的收益",
@@ -238,6 +248,8 @@
     "all_levels": "全部等级",
     "power": "算力",
     "current": "当前",
+    "not_available": "暂未开放",
+    "level_not_available_hint": "该等级暂未开放销售，敬请期待",
     "mint_list": "铸造列表",
     "holding_count": "持有 {{count}} 个",
     "nft_list_title": "我的 NFT",
@@ -275,7 +287,8 @@
     "total_reward": "累计{{type}}",
     "total_records": "共 {{count}} 笔",
     "no_records": "暂无{{type}}记录",
-    "from": "来自"
+    "from": "来自",
+    "no_more": "没有更多了"
   },
   "withdraw_records": {
     "title": "提现记录",

@@ -20,7 +20,6 @@ import {
   PageHeader,
   WithdrawOverlay,
 } from '../components/common'
-import { getRewardTypeName } from '../mocks/payfiConfig'
 import { usePayFiStore } from '../stores/payfiStore'
 import { useWithdraw } from '../hooks/useWithdraw'
 import type { RewardType } from '../types/payfi'
@@ -476,6 +475,8 @@ function RewardTypeCard({
   delay?: number
   onClick?: () => void
 }) {
+  const { t } = useTranslation()
+
   return (
     <MotionBox
       w="full"
@@ -493,7 +494,7 @@ function RewardTypeCard({
         <HStack gap={2}>
           {REWARD_ICONS[type]}
           <Text fontSize="sm" fontWeight="medium" color="white">
-            {getRewardTypeName(type)}
+            {t(`reward_type.${type}`)}
           </Text>
         </HStack>
         <HStack gap={2}>

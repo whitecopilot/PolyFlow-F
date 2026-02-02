@@ -161,7 +161,17 @@
     "stake_days": "Days",
     "stake_period_m3": "Stake M3",
     "stake_period_m6": "Stake M6",
-    "stake_period_m12": "Stake M12"
+    "stake_period_m12": "Stake M12",
+    "swap_title": "PID / PIC Swap",
+    "swap_from": "From",
+    "swap_to": "To",
+    "swap_switch": "Switch",
+    "enter_swap_amount": "Enter swap amount",
+    "swap_rate": "Exchange Rate",
+    "swap_value": "Swap Value",
+    "swap_fee": "Service Fee",
+    "confirm_swap": "Confirm Swap",
+    "swap_hint": "Converted at real-time price, 3% service fee"
   },
   "rewards": {
     "title": "My Rewards",
@@ -238,6 +248,8 @@
     "all_levels": "All Levels",
     "power": "Power",
     "current": "Current",
+    "not_available": "Not Available",
+    "level_not_available_hint": "This level is not available for sale yet, stay tuned",
     "mint_list": "My NFTs",
     "holding_count": "{{count}} owned",
     "nft_list_title": "My NFTs",
@@ -275,7 +287,8 @@
     "total_reward": "Total {{type}}",
     "total_records": "Total {{count}} records",
     "no_records": "No {{type}} records",
-    "from": "From"
+    "from": "From",
+    "no_more": "No more records"
   },
   "withdraw_records": {
     "title": "Withdraw Records",

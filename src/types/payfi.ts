@@ -21,6 +21,7 @@ export interface NFTLevelConfig {
   coefficient: number;  // 算力系数
   nftExitMultiplier: number;  // NFT出局倍数
   burnExitMultiplier: number; // 销毁出局倍数
+  enable: boolean;      // 是否开启销售
 }
 
 // 节点等级配置
@@ -62,6 +63,7 @@ export interface UserAssets {
   // NFT & 算力
   currentNFTLevel: NFTLevel;
   nftCoefficient: number;
+  picBurnExitMultiplier: number;  // PIC 销毁出局倍数（与质押最高等级挂钩）
   powerFromNFT: number;
   powerFromBurn: number;
   totalPower: number;

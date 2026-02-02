@@ -8,10 +8,13 @@ import type {
   ReleaseSummary,
   DailyReward,
   PaginatedData,
+  PaginatedDataWithSummary,
   TeamStatsResponse,
   RewardType,
   RewardRecordResponse,
   NFTLevelConfigItem,
+  NodeLevelConfigItem,
+  SystemConfig,
 } from './types'
 
 // 获取价格信息（公开接口）
@@ -22,6 +25,16 @@ export async function getPriceInfo(): Promise<PriceInfo> {
 // 获取 NFT 等级配置列表（公开接口）
 export async function getNFTLevelConfigs(): Promise<NFTLevelConfigItem[]> {
   return get<NFTLevelConfigItem[]>('/config/nft-levels', undefined, { skipAuth: true })
+}
+
+// 获取节点等级配置列表（公开接口）
+export async function getNodeLevelConfigs(): Promise<NodeLevelConfigItem[]> {
+  return get<NodeLevelConfigItem[]>('/config/node-levels', undefined, { skipAuth: true })
+}
+
+// 获取系统配置（公开接口）
+export async function getSystemConfig(): Promise<SystemConfig> {
+  return get<SystemConfig>('/config/system', undefined, { skipAuth: true })
 }
 
 // 获取用户资产详情
@@ -52,19 +65,21 @@ export async function getTeamStats(): Promise<TeamStatsResponse> {
   return get<TeamStatsResponse>('/team/stats')
 }
 
-// 根据类型获取奖励记录
+// 根据类型获取奖励记录（带汇总数据）
 export async function getRewardsByType(
   type: RewardType,
   page: number = 1,
   pageSize: number = 20
-): Promise<PaginatedData<RewardRecordResponse>> {
-  return get<PaginatedData<RewardRecordResponse>>(`/rewards/${type}`, { page, pageSize })
+): Promise<PaginatedDataWithSummary<RewardRecordResponse>> {
+  return get<PaginatedDataWithSummary<RewardRecordResponse>>(`/rewards/${type}`, { page, pageSize })
 }
 
 // 导出 PayFi API
 export const payfiApi = {
   getPriceInfo,
   getNFTLevelConfigs,
+  getNodeLevelConfigs,
+  getSystemConfig,
   getUserAssets,
   getRewardSummary,
   getDailyRewards,

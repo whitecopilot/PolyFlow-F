@@ -26,6 +26,8 @@ import type {
   RewardRecordResponse,
   RewardType as ApiRewardType,
   NFTLevelConfigItem,
+  NodeLevelConfigItem,
+  SystemConfig,
 } from '../api/types'
 import { TokenTypeCode } from '../api/types'
 import type {
@@ -60,6 +62,17 @@ export type {
   SystemStats,
 }
 
+// 奖励列表分页状态
+interface RewardListState {
+  records: RewardRecord[]
+  currentPage: number
+  totalPages: number
+  totalCount: number
+  totalAmount: number
+  hasMore: boolean
+  isLoadingMore: boolean
+}
+
 // Store 状态
 interface PayFiState {
   // 数据状态
@@ -70,6 +83,7 @@ interface PayFiState {
   pidReleasePlans: PIDReleasePlan[]
   burnRecords: PICBurnRecord[]
   rewardRecords: RewardRecord[]
+  rewardListState: RewardListState  // 奖励列表分页状态
   withdrawRecords: WithdrawRecord[]
   teamMembers: TeamMember[]
   systemStats: SystemStats | null
@@ -81,6 +95,12 @@ interface PayFiState {
 
   // NFT 等级配置（从后端获取）
   nftLevelConfigs: NFTLevelConfigItem[]
+
+  // 节点等级配置（从后端获取）
+  nodeLevelConfigs: NodeLevelConfigItem[]
+
+  // 系统配置（从后端获取）
+  systemConfig: SystemConfig | null
 
   // 加载状态
   isLoading: boolean
@@ -100,6 +120,8 @@ interface PayFiState {
   fetchPIDReleasePlans: () => Promise<void>
   fetchRewardRecords: () => Promise<void>
   fetchRewardRecordsByType: (type: RewardType, page?: number, pageSize?: number) => Promise<void>
+  loadMoreRewards: (type: RewardType) => Promise<void>  // 加载更多奖励
+  resetRewardList: () => void  // 重置奖励列表状态
   fetchWithdrawRecords: () => Promise<void>
   fetchTeamMembers: () => Promise<void>
   fetchInviteCode: () => Promise<void>
@@ -107,6 +129,8 @@ interface PayFiState {
   fetchUserNFTList: (page?: number, pageSize?: number) => Promise<void>
   fetchUserNFTStats: () => Promise<void>
   fetchNFTLevelConfigs: () => Promise<void>
+  fetchNodeLevelConfigs: () => Promise<void>
+  fetchSystemConfig: () => Promise<void>
 
   // Actions - 业务操作
   purchaseNFT: (level: NFTLevel) => Promise<CreateNFTOrderResponse | null>
@@ -133,6 +157,7 @@ const getDefaultUserAssets = (): UserAssets => ({
   usdtBalance: 0,
   currentNFTLevel: null,
   nftCoefficient: 0,
+  picBurnExitMultiplier: 0,
   nftStaked: false,
   nftStakeTime: null,
   powerFromNFT: 0,
@@ -294,6 +319,15 @@ export const usePayFiStore = create<PayFiState>()(
       pidReleasePlans: [],
       burnRecords: [],
       rewardRecords: [],
+      rewardListState: {
+        records: [],
+        currentPage: 0,
+        totalPages: 0,
+        totalCount: 0,
+        totalAmount: 0,
+        hasMore: true,
+        isLoadingMore: false,
+      },
       withdrawRecords: [],
       teamMembers: [],
       systemStats: null,
@@ -301,6 +335,8 @@ export const usePayFiStore = create<PayFiState>()(
       nftHoldings: [],
       nftHoldingStats: null,
       nftLevelConfigs: [],
+      nodeLevelConfigs: [],
+      systemConfig: null,
       isLoading: false,
       error: null,
       inviteCode: '',
@@ -382,6 +418,7 @@ export const usePayFiStore = create<PayFiState>()(
               // NFT 相关
               currentNFTLevel: nftLevel,
               nftCoefficient: nft?.coefficient || 0,
+              picBurnExitMultiplier: nft?.picBurnExitMultiplier || 0,
               nftStaked: !!nftLevel,
               powerFromNFT: nft?.totalPower || 0,
               totalNFTInvest: nft?.totalInvest || 0,
@@ -544,11 +581,111 @@ export const usePayFiStore = create<PayFiState>()(
               rewardDate: new Date(item.RewardDate),
               createdAt: new Date(item.CreatedAt),
             }))
-            set({ rewardRecords: records })
+            // 更新分页状态
+            set({
+              rewardRecords: records,
+              rewardListState: {
+                records,
+                currentPage: page,
+                totalPages: result.total_pages,
+                totalCount: result.total,
+                totalAmount: result.total_amount || 0,
+                hasMore: page < result.total_pages,
+                isLoadingMore: false,
+              },
+            })
           } catch (error) {
             console.error('获取奖励记录失败:', error)
-            set({ rewardRecords: [] })
+            set({
+              rewardRecords: [],
+              rewardListState: {
+                records: [],
+                currentPage: 0,
+                totalPages: 0,
+                totalCount: 0,
+                totalAmount: 0,
+                hasMore: false,
+                isLoadingMore: false,
+              },
+            })
           }
+        })
+      },
+
+      loadMoreRewards: async (type: RewardType) => {
+        const state = get()
+        const { rewardListState } = state
+
+        // 如果正在加载或没有更多数据，直接返回
+        if (rewardListState.isLoadingMore || !rewardListState.hasMore) {
+          return
+        }
+
+        const nextPage = rewardListState.currentPage + 1
+
+        // 设置加载中状态
+        set({
+          rewardListState: {
+            ...rewardListState,
+            isLoadingMore: true,
+          },
+        })
+
+        try {
+          const result = await payfiApi.getRewardsByType(type as ApiRewardType, nextPage, 20)
+          // 转换后端响应格式到前端类型
+          const newRecords: RewardRecord[] = (result.items || []).map((item: RewardRecordResponse) => ({
+            id: item.ID,
+            rewardType: item.RewardType as RewardType,
+            sourceUserId: item.SourceUserID,
+            sourceAddress: null,
+            picAmount: item.PICAmount,
+            usdtValue: item.USDTValue,
+            picPrice: item.PICPrice,
+            rewardDate: new Date(item.RewardDate),
+            createdAt: new Date(item.CreatedAt),
+          }))
+
+          // 追加新记录（不重复添加）
+          const existingIds = new Set(rewardListState.records.map(r => r.id))
+          const uniqueNewRecords = newRecords.filter(r => !existingIds.has(r.id))
+          const allRecords = [...rewardListState.records, ...uniqueNewRecords]
+
+          set({
+            rewardRecords: allRecords,
+            rewardListState: {
+              records: allRecords,
+              currentPage: nextPage,
+              totalPages: result.total_pages,
+              totalCount: result.total,
+              totalAmount: result.total_amount || 0,  // 使用后端返回的总金额，不重复计算
+              hasMore: nextPage < result.total_pages,
+              isLoadingMore: false,
+            },
+          })
+        } catch (error) {
+          console.error('加载更多奖励记录失败:', error)
+          set({
+            rewardListState: {
+              ...get().rewardListState,
+              isLoadingMore: false,
+            },
+          })
+        }
+      },
+
+      resetRewardList: () => {
+        set({
+          rewardRecords: [],
+          rewardListState: {
+            records: [],
+            currentPage: 0,
+            totalPages: 0,
+            totalCount: 0,
+            totalAmount: 0,
+            hasMore: true,
+            isLoadingMore: false,
+          },
         })
       },
 
@@ -642,6 +779,28 @@ export const usePayFiStore = create<PayFiState>()(
             set({ nftLevelConfigs: configs })
           } catch (error) {
             console.error('获取NFT等级配置失败:', error)
+          }
+        })
+      },
+
+      fetchNodeLevelConfigs: async () => {
+        return dedupeRequest('nodeLevelConfigs', async () => {
+          try {
+            const configs = await payfiApi.getNodeLevelConfigs()
+            set({ nodeLevelConfigs: configs })
+          } catch (error) {
+            console.error('获取节点等级配置失败:', error)
+          }
+        })
+      },
+
+      fetchSystemConfig: async () => {
+        return dedupeRequest('systemConfig', async () => {
+          try {
+            const config = await payfiApi.getSystemConfig()
+            set({ systemConfig: config })
+          } catch (error) {
+            console.error('获取系统配置失败:', error)
           }
         })
       },
@@ -797,6 +956,15 @@ export const usePayFiStore = create<PayFiState>()(
         pidReleasePlans: [],
         burnRecords: [],
         rewardRecords: [],
+        rewardListState: {
+          records: [],
+          currentPage: 0,
+          totalPages: 0,
+          totalCount: 0,
+          totalAmount: 0,
+          hasMore: true,
+          isLoadingMore: false,
+        },
         withdrawRecords: [],
         teamMembers: [],
         systemStats: null,

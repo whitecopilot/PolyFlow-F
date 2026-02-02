@@ -23,7 +23,6 @@ import {
   NodeBadge,
   PageHeader,
 } from '../components/common'
-import { getNextNodeLevel } from '../mocks/payfiConfig'
 import { useAuthStore } from '../stores/authStore'
 import { usePayFiStore } from '../stores/payfiStore'
 
@@ -35,7 +34,9 @@ export function TeamPage() {
   const { user } = useAuthStore()
   const {
     teamStats,
+    nodeLevelConfigs,
     fetchTeamStats,
+    fetchNodeLevelConfigs,
   } = usePayFiStore()
   const fetchedRef = useRef(false)
 
@@ -44,7 +45,17 @@ export function TeamPage() {
     if (fetchedRef.current) return
     fetchedRef.current = true
     fetchTeamStats()
-  }, [fetchTeamStats])
+    fetchNodeLevelConfigs()
+  }, [fetchTeamStats, fetchNodeLevelConfigs])
+
+  // 获取下一个节点等级配置
+  const getNextNodeLevel = (currentLevel: string) => {
+    if (nodeLevelConfigs.length === 0) return null
+    // 从 P0-P9 格式中提取数字
+    const currentLevelNum = parseInt(currentLevel.replace('P', ''), 10) || 0
+    // 查找下一等级
+    return nodeLevelConfigs.find(c => c.level === currentLevelNum + 1) || null
+  }
 
   const nextNodeConfig = getNextNodeLevel(teamStats?.nodeLevel || 'P0')
 
@@ -303,7 +314,7 @@ export function TeamPage() {
                   </Text>
                 </Flex>
 
-                {nextNodeConfig.level === 'P9' && (
+                {nextNodeConfig.level === 9 && (
                   <Flex justify="space-between" align="center">
                     <HStack gap={2}>
                       <HiOutlineXCircle size={18} color="#71717A" />
