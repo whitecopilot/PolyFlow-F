@@ -174,6 +174,7 @@
     "swap_hint": "按实时价格换算，收取 3% 服务费"
   },
   "rewards": {
+    "today_plus": "今日 +${{amount}}",
     "title": "我的收益",
     "cumulative_earnings": "累计收益",
     "withdraw_records": "提现记录",
@@ -226,6 +227,7 @@
     "mining": "挖矿中",
     "not_staked": "未质押",
     "staked_ratio": "质押 {{staked}}/{{total}}",
+    "unstaked_ratio": "未质押 {{staked}}/{{total}}",
     "stake_time": "质押时间",
     "staked_days": "已质押天数",
     "days": "天",

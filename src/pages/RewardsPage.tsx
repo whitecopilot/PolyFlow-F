@@ -106,11 +106,13 @@ export function RewardsPage() {
     // 根据选择的代币类型进行提现
     const tokenType = selectedTokenType === 'PIC_RELEASED' ? 'PIC' : selectedTokenType
     const success = await withdraw(amount, tokenType)
-    if (success) {
-      setWithdrawAmount('')
-      // 刷新数据
-      await Promise.all([fetchUserAssets(), fetchWithdrawRecords()])
-    }
+
+    // 无论提现是否成功都刷新余额（订单创建后后端已扣款）
+    setWithdrawAmount('')
+    await Promise.all([fetchUserAssets(), fetchWithdrawRecords()])
+
+    // 忽略 success 变量的 lint 警告
+    void success
   }
 
   // 处理遮罩关闭
@@ -516,7 +518,7 @@ function RewardTypeCard({
         </Text>
         {todayAmount !== undefined && todayAmount > 0 && (
           <Text fontSize="xs" color="white">
-            today +${todayAmount.toFixed(2)}
+            {t('rewards.today_plus', { amount: todayAmount.toFixed(2) })}
           </Text>
         )}
       </Flex>

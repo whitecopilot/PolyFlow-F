@@ -769,7 +769,7 @@ export function NFTPage() {
                     >
                       {stakedNFTCount > 0
                         ? t('nft.staked_ratio', { staked: stakedNFTCount, total: totalNFTCount })
-                        : t('nft.not_staked')}
+                        : t('nft.unstaked_ratio', { staked: stakedNFTCount, total: totalNFTCount })}
                     </Text>
                   </Box>
                 </HStack>

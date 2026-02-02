@@ -163,6 +163,7 @@
     "swap_hint": "실시간 가격으로 환산, 3% 서비스 수수료"
   },
   "rewards": {
+    "today_plus": "오늘 +${{amount}}",
     "title": "내 보상",
     "cumulative_earnings": "누적 보상",
     "withdraw_records": "출금 기록",
@@ -209,6 +210,7 @@
     "mining": "마이닝 중",
     "not_staked": "스테이킹 안함",
     "staked_ratio": "스테이킹 {{staked}}/{{total}}",
+    "unstaked_ratio": "미스테이킹 {{staked}}/{{total}}",
     "stake_time": "스테이킹 시간",
     "staked_days": "스테이킹 일수",
     "days": "일",

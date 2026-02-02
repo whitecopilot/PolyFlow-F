@@ -163,6 +163,7 @@
     "swap_hint": "リアルタイム価格で換算、3%手数料"
   },
   "rewards": {
+    "today_plus": "本日 +${{amount}}",
     "title": "マイ報酬",
     "cumulative_earnings": "累計報酬",
     "withdraw_records": "出金記録",
@@ -209,6 +210,7 @@
     "mining": "マイニング中",
     "not_staked": "未ステーキング",
     "staked_ratio": "ステーキング {{staked}}/{{total}}",
+    "unstaked_ratio": "未ステーキング {{staked}}/{{total}}",
     "stake_time": "ステーキング時刻",
     "staked_days": "ステーキング日数",
     "days": "日",

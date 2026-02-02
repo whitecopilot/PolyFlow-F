@@ -65,7 +65,7 @@ export function PriceCompact({
     <HStack gap={1} fontSize="xs">
       <Text color="whiteAlpha.500">{label}</Text>
       <Text color="white" fontWeight="medium">
-        ${price.toFixed(2)}
+        ${price.toFixed(4)}
       </Text>
       {showChange && change !== undefined && (
         <Text color="whiteAlpha.500">
