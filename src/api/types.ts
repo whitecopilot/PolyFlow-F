@@ -89,17 +89,10 @@ export interface UserProfile {
   createdAt: string
 }
 
+// UserOverview 用户概览（简化版，仅包含必需字段）
 export interface UserOverview {
-  id: number
-  address: string
-  state: string
-  is_active: boolean // 是否为激活状态（可生成邀请码、访问邀请页面）
-  level: number
-  nodeLevel: number
-  referrerAddress?: string
-  inviteCode?: string
-  hasInviter: boolean
-  createdAt: string
+  is_active: boolean  // 是否为激活状态（可生成邀请码、访问邀请页面）
+  hasInviter: boolean // 是否已绑定邀请人
 }
 
 export interface CreateInviteCodeResponse {
@@ -195,6 +188,10 @@ export interface FeatureFlags {
 }
 
 export interface UserAssets {
+  // 用户状态（原 /me 接口字段，合并到此处减少请求）
+  is_active?: boolean   // 是否为激活状态（可生成邀请码、访问邀请页面）
+  hasInviter?: boolean  // 是否已绑定邀请人
+
   // 价格信息
   prices?: PriceInfo
 

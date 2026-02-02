@@ -15,30 +15,29 @@ import {
 import { useNavigate } from 'react-router-dom'
 import { ActionButton, PolyFlowLogo } from '../components/common'
 import { SecondaryPageHeader } from '../components/layout'
-import { useAuthStore } from '../stores/authStore'
 import { usePayFiStore } from '../stores/payfiStore'
+// 注：用户状态（is_active）已从 /me 接口合并到 /assets 接口
 
 const MotionBox = motion.create(Box)
 
 export function InvitePage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { user } = useAuthStore()
-  const { inviteCode, fetchInviteCode } = usePayFiStore()
+  const { inviteCode, fetchInviteCode, userAssets } = usePayFiStore()
 
-  // 非激活用户重定向到首页
+  // 非激活用户重定向到首页（is_active 从 userAssets 获取）
   useEffect(() => {
-    if (user && !user.is_active) {
+    if (userAssets && !userAssets.is_active) {
       navigate('/', { replace: true })
     }
-  }, [user, navigate])
+  }, [userAssets, navigate])
 
   // 页面加载时获取邀请码
   useEffect(() => {
-    if (user?.is_active) {
+    if (userAssets?.is_active) {
       fetchInviteCode()
     }
-  }, [fetchInviteCode, user?.is_active])
+  }, [fetchInviteCode, userAssets?.is_active])
   const [copied, setCopied] = useState<'code' | 'link' | null>(null)
   const [showPoster, setShowPoster] = useState(false)
   const posterRef = useRef<HTMLDivElement>(null)

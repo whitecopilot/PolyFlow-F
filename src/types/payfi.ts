@@ -51,6 +51,10 @@ export interface FeatureFlags {
 
 // 用户资产信息
 export interface UserAssets {
+  // 用户状态（原 /me 接口字段，合并到 /assets 接口减少请求）
+  is_active?: boolean;   // 是否为激活状态（可生成邀请码、访问邀请页面）
+  hasInviter?: boolean;  // 是否已绑定邀请人
+
   // 功能开关
   featureFlags?: FeatureFlags;
 

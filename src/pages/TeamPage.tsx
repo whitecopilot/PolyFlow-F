@@ -23,7 +23,6 @@ import {
   NodeBadge,
   PageHeader,
 } from '../components/common'
-import { useAuthStore } from '../stores/authStore'
 import { usePayFiStore } from '../stores/payfiStore'
 
 const MotionBox = motion.create(Box)
@@ -39,8 +38,8 @@ export function TeamPage() {
   const formatConfigValue = (value: number) => isWanUnit ? value : value * 10
   // 业绩值转换（业绩以 USDT 为单位存储）
   const formatPerfValue = (value: number) => isWanUnit ? value / 10000 : value / 1000
-  const { user } = useAuthStore()
   const {
+    userAssets,
     teamStats,
     nodeLevelConfigs,
     fetchTeamStats,
@@ -134,13 +133,13 @@ export function TeamPage() {
         <ActionButton
           w="full"
           variant="primary"
-          disabled={!user?.is_active}
+          disabled={!userAssets?.is_active}
           onClick={() => navigate('/invite')}
         >
           <HStack gap={2}>
             <HiOutlineUserPlus size={18} />
             <Text>{t('home.invite_friends')}</Text>
-            {!user?.is_active && (
+            {!userAssets?.is_active && (
               <Text fontSize="xs" color="whiteAlpha.500">
                 ({t('home.invite_disabled_hint')})
               </Text>

@@ -64,18 +64,18 @@ export function useAuth() {
   const {
     signedAddress,
     token,
-    user,
     isLoading,
     walletSwitched,
     setAuth,
-    setUser,
     clearAuth,
     setLoading,
     setWalletSwitched,
   } = useAuthStore()
 
-  // 获取 payfiStore 的 reset 方法用于清理用户数据
+  // 获取 payfiStore 的 reset 方法和 userAssets 用于用户状态
   const resetPayFiStore = usePayFiStore((state) => state.reset)
+  const userAssets = usePayFiStore((state) => state.userAssets)
+  const fetchUserAssets = usePayFiStore((state) => state.fetchUserAssets)
 
   // 用于追踪上一个连接的地址，检测钱包切换
   const previousAddressRef = useRef<string | null>(null)
@@ -86,10 +86,10 @@ export function useAuth() {
     return address.toLowerCase() === signedAddress.toLowerCase()
   }, [isConnected, address, signedAddress, token])
 
-  // 是否需要绑定邀请人
+  // 是否需要绑定邀请人（从 userAssets 获取，已合并到 /assets 接口）
   const needsBindInviter = useMemo(() => {
-    return isAuthenticated && user && !user.hasInviter
-  }, [isAuthenticated, user])
+    return isAuthenticated && userAssets && !userAssets.hasInviter
+  }, [isAuthenticated, userAssets])
 
   // 缩短的地址
   const shortAddress = useMemo(() => {
@@ -126,12 +126,11 @@ export function useAuth() {
       // 5. 保存认证状态
       setAuth(loginResponse.address, loginResponse.token)
 
-      // 6. 获取用户详细信息
+      // 6. 获取用户资产信息（包含 is_active 和 hasInviter 状态）
       try {
-        const userInfo = await authApi.getMe()
-        setUser(userInfo)
+        await fetchUserAssets()
       } catch (error) {
-        console.warn('获取用户信息失败:', error)
+        console.warn('获取用户资产失败:', error)
       }
 
       return { success: true }
@@ -173,7 +172,7 @@ export function useAuth() {
 
       return { success: false, errorMessage: 'Unknown error' }
     }
-  }, [address, signMessageAsync, setAuth, setUser, setLoading])
+  }, [address, signMessageAsync, setAuth, setLoading, fetchUserAssets])
 
   // 绑定邀请人
   const bindInviter = useCallback(async (inviterAddress: string) => {
@@ -182,24 +181,22 @@ export function useAuth() {
     try {
       await authApi.bindInviter({ inviter_address: inviterAddress })
 
-      // 刷新用户信息
-      const userInfo = await authApi.getMe()
-      setUser(userInfo)
+      // 刷新用户资产信息（包含 hasInviter 状态）
+      await fetchUserAssets()
 
       return true
     } catch (error) {
       console.error('绑定邀请人失败:', error)
       return false
     }
-  }, [isAuthenticated, setUser])
+  }, [isAuthenticated, fetchUserAssets])
 
-  // 刷新用户信息
+  // 刷新用户信息（通过 userAssets 接口）
   const refreshUser = useCallback(async () => {
     if (!isAuthenticated) return
 
     try {
-      const userInfo = await authApi.getMe()
-      setUser(userInfo)
+      await fetchUserAssets()
     } catch (error) {
       console.error('刷新用户信息失败:', error)
       // 如果获取失败可能是 token 过期，清除认证
@@ -207,7 +204,7 @@ export function useAuth() {
         clearAuth()
       }
     }
-  }, [isAuthenticated, setUser, clearAuth])
+  }, [isAuthenticated, fetchUserAssets, clearAuth])
 
   // 清除所有用户数据（认证状态 + PayFi 数据）
   const clearAllUserData = useCallback(() => {
@@ -281,7 +278,6 @@ export function useAuth() {
     // 认证状态
     isAuthenticated,
     isLoading: isLoading || isSigning,
-    user,
     needsBindInviter,
 
     // 钱包切换状态

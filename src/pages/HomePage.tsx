@@ -35,7 +35,6 @@ import InvestorMeter from '../assets/png/meter-3x.png'
 import InvestorSolana from '../assets/png/solana-3x.png'
 import InvestorStellar from '../assets/png/Stellar-3x.png'
 import InvestorZc from '../assets/png/zc-3x.png'
-import { useAuthStore } from '../stores/authStore'
 import { usePayFiStore } from '../stores/payfiStore'
 
 const MotionBox = motion.create(Box)
@@ -44,7 +43,6 @@ const MotionFlex = motion.create(Flex)
 export function HomePage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { user } = useAuthStore()
   const {
     priceInfo,
     userAssets,
@@ -298,13 +296,13 @@ export function HomePage() {
           p="4"
           border="1px solid"
           borderColor="whiteAlpha.100"
-          cursor={user?.is_active ? 'pointer' : 'not-allowed'}
-          opacity={user?.is_active ? 1 : 0.5}
-          onClick={() => user?.is_active && navigate('/invite')}
+          cursor={userAssets?.is_active ? 'pointer' : 'not-allowed'}
+          opacity={userAssets?.is_active ? 1 : 0.5}
+          onClick={() => userAssets?.is_active && navigate('/invite')}
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: user?.is_active ? 1 : 0.5, y: 0 }}
+          animate={{ opacity: userAssets?.is_active ? 1 : 0.5, y: 0 }}
           transition={{ duration: 0.4, delay: 0.3 }}
-          whileTap={user?.is_active ? { scale: 0.98 } : undefined}
+          whileTap={userAssets?.is_active ? { scale: 0.98 } : undefined}
         >
           <Flex justify="space-between" align="center">
             <Flex align="center" gap="3">
@@ -312,17 +310,17 @@ export function HomePage() {
                 w="44px"
                 h="44px"
                 borderRadius="12px"
-                bg={user?.is_active ? 'rgba(255, 255, 255, 0.1)' : 'rgba(100, 100, 100, 0.15)'}
+                bg={userAssets?.is_active ? 'rgba(255, 255, 255, 0.1)' : 'rgba(100, 100, 100, 0.15)'}
                 align="center"
                 justify="center"
               >
-                <HiOutlineUserPlus size={22} color={user?.is_active ? '#FFFFFF' : '#666'} />
+                <HiOutlineUserPlus size={22} color={userAssets?.is_active ? '#FFFFFF' : '#666'} />
               </Flex>
               <Box>
-                <Text fontSize="sm" fontWeight="600" color={user?.is_active ? 'white' : 'whiteAlpha.400'}>
+                <Text fontSize="sm" fontWeight="600" color={userAssets?.is_active ? 'white' : 'whiteAlpha.400'}>
                   {t('home.invite_friends')}
                 </Text>
-                {!user?.is_active && (
+                {!userAssets?.is_active && (
                   <Text fontSize="xs" color="whiteAlpha.400">
                     {t('home.invite_disabled_hint')}
                   </Text>
