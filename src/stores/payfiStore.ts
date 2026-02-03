@@ -198,6 +198,7 @@ const getDefaultUserAssets = (): UserAssets => ({
   pidBalance: 0,
   picBalance: 0,
   picReleasedBalance: 0,
+  walletPicBalance: 0,
 })
 
 const getDefaultTeamStats = (): TeamStats => ({
@@ -467,6 +468,7 @@ export const usePayFiStore = create<PayFiState>()(
               // PIC 相关
               picBalance: pic?.available ?? apiAssets.picBalance ?? 0,
               picReleasedBalance: pic?.releasedBalance ?? apiAssets.picReleasedBalance ?? 0,
+              walletPicBalance: (apiAssets as any).walletPicBalance ?? 0,  // 钱包 PIC 余额（链上查询）
 
               // 收益和出局相关
               earnedRewards: earnings?.earnedRewardsUSDT ?? 0,
