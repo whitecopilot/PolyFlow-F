@@ -1,6 +1,6 @@
 import { ChakraProvider } from '@chakra-ui/react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-import { MobileLayout, ProtectedRoute, SecondaryLayout } from './components/layout'
+import { AuthGuard, MobileLayout, ProtectedRoute, SecondaryLayout } from './components/layout'
 import {
   AssetsPage,
   BurnRecordsPage,
@@ -26,6 +26,7 @@ function App() {
     <Web3Provider>
       <ChakraProvider value={system}>
         <BrowserRouter>
+          <AuthGuard>
           <Routes>
             {/* 测试路由 */}
             <Route path="/test-i18n" element={<TestI18n />} />
@@ -72,6 +73,7 @@ function App() {
             {/* 404 重定向到首页 */}
             <Route path="*" element={<LoginPage />} />
           </Routes>
+          </AuthGuard>
         </BrowserRouter>
       </ChakraProvider>
     </Web3Provider>

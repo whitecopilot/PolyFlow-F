@@ -1,7 +1,8 @@
 // 资产页面 - 数字金库（一级页面）
 
-import { Box, Button, Flex, HStack, Input, SimpleGrid, Text, VStack } from '@chakra-ui/react'
-import { motion } from 'framer-motion'
+import { Box, Button, Flex, HStack, Input, SimpleGrid, Spinner, Text, VStack } from '@chakra-ui/react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { CheckCircle } from '@phosphor-icons/react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -12,6 +13,7 @@ import {
   HiOutlineFire,
   HiOutlineLockClosed,
   HiOutlineShieldCheck,
+  HiOutlineXMark,
 } from 'react-icons/hi2'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -22,9 +24,154 @@ import {
   PolyFlowLogo,
   ProgressBar,
 } from '../components/common'
+import { usePICBurn, type BurnStep } from '../hooks/usePICBurn'
 import { usePayFiStore } from '../stores/payfiStore'
 
 const MotionBox = motion.create(Box)
+
+// 销毁进度蒙版组件
+interface BurnOverlayProps {
+  step: BurnStep
+  statusText: string
+  onClose?: () => void
+}
+
+function BurnOverlay({ step, statusText, onClose }: BurnOverlayProps) {
+  const { t } = useTranslation()
+
+  // 计算当前进度（1-4）
+  const getProgress = () => {
+    switch (step) {
+      case 'preparing': return 1
+      case 'signing': return 2
+      case 'confirming': return 3
+      case 'submitting': return 4
+      case 'success': return 4
+      case 'error': return 0
+      default: return 0
+    }
+  }
+
+  const progress = getProgress()
+  const isSuccess = step === 'success'
+  const isError = step === 'error'
+
+  return (
+    <MotionBox
+      position="fixed"
+      inset={0}
+      bg="blackAlpha.800"
+      zIndex={1000}
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <VStack
+        gap={6}
+        p={8}
+        bg="rgba(23, 23, 28, 0.95)"
+        borderRadius="2xl"
+        borderWidth={1}
+        borderColor="whiteAlpha.100"
+        maxW={isError ? '90%' : '320px'}
+        w="90%"
+        maxH="80vh"
+      >
+        {/* 状态图标 */}
+        {isSuccess ? (
+          <MotionBox
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', damping: 10 }}
+          >
+            <CheckCircle size={64} weight="fill" color="#FFFFFF" />
+          </MotionBox>
+        ) : isError ? (
+          <Box
+            w={16}
+            h={16}
+            borderRadius="full"
+            bg="rgba(156, 163, 175, 0.2)"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            flexShrink={0}
+          >
+            <HiOutlineXMark size={32} color="#9CA3AF" />
+          </Box>
+        ) : (
+          <Spinner
+            color="whiteAlpha.700"
+            w={16}
+            h={16}
+            borderWidth="4px"
+          />
+        )}
+
+        {/* 状态文本 */}
+        <Box w="full" overflow={isError ? 'auto' : 'visible'} maxH={isError ? '50vh' : 'none'}>
+          <Text
+            fontSize={isError ? 'sm' : 'lg'}
+            fontWeight="bold"
+            color={isError ? 'whiteAlpha.600' : 'white'}
+            textAlign="center"
+            wordBreak="break-word"
+            whiteSpace="pre-wrap"
+          >
+            {statusText}
+          </Text>
+
+          {/* 进度提示 */}
+          {!isSuccess && !isError && (
+            <Text fontSize="sm" color="whiteAlpha.600" textAlign="center" mt={2}>
+              {t('mint.step')} {progress}/4
+            </Text>
+          )}
+        </Box>
+
+        {/* 进度指示器 */}
+        {!isSuccess && !isError && (
+          <HStack gap={2}>
+            {[1, 2, 3, 4].map((i) => (
+              <Box
+                key={i}
+                w={2}
+                h={2}
+                borderRadius="full"
+                bg={i <= progress ? 'white' : 'whiteAlpha.200'}
+                transition="background-color 0.3s"
+              />
+            ))}
+          </HStack>
+        )}
+
+        {/* 钱包确认提示 */}
+        {step === 'signing' && (
+          <Text fontSize="xs" color="whiteAlpha.500" textAlign="center">
+            {t('mint.wallet_confirm_hint')}
+          </Text>
+        )}
+
+        {/* 关闭按钮 - 仅在成功或错误时显示 */}
+        {(isSuccess || isError) && onClose && (
+          <Box w="full" mt={2} flexShrink={0}>
+            <ActionButton
+              variant={isSuccess ? 'primary' : 'secondary'}
+              size="md"
+              onClick={onClose}
+              w="full"
+            >
+              {t('common.close')}
+            </ActionButton>
+          </Box>
+        )}
+      </VStack>
+    </MotionBox>
+  )
+}
 
 const STAKE_OPTIONS = [
   { id: 'm3', labelKey: 'assets.stake_period_m3', duration: 90, apy: 0.00, minAmount: 0 },
@@ -41,12 +188,20 @@ export function AssetsPage() {
     pidReleasePlans,
     nftLevelConfigs,
     systemConfig,
-    burnPIC,
     fetchUserAssets,
     fetchPIDReleasePlans,
     fetchNFTLevelConfigs,
     fetchSystemConfig,
   } = usePayFiStore()
+
+  // 链上销毁 hook
+  const {
+    isLoading: isBurnLoading,
+    step: burnStep,
+    burnPIC: executeBurn,
+    reset: resetBurn,
+    getStatusText: getBurnStatusText,
+  } = usePICBurn()
 
   // 根据等级获取 NFT 配置
   const getNFTConfig = (level: string | null) => {
@@ -54,8 +209,8 @@ export function AssetsPage() {
     return nftLevelConfigs.find(c => c.level === level) || null
   }
 
-  const [burnAmount, setBurnAmount] = useState('')
-  const [isProcessing, setIsProcessing] = useState(false)
+  // 销毁金额（USDT）
+  const [burnUsdtAmount, setBurnUsdtAmount] = useState('')
   const [burnError, setBurnError] = useState<string | null>(null)
 
   // 质押相关状态
@@ -71,6 +226,21 @@ export function AssetsPage() {
   // 质押功能是否启用（由后端配置控制）
   const isStakingEnabled = userAssets?.featureFlags?.pidStakingEnabled ?? false
 
+  // 是否显示销毁蒙版
+  const showBurnOverlay = burnStep !== 'idle'
+
+  // 滚动穿透修复
+  useEffect(() => {
+    if (showBurnOverlay) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [showBurnOverlay])
+
   useEffect(() => {
     fetchUserAssets()
     fetchPIDReleasePlans()
@@ -78,11 +248,10 @@ export function AssetsPage() {
     fetchSystemConfig()
   }, [fetchUserAssets, fetchPIDReleasePlans, fetchNFTLevelConfigs, fetchSystemConfig])
 
-  // 计算销毁预估
-  const burnUsdtValue =
-    burnAmount && priceInfo ? parseFloat(burnAmount) * priceInfo.picPrice : 0
-
-  const isValidBurnAmount = burnUsdtValue > 0 && burnUsdtValue % 100 === 0
+  // 计算销毁预估（基于 USDT 金额输入）
+  const burnUsdtValue = burnUsdtAmount ? parseFloat(burnUsdtAmount) : 0
+  const isValidBurnAmount = burnUsdtValue >= 100 && burnUsdtValue % 100 === 0
+  const estimatedPicAmount = burnUsdtValue && priceInfo?.picPrice ? burnUsdtValue / priceInfo.picPrice : 0
 
   const currentNFTConfig = getNFTConfig(userAssets?.currentNFTLevel || null)
   const burnMultiplier = currentNFTConfig?.burnExitMultiplier || 3.0
@@ -90,25 +259,32 @@ export function AssetsPage() {
   const estimatedPowerAdded = isValidBurnAmount ? burnUsdtValue : 0
   const estimatedExitAdded = isValidBurnAmount ? burnUsdtValue * burnMultiplier : 0
 
-  // 处理销毁
+  // 检查钱包余额是否足够
+  const hasEnoughBalance = estimatedPicAmount <= (userAssets?.walletPicBalance || 0)
+
+  // 处理链上销毁
   const handleBurn = async () => {
-    if (!burnAmount || !isValidBurnAmount || isProcessing) return
+    if (!burnUsdtAmount || !isValidBurnAmount || isBurnLoading) return
+
+    // 检查钱包余额是否足够
+    if (!hasEnoughBalance) {
+      setBurnError(t('assets.insufficient_pic_balance'))
+      return
+    }
 
     setBurnError(null)
-    setIsProcessing(true)
+    resetBurn()
 
     try {
-      const amount = parseFloat(burnAmount)
-      const success = await burnPIC(amount)
+      const usdtAmount = parseFloat(burnUsdtAmount)
+      const success = await executeBurn(usdtAmount)
       if (success) {
-        setBurnAmount('')
-      } else {
-        setBurnError(t('assets.burn_failed'))
+        setBurnUsdtAmount('')
+        // 刷新用户资产
+        await fetchUserAssets()
       }
     } catch {
       setBurnError(t('assets.burn_failed'))
-    } finally {
-      setIsProcessing(false)
     }
   }
 
@@ -583,17 +759,18 @@ export function AssetsPage() {
             {/* 输入框 */}
             <Box mb="3">
               <Text fontSize="xs" color="whiteAlpha.500" mb="2">
-                {t('assets.burn_amount_label')}
+                {t('assets.burn_usdt_label')}
               </Text>
               <Input
                 disabled={!isStakingEnabled}
                 type="number"
-                min="0"
-                placeholder={t('assets.enter_burn_amount')}
-                value={burnAmount}
+                min="100"
+                step="100"
+                placeholder={t('assets.enter_burn_usdt')}
+                value={burnUsdtAmount}
                 autoComplete="off"
                 onChange={(e) => {
-                  setBurnAmount(e.target.value)
+                  setBurnUsdtAmount(e.target.value)
                   setBurnError(null)
                 }}
                 bg="whiteAlpha.50"
@@ -612,15 +789,16 @@ export function AssetsPage() {
               />
               <Flex justify="space-between" mt="1">
                 <Text fontSize="xs" color="whiteAlpha.400">
-                  {t('assets.available')}: {userAssets?.picBalance.toFixed(2) || '0.00'} PIC
+                  {t('assets.wallet_balance')}: {userAssets?.walletPicBalance?.toFixed(2) || '0.00'} PIC
                 </Text>
-                {burnAmount && (
+                {burnUsdtAmount && (
                   <Text
                     fontSize="xs"
-                    color={isValidBurnAmount ? '#22C55E' : 'red.400'}
+                    color={isValidBurnAmount && hasEnoughBalance ? '#22C55E' : 'red.400'}
                   >
-                    ≈ ${burnUsdtValue.toFixed(2)}{' '}
-                    {!isValidBurnAmount && burnUsdtValue > 0 && `(${t('assets.must_be_100u')})`}
+                    ≈ {estimatedPicAmount.toFixed(2)} PIC
+                    {!isValidBurnAmount && burnUsdtValue > 0 && ` (${t('assets.must_be_100u')})`}
+                    {isValidBurnAmount && !hasEnoughBalance && ` (${t('assets.insufficient_pic_balance')})`}
                   </Text>
                 )}
               </Flex>
@@ -629,15 +807,16 @@ export function AssetsPage() {
             {/* 快捷金额 */}
             <HStack gap={2} mb="4">
               {quickAmounts.map((amount) => {
-                const picAmount = priceInfo ? amount / priceInfo.picPrice : 0
+                const isSelected = burnUsdtAmount === String(amount)
                 return (
                   <ActionButton
                     key={amount}
-                    variant="outline"
+                    variant={isSelected ? 'primary' : 'outline'}
                     size="sm"
                     flex={1}
                     disabled={!isStakingEnabled}
-                    onClick={() => setBurnAmount(picAmount.toFixed(2))}
+                    onClick={() => setBurnUsdtAmount(String(amount))}
+                    bg={isSelected ? 'whiteAlpha.200' : undefined}
                   >
                     ${amount}
                   </ActionButton>
@@ -647,7 +826,7 @@ export function AssetsPage() {
 
             {/* 预估结果 */}
             {isValidBurnAmount && (
-              <Box bg="rgba(216, 17, 240, 0.1)" borderRadius="lg" p="3" mb="4">
+              <Box bg="whiteAlpha.50" borderRadius="lg" p="3" mb="4">
                 <Text fontSize="xs" color="whiteAlpha.600" mb="2">
                   {t('assets.estimated_increase')}
                 </Text>
@@ -683,9 +862,16 @@ export function AssetsPage() {
             )}
 
             {/* 错误提示 */}
-            {burnError && (
+            {(burnError || burnStep === 'error') && (
               <Text fontSize="sm" color="red.400" mb="3">
-                {burnError}
+                {burnError || getBurnStatusText()}
+              </Text>
+            )}
+
+            {/* 销毁状态提示 */}
+            {isBurnLoading && (
+              <Text fontSize="sm" color="whiteAlpha.600" mb="3" textAlign="center">
+                {getBurnStatusText()}
               </Text>
             )}
 
@@ -694,9 +880,9 @@ export function AssetsPage() {
               variant="primary"
               w="full"
               onClick={handleBurn}
-              disabled={!isStakingEnabled}
+              disabled={!isStakingEnabled || isBurnLoading || !isValidBurnAmount || !hasEnoughBalance}
             >
-              {isProcessing ? t('assets.processing') : t('assets.confirm_burn')}
+              {isBurnLoading ? t('assets.processing') : t('assets.confirm_burn')}
             </ActionButton>
 
             {!userAssets?.currentNFTLevel && (
@@ -896,6 +1082,23 @@ export function AssetsPage() {
         {/* 底部间距 */}
         <Box h="8" />
       </VStack>
+
+      {/* 销毁进度蒙版 */}
+      <AnimatePresence>
+        {showBurnOverlay && (
+          <BurnOverlay
+            step={burnStep}
+            statusText={getBurnStatusText()}
+            onClose={() => {
+              resetBurn()
+              if (burnStep === 'success') {
+                setBurnUsdtAmount('')
+                fetchUserAssets()
+              }
+            }}
+          />
+        )}
+      </AnimatePresence>
     </Box>
   )
 }

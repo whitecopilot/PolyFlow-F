@@ -224,6 +224,9 @@ export interface UserAssets {
   pidBalance?: number
   picBalance?: number
   picReleasedBalance?: number
+
+  // 链上钱包余额（用于链上销毁功能）
+  walletPicBalance?: number
 }
 
 export interface TeamStatsResponse {
@@ -534,6 +537,39 @@ export interface BurnRecord {
   powerAdded: number
   exitAdded: number
   createdAt: string
+}
+
+// ================================
+// PIC 链上销毁相关
+// ================================
+
+// 准备链上销毁请求
+export interface PreparePICBurnRequest {
+  usdtAmount: number  // USDT 金额（必须是 100 的整数倍）
+}
+
+// 准备链上销毁响应
+export interface PreparePICBurnResponse {
+  burnId: number                        // 销毁订单 ID
+  picAmount: number                     // 销毁 PIC 数量
+  estimatedUsdt: number                 // 预估 USDT 价值
+  picPrice: number                      // 当前 PIC 价格
+  nftLevel: string                      // 用户 NFT 等级
+  exitMultiplier: number                // 出局倍率
+  estimatedExitAdd: number              // 预估增加的出局额度
+  transactionParams: WalletTransactionParams  // 钱包交易参数
+}
+
+// 提交链上销毁请求
+export interface SubmitPICBurnRequest {
+  burnId: number
+  transactionHash: string
+}
+
+// 提交链上销毁响应
+export interface SubmitPICBurnResponse {
+  success: boolean
+  message: string
 }
 
 // ================================

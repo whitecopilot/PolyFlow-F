@@ -3,6 +3,17 @@
 import type { ApiResponse } from './types'
 import { ErrorCodes } from './types'
 
+// 未授权回调函数类型
+type UnauthorizedCallback = () => void
+
+// 未授权回调（在应用初始化时设置）
+let onUnauthorizedCallback: UnauthorizedCallback | null = null
+
+// 设置未授权回调
+export function setOnUnauthorizedCallback(callback: UnauthorizedCallback): void {
+  onUnauthorizedCallback = callback
+}
+
 // API 基础路径（支持环境变量配置）
 // VITE_API_BASE_URL: 完整的 API 地址，如 https://api.example.com/api/v1
 // 如果未配置，默认使用相对路径 /api/v1
@@ -167,9 +178,13 @@ async function request<T>(
     return data.data
   } catch (error) {
     if (error instanceof ApiError) {
-      // 如果是未授权错误，清除 token
+      // 如果是未授权错误，清除 token 并触发回调
       if (error.isUnauthorized) {
         clearStoredToken()
+        // 触发未授权回调（用于清除认证状态并跳转登录页）
+        if (onUnauthorizedCallback) {
+          onUnauthorizedCallback()
+        }
       }
       throw error
     }

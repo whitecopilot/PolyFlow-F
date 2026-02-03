@@ -1,3 +1,4 @@
+export { AuthGuard } from './AuthGuard'
 export { MobileLayout } from './MobileLayout'
 export { SecondaryLayout } from './SecondaryLayout'
 export { BottomNav } from './BottomNav'
