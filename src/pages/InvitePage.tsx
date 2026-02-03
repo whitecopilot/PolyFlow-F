@@ -142,7 +142,7 @@ export function InvitePage() {
             <Flex
               align="center"
               gap="1"
-              color={copied === 'code' ? 'accent.green' : 'brand.primary'}
+              color={copied === 'code' ? 'accent.green' : 'whiteAlpha.800'}
               cursor="pointer"
               onClick={() => handleCopy('code')}
             >
@@ -197,7 +197,7 @@ export function InvitePage() {
             <Flex
               align="center"
               gap="1"
-              color={copied === 'link' ? 'accent.green' : 'brand.primary'}
+              color={copied === 'link' ? 'accent.green' : 'whiteAlpha.800'}
               cursor="pointer"
               onClick={() => handleCopy('link')}
             >
