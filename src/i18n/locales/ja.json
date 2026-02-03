@@ -165,6 +165,7 @@
   "rewards": {
     "today_plus": "本日 +${{amount}}",
     "title": "マイ報酬",
+    "withdraw_title": "収益引き出し",
     "cumulative_earnings": "累計報酬",
     "withdraw_records": "出金記録",
     "withdrawable": "出金可能",
