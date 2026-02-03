@@ -198,14 +198,24 @@ export function TeamPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
+              cursor="pointer"
+              onClick={() => navigate('/team-performance')}
+              _hover={{ bg: '#1f1f26' }}
             >
-              <HStack gap={2} mb={2}>
-                <HiOutlineChartBar size={16} color="#8A8A90" />
-                <Text fontSize="xs" color="whiteAlpha.600">{t('team.team_total_perf')}</Text>
-              </HStack>
-              <Text fontSize="xl" fontWeight="bold" color="white">
-                ${(teamStats?.teamPerformance || 0).toLocaleString()}
-              </Text>
+              <Flex justify="space-between" align="flex-start">
+                <Box>
+                  <HStack gap={2} mb={2}>
+                    <HiOutlineChartBar size={16} color="#8A8A90" />
+                    <Text fontSize="xs" color="whiteAlpha.600">{t('team.team_total_perf')}</Text>
+                  </HStack>
+                  <Text fontSize="xl" fontWeight="bold" color="white">
+                    ${(teamStats?.teamPerformance || 0).toLocaleString()}
+                  </Text>
+                </Box>
+                <Box color="whiteAlpha.400" mt="1">
+                  <HiOutlineChevronRight size={16} />
+                </Box>
+              </Flex>
             </MotionBox>
 
             <MotionBox

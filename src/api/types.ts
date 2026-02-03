@@ -534,3 +534,42 @@ export interface BurnRecord {
   exitAdded: number
   createdAt: string
 }
+
+// ================================
+// 团队业绩相关
+// ================================
+
+// 团队业绩请求参数
+export interface TeamPerformanceRequest {
+  startDate?: string
+  endDate?: string
+  page?: number
+  pageSize?: number
+}
+
+// 团队业绩汇总
+export interface TeamPerformanceSummary {
+  totalStakeAmount: number  // 总质押金额 (USDT)
+  totalBurnAmount: number   // 总销毁金额 (USDT)
+  stakeCount: number        // 质押笔数
+  burnCount: number         // 销毁笔数
+}
+
+// 团队业绩条目（单条交易记录）
+export interface TeamPerformanceItem {
+  id: number                // 记录 ID
+  userAddress: string       // 用户地址
+  type: 'stake' | 'burn'    // 类型：stake（质押）或 burn（销毁）
+  amount: number            // USDT 金额
+  createdAt: string         // 创建时间
+}
+
+// 团队业绩响应
+export interface TeamPerformanceResponse {
+  summary: TeamPerformanceSummary
+  items: TeamPerformanceItem[]
+  page: number
+  pageSize: number
+  total: number
+  totalPages: number
+}

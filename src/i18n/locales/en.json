@@ -479,5 +479,33 @@
     "node": "Node Rewards",
     "same_level": "Assist Rewards",
     "global": "Airdrop Rewards"
+  },
+  "team_performance": {
+    "title": "Team Performance",
+    "total_stake": "Total Stake",
+    "total_burn": "Total Burn",
+    "records_unit": "records",
+    "all": "All",
+    "direct": "Direct",
+    "no_records": "No performance data",
+    "invite_hint": "Invite friends to grow your team",
+    "time_all": "All",
+    "time_today": "Today",
+    "time_week": "7 Days",
+    "time_month": "30 Days",
+    "time_custom": "Custom",
+    "start_date": "Start Date",
+    "end_date": "End Date",
+    "type_stake": "Stake",
+    "type_burn": "Burn",
+    "filter_title": "Filter Time",
+    "quick_select": "Quick Select",
+    "custom_range": "Custom Date",
+    "reset": "Reset",
+    "filter_active": "Filtered",
+    "select_date": "Select Date",
+    "year_unit": "",
+    "month_unit": "",
+    "day_unit": ""
   }
 }

@@ -14,6 +14,7 @@ import {
   StakeRecordsPage,
   TeamMembersPage,
   TeamPage,
+  TeamPerformancePage,
   WithdrawRecordsPage,
 } from './pages'
 import { Web3Provider } from './providers/Web3Provider'
@@ -64,6 +65,7 @@ function App() {
               <Route path="/rewards/:type" element={<RewardListPage />} />
               <Route path="/withdraw-records" element={<WithdrawRecordsPage />} />
               <Route path="/team-members" element={<TeamMembersPage />} />
+              <Route path="/team-performance" element={<TeamPerformancePage />} />
               <Route path="/nft-list" element={<NFTListPage />} />
             </Route>
 

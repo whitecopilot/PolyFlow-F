@@ -451,5 +451,33 @@
     "node": "노드 보상",
     "same_level": "지원 보상",
     "global": "에어드롭 보상"
+  },
+  "team_performance": {
+    "title": "팀 실적",
+    "total_stake": "총 스테이킹 실적",
+    "total_burn": "총 소각 실적",
+    "records_unit": "건",
+    "all": "전체",
+    "direct": "직접 추천",
+    "no_records": "실적 데이터가 없습니다",
+    "invite_hint": "친구를 초대하여 팀을 키우세요",
+    "time_all": "전체",
+    "time_today": "오늘",
+    "time_week": "7일",
+    "time_month": "30일",
+    "time_custom": "사용자 지정",
+    "start_date": "시작일",
+    "end_date": "종료일",
+    "type_stake": "스테이킹",
+    "type_burn": "소각",
+    "filter_title": "기간 필터",
+    "quick_select": "빠른 선택",
+    "custom_range": "사용자 지정 날짜",
+    "reset": "초기화",
+    "filter_active": "필터 적용 중",
+    "select_date": "날짜 선택",
+    "year_unit": "년",
+    "month_unit": "월",
+    "day_unit": "일"
   }
 }

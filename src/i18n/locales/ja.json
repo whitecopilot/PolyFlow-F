@@ -451,5 +451,33 @@
     "node": "ノード報酬",
     "same_level": "支援報酬",
     "global": "エアドロップ報酬"
+  },
+  "team_performance": {
+    "title": "チーム実績",
+    "total_stake": "総ステーキング実績",
+    "total_burn": "総バーン実績",
+    "records_unit": "件",
+    "all": "すべて",
+    "direct": "直接紹介",
+    "no_records": "実績データがありません",
+    "invite_hint": "友達を招待してチームを拡大しましょう",
+    "time_all": "全期間",
+    "time_today": "今日",
+    "time_week": "7日間",
+    "time_month": "30日間",
+    "time_custom": "カスタム",
+    "start_date": "開始日",
+    "end_date": "終了日",
+    "type_stake": "ステーキング",
+    "type_burn": "バーン",
+    "filter_title": "期間を絞り込む",
+    "quick_select": "クイック選択",
+    "custom_range": "カスタム日付",
+    "reset": "リセット",
+    "filter_active": "絞り込み中",
+    "select_date": "日付を選択",
+    "year_unit": "年",
+    "month_unit": "月",
+    "day_unit": "日"
   }
 }

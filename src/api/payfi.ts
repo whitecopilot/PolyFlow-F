@@ -15,6 +15,8 @@ import type {
   NFTLevelConfigItem,
   NodeLevelConfigItem,
   SystemConfig,
+  TeamPerformanceRequest,
+  TeamPerformanceResponse,
 } from './types'
 
 // 获取价格信息（公开接口）
@@ -74,6 +76,13 @@ export async function getRewardsByType(
   return get<PaginatedDataWithSummary<RewardRecordResponse>>(`/rewards/${type}`, { page, pageSize })
 }
 
+// 获取团队业绩数据
+export async function getTeamPerformance(
+  params?: TeamPerformanceRequest
+): Promise<TeamPerformanceResponse> {
+  return get<TeamPerformanceResponse>('/team/performance', params as Record<string, string | number | boolean | undefined>)
+}
+
 // 导出 PayFi API
 export const payfiApi = {
   getPriceInfo,
@@ -86,6 +95,7 @@ export const payfiApi = {
   getReleaseSummary,
   getTeamStats,
   getRewardsByType,
+  getTeamPerformance,
 }
 
 export default payfiApi
