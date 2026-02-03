@@ -1,17 +1,6 @@
 // 等级徽章组件 - NFT 和节点等级显示
 
 import { Box, HStack, Text } from '@chakra-ui/react'
-import {
-  Crown,
-  Cube,
-  Diamond,
-  DiamondsFour,
-  Hexagon,
-  Octagon,
-  Pentagon,
-  Star,
-  Trophy,
-} from '@phosphor-icons/react'
 import { useTranslation } from 'react-i18next'
 import type { NFTLevel, NodeLevel } from '../../types/payfi'
 
@@ -100,21 +89,17 @@ interface NodeBadgeProps {
   showName?: boolean
 }
 
-const NODE_COLORS: Record<NodeLevel, { bg: string; border: string; Icon: React.ComponentType<{ size?: number; weight?: 'thin' | 'light' | 'regular' | 'bold' | 'fill' | 'duotone' }> | null }> = {
-  P0: { bg: '#2D3748', border: '#4A5568', Icon: null },
-  P1: { bg: '#2C5282', border: '#3182CE', Icon: DiamondsFour },
-  P2: { bg: '#9C4221', border: '#DD6B20', Icon: Hexagon },
-  P3: { bg: '#6B7280', border: '#9CA3AF', Icon: Octagon },
-  P4: { bg: '#B7791F', border: '#ECC94B', Icon: Star },
-  P5: { bg: '#5B21B6', border: '#8B5CF6', Icon: Diamond },
-  P6: { bg: '#0891B2', border: '#22D3EE', Icon: Cube },
-  P7: { bg: '#BE185D', border: '#F472B6', Icon: Pentagon },
-  P8: { bg: '#7C3AED', border: '#A78BFA', Icon: Crown },
-  P9: {
-    bg: 'linear-gradient(135deg, #F59E0B 0%, #EF4444 50%, #8B5CF6 100%)',
-    border: '#FCD34D',
-    Icon: Trophy,
-  },
+const NODE_COLORS: Record<NodeLevel, { bg: string; border: string }> = {
+  P0: { bg: '#2A2A2E', border: '#3A3A40' },
+  P1: { bg: '#2A2A2E', border: '#3A3A40' },
+  P2: { bg: '#32323A', border: '#42424A' },
+  P3: { bg: '#3A3A42', border: '#4A4A52' },
+  P4: { bg: '#42424A', border: '#52525A' },
+  P5: { bg: '#4A4A52', border: '#5A5A62' },
+  P6: { bg: '#52525A', border: '#62626A' },
+  P7: { bg: '#5A5A62', border: '#6A6A72' },
+  P8: { bg: '#62626A', border: '#72727A' },
+  P9: { bg: 'linear-gradient(135deg, #1A1A1E 0%, #3A3A40 50%, #5A5A60 100%)', border: '#7A7A80' },
 }
 
 const NODE_NAMES: Record<NodeLevel, string> = {
@@ -136,9 +121,9 @@ export function NodeBadge({ level, size = 'md', showName = false }: NodeBadgePro
   const name = t(`node_level.${level}`) || NODE_NAMES[level]
 
   const sizeStyles = {
-    sm: { px: 2, py: 0.5, fontSize: 'xs', iconSize: '10px' },
-    md: { px: 3, py: 1, fontSize: 'sm', iconSize: '12px' },
-    lg: { px: 4, py: 1.5, fontSize: 'md', iconSize: '14px' },
+    sm: { px: 2, py: 0.5, fontSize: 'xs' },
+    md: { px: 3, py: 1, fontSize: 'sm' },
+    lg: { px: 4, py: 1.5, fontSize: 'md' },
   }
 
   const styles = sizeStyles[size]
@@ -157,7 +142,6 @@ export function NodeBadge({ level, size = 'md', showName = false }: NodeBadgePro
       transition="transform 0.2s"
       _hover={{ transform: 'scale(1.05)' }}
     >
-      {colors.Icon && <colors.Icon size={parseInt(styles.iconSize)} weight="fill" />}
       <Text fontSize={styles.fontSize} fontWeight="bold" color="white">
         {level}
       </Text>

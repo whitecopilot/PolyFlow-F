@@ -28,6 +28,9 @@ import type {
   NFTLevelConfigItem,
   NodeLevelConfigItem,
   SystemConfig,
+  TeamPerformanceRequest,
+  TeamPerformanceItem as ApiTeamPerformanceItem,
+  TeamPerformanceSummary,
 } from '../api/types'
 import { TokenTypeCode } from '../api/types'
 import type {
@@ -73,6 +76,19 @@ interface RewardListState {
   isLoadingMore: boolean
 }
 
+// 团队业绩列表状态
+interface TeamPerformanceListState {
+  summary: TeamPerformanceSummary | null
+  items: ApiTeamPerformanceItem[]
+  currentPage: number
+  totalPages: number
+  totalCount: number
+  hasMore: boolean
+  isLoadingMore: boolean
+  startDate?: string
+  endDate?: string
+}
+
 // Store 状态
 interface PayFiState {
   // 数据状态
@@ -101,6 +117,9 @@ interface PayFiState {
 
   // 系统配置（从后端获取）
   systemConfig: SystemConfig | null
+
+  // 团队业绩状态
+  teamPerformanceState: TeamPerformanceListState
 
   // 加载状态
   isLoading: boolean
@@ -131,6 +150,9 @@ interface PayFiState {
   fetchNFTLevelConfigs: () => Promise<void>
   fetchNodeLevelConfigs: () => Promise<void>
   fetchSystemConfig: () => Promise<void>
+  fetchTeamPerformance: (params?: TeamPerformanceRequest) => Promise<void>
+  loadMoreTeamPerformance: () => Promise<void>
+  resetTeamPerformance: () => void
 
   // Actions - 业务操作
   purchaseNFT: (level: NFTLevel) => Promise<CreateNFTOrderResponse | null>
@@ -337,6 +359,15 @@ export const usePayFiStore = create<PayFiState>()(
       nftLevelConfigs: [],
       nodeLevelConfigs: [],
       systemConfig: null,
+      teamPerformanceState: {
+        summary: null,
+        items: [],
+        currentPage: 0,
+        totalPages: 0,
+        totalCount: 0,
+        hasMore: true,
+        isLoadingMore: false,
+      },
       isLoading: false,
       error: null,
       inviteCode: '',
@@ -808,6 +839,112 @@ export const usePayFiStore = create<PayFiState>()(
         })
       },
 
+      fetchTeamPerformance: async (params?: TeamPerformanceRequest) => {
+        const page = params?.page || 1
+        const pageSize = params?.pageSize || 20
+        return dedupeRequest(`teamPerformance-${page}-${params?.startDate}-${params?.endDate}`, async () => {
+          try {
+            const result = await payfiApi.getTeamPerformance({
+              ...params,
+              page,
+              pageSize,
+            })
+            set({
+              teamPerformanceState: {
+                summary: result.summary,
+                items: result.items || [],
+                currentPage: result.page,
+                totalPages: result.totalPages,
+                totalCount: result.total,
+                hasMore: result.page < result.totalPages,
+                isLoadingMore: false,
+                startDate: params?.startDate,
+                endDate: params?.endDate,
+              },
+            })
+          } catch (error) {
+            console.error('获取团队业绩失败:', error)
+            set({
+              teamPerformanceState: {
+                summary: null,
+                items: [],
+                currentPage: 0,
+                totalPages: 0,
+                totalCount: 0,
+                hasMore: false,
+                isLoadingMore: false,
+              },
+            })
+          }
+        })
+      },
+
+      loadMoreTeamPerformance: async () => {
+        const state = get()
+        const { teamPerformanceState } = state
+
+        if (teamPerformanceState.isLoadingMore || !teamPerformanceState.hasMore) {
+          return
+        }
+
+        const nextPage = teamPerformanceState.currentPage + 1
+
+        set({
+          teamPerformanceState: {
+            ...teamPerformanceState,
+            isLoadingMore: true,
+          },
+        })
+
+        try {
+          const result = await payfiApi.getTeamPerformance({
+            page: nextPage,
+            pageSize: 20,
+            startDate: teamPerformanceState.startDate,
+            endDate: teamPerformanceState.endDate,
+          })
+
+          const existingKeys = new Set(teamPerformanceState.items.map(i => `${i.type}-${i.id}`))
+          const uniqueNewItems = (result.items || []).filter(i => !existingKeys.has(`${i.type}-${i.id}`))
+          const allItems = [...teamPerformanceState.items, ...uniqueNewItems]
+
+          set({
+            teamPerformanceState: {
+              ...teamPerformanceState,
+              summary: result.summary,
+              items: allItems,
+              currentPage: nextPage,
+              totalPages: result.totalPages,
+              totalCount: result.total,
+              hasMore: nextPage < result.totalPages,
+              isLoadingMore: false,
+            },
+          })
+        } catch (error) {
+          console.error('加载更多团队业绩失败:', error)
+          set({
+            teamPerformanceState: {
+              ...get().teamPerformanceState,
+              isLoadingMore: false,
+            },
+          })
+        }
+      },
+
+      resetTeamPerformance: () => {
+        set({
+          teamPerformanceState: {
+            summary: null,
+            items: [],
+            currentPage: 0,
+            totalPages: 0,
+            totalCount: 0,
+            hasMore: true,
+            isLoadingMore: false,
+          },
+        })
+      },
+
       // ================================
       // 业务操作
       // ================================
@@ -975,6 +1112,15 @@ export const usePayFiStore = create<PayFiState>()(
         nftHoldings: [],
         nftHoldingStats: null,
         nftLevelConfigs: [],
+        teamPerformanceState: {
+          summary: null,
+          items: [],
+          currentPage: 0,
+          totalPages: 0,
+          totalCount: 0,
+          hasMore: true,
+          isLoadingMore: false,
+        },
         isLoading: false,
         error: null,
         inviteCode: '',

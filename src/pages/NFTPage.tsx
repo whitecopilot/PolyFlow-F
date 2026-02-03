@@ -86,8 +86,9 @@ function PurchaseOverlay({ step, statusText, onClose }: PurchaseOverlayProps) {
         borderRadius="2xl"
         borderWidth={1}
         borderColor="whiteAlpha.100"
-        maxW="320px"
+        maxW={isError ? '90%' : '320px'}
         w="90%"
+        maxH="80vh"
       >
         {/* 状态图标 */}
         {isSuccess ? (
@@ -107,6 +108,7 @@ function PurchaseOverlay({ step, statusText, onClose }: PurchaseOverlayProps) {
             display="flex"
             alignItems="center"
             justifyContent="center"
+            flexShrink={0}
           >
             <HiOutlineXMark size={32} color="#9CA3AF" />
           </Box>
@@ -120,23 +122,25 @@ function PurchaseOverlay({ step, statusText, onClose }: PurchaseOverlayProps) {
         )}
 
         {/* 状态文本 */}
-        <VStack gap={2}>
+        <Box w="full" overflow={isError ? 'auto' : 'visible'} maxH={isError ? '50vh' : 'none'}>
           <Text
-            fontSize="lg"
+            fontSize={isError ? 'sm' : 'lg'}
             fontWeight="bold"
             color={isError ? 'whiteAlpha.600' : 'white'}
             textAlign="center"
+            wordBreak="break-word"
+            whiteSpace="pre-wrap"
           >
             {statusText}
           </Text>
 
           {/* 进度提示 */}
           {!isSuccess && !isError && (
-            <Text fontSize="sm" color="whiteAlpha.600">
+            <Text fontSize="sm" color="whiteAlpha.600" textAlign="center" mt={2}>
               {t('mint.step')} {progress}/5
             </Text>
           )}
-        </VStack>
+        </Box>
 
         {/* 进度指示器 */}
         {!isSuccess && !isError && (
@@ -163,15 +167,16 @@ function PurchaseOverlay({ step, statusText, onClose }: PurchaseOverlayProps) {
 
         {/* 关闭按钮 - 仅在成功或错误时显示 */}
         {(isSuccess || isError) && onClose && (
-          <ActionButton
-            variant={isSuccess ? 'primary' : 'secondary'}
-            size="md"
-            onClick={onClose}
-            w="full"
-            mt={2}
-          >
-            {t('common.close')}
-          </ActionButton>
+          <Box w="full" mt={2} flexShrink={0}>
+            <ActionButton
+              variant={isSuccess ? 'primary' : 'secondary'}
+              size="md"
+              onClick={onClose}
+              w="full"
+            >
+              {t('common.close')}
+            </ActionButton>
+          </Box>
         )}
       </VStack>
     </MotionBox>
@@ -225,8 +230,9 @@ function StakeOverlay({ step, statusText, onClose }: StakeOverlayProps) {
         borderRadius="2xl"
         borderWidth={1}
         borderColor="whiteAlpha.100"
-        maxW="320px"
+        maxW={isError ? '90%' : '320px'}
         w="90%"
+        maxH="80vh"
       >
         {/* 状态图标 */}
         {isSuccess ? (
@@ -246,6 +252,7 @@ function StakeOverlay({ step, statusText, onClose }: StakeOverlayProps) {
             display="flex"
             alignItems="center"
             justifyContent="center"
+            flexShrink={0}
           >
             <HiOutlineXMark size={32} color="#9CA3AF" />
           </Box>
@@ -259,23 +266,25 @@ function StakeOverlay({ step, statusText, onClose }: StakeOverlayProps) {
         )}
 
         {/* 状态文本 */}
-        <VStack gap={2}>
+        <Box w="full" overflow={isError ? 'auto' : 'visible'} maxH={isError ? '50vh' : 'none'}>
           <Text
-            fontSize="lg"
+            fontSize={isError ? 'sm' : 'lg'}
             fontWeight="bold"
             color={isError ? 'whiteAlpha.600' : 'white'}
             textAlign="center"
+            wordBreak="break-word"
+            whiteSpace="pre-wrap"
           >
             {statusText}
           </Text>
 
           {/* 进度提示 */}
           {!isSuccess && !isError && (
-            <Text fontSize="sm" color="whiteAlpha.600">
+            <Text fontSize="sm" color="whiteAlpha.600" textAlign="center" mt={2}>
               {t('mint.step')} {progress}/4
             </Text>
           )}
-        </VStack>
+        </Box>
 
         {/* 进度指示器 */}
         {!isSuccess && !isError && (
@@ -302,15 +311,16 @@ function StakeOverlay({ step, statusText, onClose }: StakeOverlayProps) {
 
         {/* 关闭按钮 - 仅在成功或错误时显示 */}
         {(isSuccess || isError) && onClose && (
-          <ActionButton
-            variant={isSuccess ? 'primary' : 'secondary'}
-            size="md"
-            onClick={onClose}
-            w="full"
-            mt={2}
-          >
-            {t('common.close')}
-          </ActionButton>
+          <Box w="full" mt={2} flexShrink={0}>
+            <ActionButton
+              variant={isSuccess ? 'primary' : 'secondary'}
+              size="md"
+              onClick={onClose}
+              w="full"
+            >
+              {t('common.close')}
+            </ActionButton>
+          </Box>
         )}
       </VStack>
     </MotionBox>
@@ -903,13 +913,6 @@ export function NFTPage() {
                         </Text>
                       )}
                     </MotionBox>
-                    <Text
-                      fontSize="10px"
-                      color={isCurrent ? 'white' : isSelected ? '#AEAEB3' : 'whiteAlpha.500'}
-                      fontWeight={isCurrent || isSelected ? 'bold' : 'normal'}
-                    >
-                      {config.level}
-                    </Text>
                   </VStack>
                 )
               })}
