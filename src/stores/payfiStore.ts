@@ -216,6 +216,7 @@ const getDefaultTeamStats = (): TeamStats => ({
 const convertPriceInfo = (apiPrice: ApiPriceInfo): PriceInfo => ({
   pidPrice: apiPrice.pidPrice,
   picPrice: apiPrice.picPrice,
+  dailyRate: apiPrice.dailyRate || 0,
   pidChange: apiPrice.pidChange || 0,
   picChange: apiPrice.picChange || 0,
   lastUpdated: new Date(),

@@ -38,6 +38,7 @@ export interface NodeLevelConfig {
 export interface PriceInfo {
   pidPrice: number;
   picPrice: number;
+  dailyRate: number;  // 当日产出率（日化率）
   pidChange: number;  // 24h变化
   picChange: number;
   lastUpdated: Date;

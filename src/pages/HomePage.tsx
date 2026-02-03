@@ -48,7 +48,6 @@ export function HomePage() {
     priceInfo,
     userAssets,
     earningsStats,
-    systemStats,
     fetchHomeData,
   } = usePayFiStore()
 
@@ -207,7 +206,7 @@ export function HomePage() {
               <Text fontSize="xs" color="whiteAlpha.600">{t('home.output_rate')}</Text>
             </HStack>
             <Text fontSize="lg" fontWeight="bold" color="white">
-              {((systemStats?.dailyRate || 0) * 100).toFixed(2)}%
+              {((priceInfo?.dailyRate || 0) * 100).toFixed(2)}%
             </Text>
           </MotionBox>
         </SimpleGrid>

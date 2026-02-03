@@ -116,6 +116,7 @@ export interface PriceInfo {
   pidPrice: number
   picPrice: number
   usdtPrice: number
+  dailyRate?: number  // 当日产出率（日化率）
   // 前端计算或展示用字段
   pidChange?: number
   picChange?: number
