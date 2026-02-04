@@ -1,24 +1,19 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { getStoredToken, setStoredToken, clearStoredToken } from '../api/client'
-import type { UserOverview } from '../api/types'
 
 interface AuthState {
   // 已完成签名验证的地址
   signedAddress: string | null
   // JWT Token
   token: string | null
-  // 用户信息
-  user: UserOverview | null
   // 加载状态
   isLoading: boolean
   // 钱包切换标志（用于通知其他组件需要重新登录）
   walletSwitched: boolean
 
   // 设置已签名地址和 token（登录成功后调用）
-  setAuth: (address: string, token: string, user?: UserOverview) => void
-  // 更新用户信息
-  setUser: (user: UserOverview) => void
+  setAuth: (address: string, token: string) => void
   // 清除签名状态（登出时调用）
   clearAuth: () => void
   // 设置加载状态
@@ -32,25 +27,19 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       signedAddress: null,
       token: null,
-      user: null,
       isLoading: false,
       walletSwitched: false,
 
-      setAuth: (address: string, token: string, user?: UserOverview) => {
+      setAuth: (address: string, token: string) => {
         // 同步存储 token 到 localStorage（供 API client 使用）
         setStoredToken(token)
 
         set({
           signedAddress: address.toLowerCase(),
           token,
-          user: user || null,
           isLoading: false,
           walletSwitched: false,
         })
-      },
-
-      setUser: (user: UserOverview) => {
-        set({ user })
       },
 
       clearAuth: () => {
@@ -60,7 +49,6 @@ export const useAuthStore = create<AuthState>()(
         set({
           signedAddress: null,
           token: null,
-          user: null,
           isLoading: false,
         })
       },
@@ -85,7 +73,6 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         signedAddress: state.signedAddress,
         token: state.token,
-        user: state.user,
       }),
     }
   )

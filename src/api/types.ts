@@ -89,13 +89,6 @@ export interface UserProfile {
   createdAt: string
 }
 
-// UserOverview 用户概览（简化版，仅包含必需字段）
-export interface UserOverview {
-  is_active: boolean  // 是否为激活状态（可生成邀请码、访问邀请页面）
-  hasInviter: boolean // 是否已绑定邀请人
-  adminType: number   // 管理员类型: 0=普通用户, 1=普通管理员, 2=超级管理员
-}
-
 // 管理员类型常量
 export const AdminType = {
   Normal: 0,      // 普通用户

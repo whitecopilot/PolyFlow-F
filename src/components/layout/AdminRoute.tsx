@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
-import { authApi } from '../../api'
+import { payfiApi } from '../../api'
 import { AdminType } from '../../api/types'
 
 interface AdminRouteProps {
@@ -42,12 +42,12 @@ export function AdminRoute({
 
       try {
         // 强制从后端获取最新用户信息（不使用缓存）
-        const userInfo = await authApi.getMe()
+        const userAssets = await payfiApi.getUserAssets()
 
         if (!isMounted) return
 
         // 检查管理员权限
-        const userAdminType = userInfo.adminType ?? AdminType.Normal
+        const userAdminType = userAssets.adminType ?? AdminType.Normal
         if (userAdminType >= requiredAdminType) {
           setVerificationState('authorized')
         } else {

@@ -265,6 +265,7 @@
   "nft": {
     "current_level": "當前等級",
     "no_nft": "未持有 NFT",
+    "not_staked_hint": "NFT 未質押",
     "power_coefficient": "算力係數",
     "pool_multiplier": "礦池倍數",
     "pic_burn_multiplier": "銷毀倍數",
