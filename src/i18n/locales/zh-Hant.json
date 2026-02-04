@@ -379,8 +379,8 @@
     "reinvested": "已復投",
     "transferred_out": "已轉出",
     "exited": "已出局",
-    "performance_title": "銷售業績",
-    "sales_amount": "銷售總額",
+    "performance_title": "業績",
+    "sales_amount": "總業績",
     "order_count": "訂單數",
     "no_data": "暫無數據"
   },

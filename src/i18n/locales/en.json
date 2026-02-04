@@ -397,8 +397,8 @@
     "reinvested": "Reinvested",
     "transferred_out": "Transferred Out",
     "exited": "Exited",
-    "performance_title": "Sales Performance",
-    "sales_amount": "Total Sales",
+    "performance_title": "Performance",
+    "sales_amount": "Total Performance",
     "order_count": "Order Count",
     "no_data": "No Data"
   },

@@ -397,8 +397,8 @@
     "reinvested": "已复投",
     "transferred_out": "已转出",
     "exited": "已出局",
-    "performance_title": "销售业绩",
-    "sales_amount": "销售总额",
+    "performance_title": "业绩",
+    "sales_amount": "总业绩",
     "order_count": "订单数",
     "no_data": "暂无数据"
   },
