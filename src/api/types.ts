@@ -142,6 +142,61 @@ export interface CacheStatusResponse {
   cacheSettings: CacheSettingsStatus
 }
 
+// ================================
+// 系统监控相关
+// ================================
+
+// WebSocket 服务状态
+export interface WebSocketStatus {
+  isRunning: boolean
+  isConnected: boolean
+  nftSubscriptionID: string
+  usdtSubscriptionID: string
+  picBurnSubscriptionID: string
+  usdtMonitorEnabled: boolean
+  picBurnMonitorEnabled: boolean
+  lastBlockNumber: number
+  wsUrl: string
+}
+
+// 事件驱动调度器状态
+export interface TaskDispatcherStatus {
+  isRunning: boolean
+  queueLength: number
+  queueCapacity: number
+  pendingTasks: number
+  workerCount: number
+  registeredTypes: string[]
+}
+
+// 定时任务协调器状态
+export interface TaskCoordinatorStatus {
+  totalTasks: number
+  successCount: number
+  successRate: number
+  avgWaitTime: string
+  avgExecutionTime: string
+  queueLength: number
+  currentTask: string
+}
+
+// 事件队列状态
+export interface EventQueueStatus {
+  totalProcessed: number
+  currentActive: number
+  lastActiveTime: string
+  averageWaitTime: string
+}
+
+// 监控状态响应
+export interface MonitoringStatusResponse {
+  timestamp: string
+  webSocket: WebSocketStatus
+  taskDispatcher: TaskDispatcherStatus
+  taskCoordinator: TaskCoordinatorStatus
+  eventQueues: Record<string, EventQueueStatus>
+}
+
 export interface CreateInviteCodeResponse {
   code: string
 }
