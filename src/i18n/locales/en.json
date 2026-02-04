@@ -60,7 +60,23 @@
     "invite_orders": "Invite Orders",
     "team_orders": "Team Orders",
     "person_unit": "",
-    "order_unit": ""
+    "order_unit": "",
+    "admin_data": "Admin Data",
+    "admin_data_desc": "View system operation data"
+  },
+  "admin": {
+    "title": "Operation Data",
+    "system_info": "System Info",
+    "current_time": "Current Time",
+    "timezone": "Timezone",
+    "global_stats": "Global Statistics",
+    "nft_sales": "Total NFT Sales",
+    "pic_minted": "Total PIC Minted",
+    "pic_burned": "Total PIC Burned",
+    "total_fees": "Total Fees",
+    "daily_fees": "Daily Fees",
+    "recent_fees": "Last 7 Days Fees",
+    "no_data": "No data"
   },
   "invite": {
     "title": "Invite Friends",

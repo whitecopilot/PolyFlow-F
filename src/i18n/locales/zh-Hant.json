@@ -60,7 +60,23 @@
     "invite_orders": "邀請單數",
     "team_orders": "團隊單數",
     "person_unit": "人",
-    "order_unit": "單"
+    "order_unit": "單",
+    "admin_data": "管理員數據",
+    "admin_data_desc": "查看系統運營數據"
+  },
+  "admin": {
+    "title": "運營數據",
+    "system_info": "系統資訊",
+    "current_time": "當前時間",
+    "timezone": "時區",
+    "global_stats": "全局統計",
+    "nft_sales": "NFT 銷售總額",
+    "pic_minted": "PIC 鑄造總量",
+    "pic_burned": "PIC 銷毀總量",
+    "total_fees": "累計手續費",
+    "daily_fees": "每日手續費",
+    "recent_fees": "最近 7 天手續費",
+    "no_data": "暫無數據"
   },
   "invite": {
     "title": "邀請好友",

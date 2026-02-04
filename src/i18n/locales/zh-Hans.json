@@ -60,7 +60,23 @@
     "invite_orders": "邀请单数",
     "team_orders": "团队单数",
     "person_unit": "人",
-    "order_unit": "单"
+    "order_unit": "单",
+    "admin_data": "管理员数据",
+    "admin_data_desc": "查看系统运营数据"
+  },
+  "admin": {
+    "title": "运营数据",
+    "system_info": "系统信息",
+    "current_time": "当前时间",
+    "timezone": "时区",
+    "global_stats": "全局统计",
+    "nft_sales": "NFT 销售总额",
+    "pic_minted": "PIC 铸造总量",
+    "pic_burned": "PIC 销毁总量",
+    "total_fees": "累计手续费",
+    "daily_fees": "每日手续费",
+    "recent_fees": "最近 7 天手续费",
+    "no_data": "暂无数据"
   },
   "invite": {
     "title": "邀请好友",

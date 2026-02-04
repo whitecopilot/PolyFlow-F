@@ -60,7 +60,23 @@
     "invite_orders": "招待注文数",
     "team_orders": "チーム注文数",
     "person_unit": "人",
-    "order_unit": "件"
+    "order_unit": "件",
+    "admin_data": "管理者データ",
+    "admin_data_desc": "システム運用データを表示"
+  },
+  "admin": {
+    "title": "運用データ",
+    "system_info": "システム情報",
+    "current_time": "現在時刻",
+    "timezone": "タイムゾーン",
+    "global_stats": "グローバル統計",
+    "nft_sales": "NFT 総売上",
+    "pic_minted": "PIC 総発行量",
+    "pic_burned": "PIC 総焼却量",
+    "total_fees": "累計手数料",
+    "daily_fees": "日次手数料",
+    "recent_fees": "過去 7 日間の手数料",
+    "no_data": "データなし"
   },
   "invite": {
     "title": "友達を招待",

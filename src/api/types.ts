@@ -93,6 +93,53 @@ export interface UserProfile {
 export interface UserOverview {
   is_active: boolean  // 是否为激活状态（可生成邀请码、访问邀请页面）
   hasInviter: boolean // 是否已绑定邀请人
+  adminType: number   // 管理员类型: 0=普通用户, 1=普通管理员, 2=超级管理员
+}
+
+// 管理员类型常量
+export const AdminType = {
+  Normal: 0,      // 普通用户
+  Admin: 1,       // 普通管理员
+  SuperAdmin: 2,  // 超级管理员
+} as const
+
+// ================================
+// 管理员相关
+// ================================
+
+// 全局统计缓存状态
+export interface GlobalStatsStatus {
+  totalNFTSales: number   // NFT 销售总额
+  totalPICMinted: number  // PIC 铸造总量
+  totalPICBurned: number  // PIC 销毁总量
+  totalFees: number       // 累计手续费
+}
+
+// 每日手续费状态
+export interface DailyFeesStatus {
+  date: string
+  fees: number
+}
+
+// 系统信息状态
+export interface SystemInfoStatus {
+  currentTime: string
+  timezone: string
+  today: string
+}
+
+// 缓存配置状态
+export interface CacheSettingsStatus {
+  defaultTTL: string
+  cleanupInterval: string
+}
+
+// 缓存状态响应
+export interface CacheStatusResponse {
+  globalStats: GlobalStatsStatus
+  dailyFees: DailyFeesStatus[]
+  systemInfo: SystemInfoStatus
+  cacheSettings: CacheSettingsStatus
 }
 
 export interface CreateInviteCodeResponse {
@@ -192,6 +239,7 @@ export interface UserAssets {
   // 用户状态（原 /me 接口字段，合并到此处减少请求）
   is_active?: boolean   // 是否为激活状态（可生成邀请码、访问邀请页面）
   hasInviter?: boolean  // 是否已绑定邀请人
+  adminType?: number    // 管理员类型: 0=普通用户, 1=普通管理员, 2=超级管理员
 
   // 价格信息
   prices?: PriceInfo

@@ -60,7 +60,23 @@
     "invite_orders": "초대 주문수",
     "team_orders": "팀 주문수",
     "person_unit": "명",
-    "order_unit": "건"
+    "order_unit": "건",
+    "admin_data": "관리자 데이터",
+    "admin_data_desc": "시스템 운영 데이터 보기"
+  },
+  "admin": {
+    "title": "운영 데이터",
+    "system_info": "시스템 정보",
+    "current_time": "현재 시간",
+    "timezone": "시간대",
+    "global_stats": "전체 통계",
+    "nft_sales": "NFT 총 매출",
+    "pic_minted": "PIC 총 발행량",
+    "pic_burned": "PIC 총 소각량",
+    "total_fees": "누적 수수료",
+    "daily_fees": "일일 수수료",
+    "recent_fees": "최근 7일 수수료",
+    "no_data": "데이터 없음"
   },
   "invite": {
     "title": "친구 초대",

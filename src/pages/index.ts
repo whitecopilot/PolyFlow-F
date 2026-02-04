@@ -1,3 +1,4 @@
+export { AdminDataPage } from './AdminDataPage'
 export { LoginPage } from './LoginPage'
 export { HomePage } from './HomePage'
 export { RewardsPage } from './RewardsPage'
