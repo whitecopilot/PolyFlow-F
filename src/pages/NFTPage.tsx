@@ -22,6 +22,7 @@ import { useTranslation } from 'react-i18next'
 import {
   ActionButton,
   GradientBorderCard,
+  LazyVideo,
   NFTBadge,
   PageHeader,
 } from '../components/common'
@@ -1016,26 +1017,13 @@ export function NFTPage() {
                         {t('nft.current_pid_price')}: ${priceInfo.pidPrice.toFixed(4)}
                       </Text>
                     </Box>
-                    <Box
-                      w="72px"
-                      h="72px"
+                    <LazyVideo
+                      src={getNFTVideoUrl(selectedConfig.level)}
+                      width="72px"
+                      height="72px"
                       borderRadius="lg"
-                      overflow="hidden"
-                      flexShrink={0}
-                    >
-                      <video
-                        src={getNFTVideoUrl(selectedConfig.level)}
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                        }}
-                      />
-                    </Box>
+                      rootMargin="50px 0px"
+                    />
                   </Flex>
                 )}
 
@@ -1198,26 +1186,12 @@ export function NFTPage() {
                   >
                     <Flex justify="space-between" align="center">
                       <HStack gap={3}>
-                        <Box
-                          w="56px"
-                          h="56px"
+                        <LazyVideo
+                          src={getNFTVideoUrl(config.level)}
+                          width="56px"
+                          height="56px"
                           borderRadius="lg"
-                          overflow="hidden"
-                          flexShrink={0}
-                        >
-                          <video
-                            src={getNFTVideoUrl(config.level)}
-                            autoPlay
-                            loop
-                            muted
-                            playsInline
-                            style={{
-                              width: '100%',
-                              height: '100%',
-                              objectFit: 'cover',
-                            }}
-                          />
-                        </Box>
+                        />
                         <VStack align="start" gap={0}>
                           <Text fontSize="sm" fontWeight="600" color="white">
                             {config.level} {t(`nft_level.${config.level}`)}
@@ -1258,25 +1232,14 @@ export function NFTPage() {
         </Box>
 
         {/* N5 展示视频 */}
-        <Box
-          w="full"
+        <LazyVideo
+          src={getNFTVideoUrl('N5')}
+          width="100%"
+          height="auto"
+          aspectRatio="1/1"
           borderRadius="xl"
-          overflow="hidden"
-          bg="#17171C"
-        >
-          <video
-            src={getNFTVideoUrl('N5')}
-            autoPlay
-            loop
-            muted
-            playsInline
-            style={{
-              width: '100%',
-              height: 'auto',
-              display: 'block',
-            }}
-          />
-        </Box>
+          rootMargin="200px 0px"
+        />
 
         {/* 底部间距 */}
         <Box h="24" />
