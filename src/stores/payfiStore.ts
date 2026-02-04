@@ -226,7 +226,7 @@ const convertPriceInfo = (apiPrice: ApiPriceInfo): PriceInfo => ({
 })
 
 // 转换 API UserRelation 到 TeamMember
-const convertToTeamMember = (relation: UserRelation, index: number, isDirectReferral: boolean): TeamMember => {
+const convertToTeamMember = (relation: UserRelation, isDirectReferral: boolean): TeamMember => {
   // 安全解析日期
   let joinedAt: Date
   try {
@@ -240,7 +240,7 @@ const convertToTeamMember = (relation: UserRelation, index: number, isDirectRefe
   }
 
   return {
-    id: index + 1,
+    id: relation.id,
     address: relation.address,
     nftLevel: null, // 第一阶段都是 null
     nodeLevel: 'P0', // 第一阶段都是 P0
@@ -748,11 +748,11 @@ export const usePayFiStore = create<PayFiState>()(
               userApi.getUserRelations(UserRelationType.Indirect, 1, 50),
             ])
 
-            const directMembers = (directResult.items || []).map((r, i) =>
-              convertToTeamMember(r, i, true)
+            const directMembers = (directResult.items || []).map((r) =>
+              convertToTeamMember(r, true)
             )
-            const indirectMembers = (indirectResult.items || []).map((r, i) =>
-              convertToTeamMember(r, directMembers.length + i, false)
+            const indirectMembers = (indirectResult.items || []).map((r) =>
+              convertToTeamMember(r, false)
             )
 
             // 合并并按地址去重，直推优先

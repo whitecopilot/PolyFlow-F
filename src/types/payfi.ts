@@ -212,6 +212,30 @@ export function isUserActivated(state: number): boolean {
   return activatedStates.includes(state)
 }
 
+// 用户状态显示类型
+export type UserStateDisplay = 'activated' | 'not_activated' | 'reinvested' | 'transferred_out' | 'exited'
+
+// 获取用户状态显示信息
+// 返回值: { display: 显示类型, isActive: 是否算作激活状态 }
+export function getUserStateDisplay(state: number): { display: UserStateDisplay; isActive: boolean } {
+  switch (state) {
+    case UserStateEnum.Invested:     // 1 - 已投资
+    case UserStateEnum.TransIn:      // 2 - 转入
+    case UserStateEnum.OutReTransIn: // 5 - 出局后转入激活
+      return { display: 'activated', isActive: true }
+    case UserStateEnum.ReInvested:   // 6 - 已复投
+      return { display: 'reinvested', isActive: true }
+    case UserStateEnum.FullTransOut: // 3 - 已转出
+      return { display: 'transferred_out', isActive: false }
+    case UserStateEnum.Out:          // 4 - 已出局
+      return { display: 'exited', isActive: false }
+    case UserStateEnum.UnInvested:   // 0 - 未投资
+    case UserStateEnum.Banned:       // 7 - 已封禁
+    default:
+      return { display: 'not_activated', isActive: false }
+  }
+}
+
 export interface TeamMember {
   id: number;
   address: string;

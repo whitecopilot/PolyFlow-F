@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next'
 import { CombinedBadges, MobileDatePicker } from '../components/common'
 import { SecondaryPageHeader } from '../components/layout'
 import { usePayFiStore } from '../stores/payfiStore'
-import { isUserActivated, type TeamMember } from '../types/payfi'
+import { getUserStateDisplay, type TeamMember } from '../types/payfi'
 import { getDirectMemberPerformance } from '../api/payfi'
 import type { DirectMemberPerformanceResponse } from '../api/types'
 
@@ -616,13 +616,18 @@ function TeamMemberItem({ member, delay, onClick }: TeamMemberItemProps) {
         </HStack>
         <HStack gap={2} flexShrink={0}>
           <VStack align="end" gap={0}>
-            <Text
-              fontSize="sm"
-              fontWeight="600"
-              color={isUserActivated(member.state) ? 'white' : 'whiteAlpha.500'}
-            >
-              {isUserActivated(member.state) ? t('team_members.activated') : t('team_members.not_activated')}
-            </Text>
+            {(() => {
+              const stateInfo = getUserStateDisplay(member.state)
+              return (
+                <Text
+                  fontSize="sm"
+                  fontWeight="600"
+                  color={stateInfo.isActive ? 'white' : 'whiteAlpha.500'}
+                >
+                  {t(`team_members.${stateInfo.display}`)}
+                </Text>
+              )
+            })()}
             <Text fontSize="xs" color="whiteAlpha.500">
               {member.joinedAt ? formatDate(member.joinedAt) : '-'}
             </Text>

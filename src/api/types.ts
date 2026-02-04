@@ -202,6 +202,7 @@ export interface CreateInviteCodeResponse {
 }
 
 export interface UserRelation {
+  id: number
   address: string
   referrerAddress: string
   createdAt: string
