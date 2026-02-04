@@ -1,10 +1,10 @@
 import { Box, Button, Flex, Input, Text, VStack } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
-import { HiOutlineTicket, HiOutlineWallet, HiOutlineExclamationCircle } from 'react-icons/hi2'
+import { useTranslation } from 'react-i18next'
+import { HiOutlineExclamationCircle, HiOutlineTicket, HiOutlineWallet } from 'react-icons/hi2'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useConnect } from 'wagmi'
-import { useTranslation } from 'react-i18next'
 import { PolyFlowLogo } from '../components/common'
 import { useAuth } from '../hooks/useAuth'
 
@@ -308,7 +308,7 @@ export function LoginPage() {
                   <Flex align="center" justify="center" gap="2">
                     <HiOutlineTicket size={16} color="#9A9A9F" />
                     <Text fontSize="sm" color="text.secondary">
-                      {t('login.invite_code')}: <Text as="span" color="brand.primary" fontWeight="600">{urlInviteCode}</Text>
+                      {t('login.invite_code')}: <Text as="span" color="whiteAlpha.800" fontWeight="600">{urlInviteCode}</Text>
                     </Text>
                   </Flex>
                 </Box>
@@ -370,7 +370,7 @@ export function LoginPage() {
                     <Flex align="center" justify="center" gap="2">
                       <HiOutlineTicket size={16} color="#9A9A9F" />
                       <Text fontSize="sm" color="text.secondary">
-                        {t('login.invite_code')}: <Text as="span" color="brand.primary" fontWeight="600">{finalInviteCode}</Text>
+                        {t('login.invite_code')}: <Text as="span" color="whiteAlpha.800" fontWeight="600">{finalInviteCode}</Text>
                       </Text>
                     </Flex>
                   </Box>
