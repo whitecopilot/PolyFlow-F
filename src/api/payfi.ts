@@ -78,11 +78,11 @@ export async function getRewardsByType(
   return get<PaginatedDataWithSummary<RewardRecordResponse>>(`/rewards/${type}`, { page, pageSize })
 }
 
-// 获取团队业绩数据
-export async function getTeamPerformance(
+// 获取团队质押业绩数据
+export async function getTeamStakingPerformance(
   params?: TeamPerformanceRequest
 ): Promise<TeamPerformanceResponse> {
-  return get<TeamPerformanceResponse>('/team/performance', params as Record<string, string | number | boolean | undefined>)
+  return get<TeamPerformanceResponse>('/team/staking-performance', params as Record<string, string | number | boolean | undefined>)
 }
 
 // 获取直推用户业绩
@@ -109,7 +109,7 @@ export const payfiApi = {
   getReleaseSummary,
   getTeamStats,
   getRewardsByType,
-  getTeamPerformance,
+  getTeamStakingPerformance,
   getDirectMemberPerformance,
 }
 

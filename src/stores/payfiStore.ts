@@ -89,6 +89,18 @@ interface TeamPerformanceListState {
   endDate?: string
 }
 
+// 团队成员列表状态
+interface TeamMembersListState {
+  items: TeamMember[]
+  directPage: number
+  indirectPage: number
+  directTotal: number
+  indirectTotal: number
+  hasMoreDirect: boolean
+  hasMoreIndirect: boolean
+  isLoadingMore: boolean
+}
+
 // Store 状态
 interface PayFiState {
   // 数据状态
@@ -101,7 +113,8 @@ interface PayFiState {
   rewardRecords: RewardRecord[]
   rewardListState: RewardListState  // 奖励列表分页状态
   withdrawRecords: WithdrawRecord[]
-  teamMembers: TeamMember[]
+  teamMembers: TeamMember[]  // 兼容旧代码
+  teamMembersState: TeamMembersListState  // 团队成员分页状态
   systemStats: SystemStats | null
   nftOrders: NFTOrder[]
 
@@ -143,6 +156,8 @@ interface PayFiState {
   resetRewardList: () => void  // 重置奖励列表状态
   fetchWithdrawRecords: () => Promise<void>
   fetchTeamMembers: () => Promise<void>
+  loadMoreTeamMembers: () => Promise<void>
+  resetTeamMembers: () => void
   fetchInviteCode: () => Promise<void>
   fetchNFTOrders: () => Promise<void>
   fetchUserNFTList: (page?: number, pageSize?: number) => Promise<void>
@@ -356,6 +371,16 @@ export const usePayFiStore = create<PayFiState>()(
       },
       withdrawRecords: [],
       teamMembers: [],
+      teamMembersState: {
+        items: [],
+        directPage: 0,
+        indirectPage: 0,
+        directTotal: 0,
+        indirectTotal: 0,
+        hasMoreDirect: true,
+        hasMoreIndirect: true,
+        isLoadingMore: false,
+      },
       systemStats: null,
       nftOrders: [],
       nftHoldings: [],
@@ -740,12 +765,13 @@ export const usePayFiStore = create<PayFiState>()(
       },
 
       fetchTeamMembers: async () => {
+        const PAGE_SIZE = 20
         return dedupeRequest('teamMembers', async () => {
           try {
-            // 先获取直推，再获取间推
+            // 获取第一页数据
             const [directResult, indirectResult] = await Promise.all([
-              userApi.getUserRelations(UserRelationType.Direct, 1, 50),
-              userApi.getUserRelations(UserRelationType.Indirect, 1, 50),
+              userApi.getUserRelations(UserRelationType.Direct, 1, PAGE_SIZE),
+              userApi.getUserRelations(UserRelationType.Indirect, 1, PAGE_SIZE),
             ])
 
             const directMembers = (directResult.items || []).map((r) =>
@@ -761,10 +787,109 @@ export const usePayFiStore = create<PayFiState>()(
               index === self.findIndex((m) => m.address.toLowerCase() === member.address.toLowerCase())
             )
 
-            set({ teamMembers: uniqueMembers })
+            const hasMoreDirect = directResult.total > PAGE_SIZE
+            const hasMoreIndirect = indirectResult.total > PAGE_SIZE
+
+            set({
+              teamMembers: uniqueMembers,
+              teamMembersState: {
+                items: uniqueMembers,
+                directPage: 1,
+                indirectPage: 1,
+                directTotal: directResult.total,
+                indirectTotal: indirectResult.total,
+                hasMoreDirect,
+                hasMoreIndirect,
+                isLoadingMore: false,
+              },
+            })
           } catch (error) {
             console.error('获取团队成员失败:', error)
           }
+        })
+      },
+
+      loadMoreTeamMembers: async () => {
+        const PAGE_SIZE = 20
+        const state = get()
+        const { teamMembersState } = state
+
+        if (teamMembersState.isLoadingMore) return
+        if (!teamMembersState.hasMoreDirect && !teamMembersState.hasMoreIndirect) return
+
+        set({
+          teamMembersState: {
+            ...teamMembersState,
+            isLoadingMore: true,
+          },
+        })
+
+        try {
+          const newMembers: TeamMember[] = []
+          let newDirectPage = teamMembersState.directPage
+          let newIndirectPage = teamMembersState.indirectPage
+          let hasMoreDirect = teamMembersState.hasMoreDirect
+          let hasMoreIndirect = teamMembersState.hasMoreIndirect
+
+          // 优先加载直推
+          if (teamMembersState.hasMoreDirect) {
+            const nextPage = teamMembersState.directPage + 1
+            const result = await userApi.getUserRelations(UserRelationType.Direct, nextPage, PAGE_SIZE)
+            const members = (result.items || []).map((r) => convertToTeamMember(r, true))
+            newMembers.push(...members)
+            newDirectPage = nextPage
+            hasMoreDirect = nextPage * PAGE_SIZE < result.total
+          } else if (teamMembersState.hasMoreIndirect) {
+            // 直推加载完了，加载间推
+            const nextPage = teamMembersState.indirectPage + 1
+            const result = await userApi.getUserRelations(UserRelationType.Indirect, nextPage, PAGE_SIZE)
+            const members = (result.items || []).map((r) => convertToTeamMember(r, false))
+            newMembers.push(...members)
+            newIndirectPage = nextPage
+            hasMoreIndirect = nextPage * PAGE_SIZE < result.total
+          }
+
+          // 合并并去重
+          const existingAddresses = new Set(teamMembersState.items.map((m) => m.address.toLowerCase()))
+          const uniqueNewMembers = newMembers.filter((m) => !existingAddresses.has(m.address.toLowerCase()))
+          const allItems = [...teamMembersState.items, ...uniqueNewMembers]
+
+          set({
+            teamMembers: allItems,
+            teamMembersState: {
+              ...teamMembersState,
+              items: allItems,
+              directPage: newDirectPage,
+              indirectPage: newIndirectPage,
+              hasMoreDirect,
+              hasMoreIndirect,
+              isLoadingMore: false,
+            },
+          })
+        } catch (error) {
+          console.error('加载更多团队成员失败:', error)
+          set({
+            teamMembersState: {
+              ...teamMembersState,
+              isLoadingMore: false,
+            },
+          })
+        }
+      },
+
+      resetTeamMembers: () => {
+        set({
+          teamMembers: [],
+          teamMembersState: {
+            items: [],
+            directPage: 0,
+            indirectPage: 0,
+            directTotal: 0,
+            indirectTotal: 0,
+            hasMoreDirect: true,
+            hasMoreIndirect: true,
+            isLoadingMore: false,
+          },
         })
       },
 
@@ -850,7 +975,7 @@ export const usePayFiStore = create<PayFiState>()(
         const pageSize = params?.pageSize || 20
         return dedupeRequest(`teamPerformance-${page}-${params?.startDate}-${params?.endDate}`, async () => {
           try {
-            const result = await payfiApi.getTeamPerformance({
+            const result = await payfiApi.getTeamStakingPerformance({
               ...params,
               page,
               pageSize,
@@ -903,7 +1028,7 @@ export const usePayFiStore = create<PayFiState>()(
         })
 
         try {
-          const result = await payfiApi.getTeamPerformance({
+          const result = await payfiApi.getTeamStakingPerformance({
             page: nextPage,
             pageSize: 20,
             startDate: teamPerformanceState.startDate,
@@ -1113,6 +1238,16 @@ export const usePayFiStore = create<PayFiState>()(
         },
         withdrawRecords: [],
         teamMembers: [],
+        teamMembersState: {
+          items: [],
+          directPage: 0,
+          indirectPage: 0,
+          directTotal: 0,
+          indirectTotal: 0,
+          hasMoreDirect: true,
+          hasMoreIndirect: true,
+          isLoadingMore: false,
+        },
         systemStats: null,
         nftOrders: [],
         nftHoldings: [],

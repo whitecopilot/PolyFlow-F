@@ -157,19 +157,27 @@ export function TeamPerformancePage() {
   const stakeCount = teamPerformanceState.items.filter((item) => item.type === 'stake').length
   const burnCount = teamPerformanceState.items.filter((item) => item.type === 'burn').length
 
-  // 处理滚动加载更多
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget
-    if (scrollHeight - scrollTop - clientHeight < 100 && teamPerformanceState.hasMore && !teamPerformanceState.isLoadingMore) {
-      loadMoreTeamPerformance()
+  // 处理滚动加载更多 - 监听 window 滚动
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop
+      const scrollHeight = document.documentElement.scrollHeight
+      const clientHeight = window.innerHeight
+
+      if (scrollHeight - scrollTop - clientHeight < 100 && teamPerformanceState.hasMore && !teamPerformanceState.isLoadingMore) {
+        loadMoreTeamPerformance()
+      }
     }
-  }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [teamPerformanceState.hasMore, teamPerformanceState.isLoadingMore, loadMoreTeamPerformance])
 
   // 是否有筛选条件
   const hasFilter = timeRange !== 'all'
 
   return (
-    <Box minH="100vh" bg="#111111" onScroll={handleScroll} overflowY="auto">
+    <Box minH="100vh" bg="#111111">
       <SecondaryPageHeader title={t('team_performance.title')} />
 
       <VStack gap="4" p="4" align="stretch">

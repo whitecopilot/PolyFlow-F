@@ -57,7 +57,7 @@ function getDateRange(range: TimeRange, customStart?: string, customEnd?: string
 
 export function TeamMembersPage() {
   const { t } = useTranslation()
-  const { teamStats, teamMembers, fetchTeamMembers } = usePayFiStore()
+  const { teamStats, teamMembers, teamMembersState, fetchTeamMembers, loadMoreTeamMembers } = usePayFiStore()
   const [activeTab, setActiveTab] = useState<'all' | 'direct'>('all')
   const fetchedRef = useRef(false)
 
@@ -78,6 +78,25 @@ export function TeamMembersPage() {
     fetchedRef.current = true
     fetchTeamMembers()
   }, [fetchTeamMembers])
+
+  // 判断是否还有更多数据
+  const hasMore = teamMembersState.hasMoreDirect || teamMembersState.hasMoreIndirect
+
+  // 处理滚动加载更多 - 监听 window 滚动
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop
+      const scrollHeight = document.documentElement.scrollHeight
+      const clientHeight = window.innerHeight
+
+      if (scrollHeight - scrollTop - clientHeight < 100 && hasMore && !teamMembersState.isLoadingMore) {
+        loadMoreTeamMembers()
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [hasMore, teamMembersState.isLoadingMore, loadMoreTeamMembers])
 
   // 抽屉打开时禁止背景滚动
   useEffect(() => {
@@ -214,6 +233,15 @@ export function TeamMembersPage() {
                 />
               ))}
           </VStack>
+        )}
+
+        {/* 加载更多提示 */}
+        {teamMembersState.isLoadingMore && (
+          <Flex justify="center" py={4}>
+            <Text fontSize="sm" color="whiteAlpha.500">
+              {t('common.loading')}
+            </Text>
+          </Flex>
         )}
 
         {/* 底部间距 */}
