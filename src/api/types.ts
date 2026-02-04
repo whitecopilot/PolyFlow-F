@@ -89,10 +89,105 @@ export interface UserProfile {
   createdAt: string
 }
 
-// UserOverview 用户概览（简化版，仅包含必需字段）
-export interface UserOverview {
-  is_active: boolean  // 是否为激活状态（可生成邀请码、访问邀请页面）
-  hasInviter: boolean // 是否已绑定邀请人
+// 管理员类型常量
+export const AdminType = {
+  Normal: 0,      // 普通用户
+  Admin: 1,       // 普通管理员
+  SuperAdmin: 2,  // 超级管理员
+} as const
+
+// ================================
+// 管理员相关
+// ================================
+
+// 全局统计缓存状态
+export interface GlobalStatsStatus {
+  totalNFTSales: number   // NFT 销售总额
+  totalPICMinted: number  // PIC 铸造总量
+  totalPICBurned: number  // PIC 销毁总量
+  totalFees: number       // 累计手续费
+}
+
+// 每日手续费状态
+export interface DailyFeesStatus {
+  date: string
+  fees: number
+}
+
+// 系统信息状态
+export interface SystemInfoStatus {
+  currentTime: string
+  timezone: string
+  today: string
+}
+
+// 缓存配置状态
+export interface CacheSettingsStatus {
+  defaultTTL: string
+  cleanupInterval: string
+}
+
+// 缓存状态响应
+export interface CacheStatusResponse {
+  globalStats: GlobalStatsStatus
+  dailyFees: DailyFeesStatus[]
+  systemInfo: SystemInfoStatus
+  cacheSettings: CacheSettingsStatus
+}
+
+// ================================
+// 系统监控相关
+// ================================
+
+// WebSocket 服务状态
+export interface WebSocketStatus {
+  isRunning: boolean
+  isConnected: boolean
+  nftSubscriptionID: string
+  usdtSubscriptionID: string
+  picBurnSubscriptionID: string
+  usdtMonitorEnabled: boolean
+  picBurnMonitorEnabled: boolean
+  lastBlockNumber: number
+  wsUrl: string
+}
+
+// 事件驱动调度器状态
+export interface TaskDispatcherStatus {
+  isRunning: boolean
+  queueLength: number
+  queueCapacity: number
+  pendingTasks: number
+  workerCount: number
+  registeredTypes: string[]
+}
+
+// 定时任务协调器状态
+export interface TaskCoordinatorStatus {
+  totalTasks: number
+  successCount: number
+  successRate: number
+  avgWaitTime: string
+  avgExecutionTime: string
+  queueLength: number
+  currentTask: string
+}
+
+// 事件队列状态
+export interface EventQueueStatus {
+  totalProcessed: number
+  currentActive: number
+  lastActiveTime: string
+  averageWaitTime: string
+}
+
+// 监控状态响应
+export interface MonitoringStatusResponse {
+  timestamp: string
+  webSocket: WebSocketStatus
+  taskDispatcher: TaskDispatcherStatus
+  taskCoordinator: TaskCoordinatorStatus
+  eventQueues: Record<string, EventQueueStatus>
 }
 
 export interface CreateInviteCodeResponse {
@@ -100,6 +195,7 @@ export interface CreateInviteCodeResponse {
 }
 
 export interface UserRelation {
+  id: number
   address: string
   referrerAddress: string
   createdAt: string
@@ -192,6 +288,7 @@ export interface UserAssets {
   // 用户状态（原 /me 接口字段，合并到此处减少请求）
   is_active?: boolean   // 是否为激活状态（可生成邀请码、访问邀请页面）
   hasInviter?: boolean  // 是否已绑定邀请人
+  adminType?: number    // 管理员类型: 0=普通用户, 1=普通管理员, 2=超级管理员
 
   // 价格信息
   prices?: PriceInfo
@@ -239,6 +336,8 @@ export interface TeamStatsResponse {
   teamCount: number           // 团队总人数
   teamOrderCount: number      // 团队总单数
   nodeLevel: string           // 节点等级
+  todayStakingAmount: string  // 日新增算力值 (USDT)
+  todayStakingCount: number   // 今日质押笔数
 }
 
 export interface DailyReward {
@@ -609,4 +708,22 @@ export interface TeamPerformanceResponse {
   pageSize: number
   total: number
   totalPages: number
+}
+
+// ================================
+// 直推用户业绩相关
+// ================================
+
+// 直推用户业绩请求参数
+export interface DirectMemberPerformanceRequest {
+  targetUserId: number
+  startDate?: string
+  endDate?: string
+}
+
+// 直推用户业绩响应
+export interface DirectMemberPerformanceResponse {
+  totalAmount: number   // 销售业绩总金额
+  orderCount: number    // 订单数
+  userAddress: string   // 用户地址
 }

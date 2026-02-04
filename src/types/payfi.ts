@@ -55,6 +55,7 @@ export interface UserAssets {
   // 用户状态（原 /me 接口字段，合并到 /assets 接口减少请求）
   is_active?: boolean;   // 是否为激活状态（可生成邀请码、访问邀请页面）
   hasInviter?: boolean;  // 是否已绑定邀请人
+  adminType?: number;    // 管理员类型: 0=普通用户, 1=普通管理员, 2=超级管理员
 
   // 功能开关
   featureFlags?: FeatureFlags;
@@ -107,6 +108,8 @@ export interface TeamStats {
   maxLinePerf: number;         // 大区业绩 - 质押业绩(USDT)
   smallAreaPerf: number;       // 小区业绩 - 质押业绩
   nodeLevel: NodeLevel;        // 节点等级
+  todayStakingAmount: number;  // 日新增算力值 (USDT)
+  todayStakingCount: number;   // 今日质押笔数
 }
 
 // 收益统计
@@ -207,6 +210,30 @@ export function isUserActivated(state: number): boolean {
     UserStateEnum.ReInvested,
   ]
   return activatedStates.includes(state)
+}
+
+// 用户状态显示类型
+export type UserStateDisplay = 'activated' | 'not_activated' | 'reinvested' | 'transferred_out' | 'exited'
+
+// 获取用户状态显示信息
+// 返回值: { display: 显示类型, isActive: 是否算作激活状态 }
+export function getUserStateDisplay(state: number): { display: UserStateDisplay; isActive: boolean } {
+  switch (state) {
+    case UserStateEnum.Invested:     // 1 - 已投资
+    case UserStateEnum.TransIn:      // 2 - 转入
+    case UserStateEnum.OutReTransIn: // 5 - 出局后转入激活
+      return { display: 'activated', isActive: true }
+    case UserStateEnum.ReInvested:   // 6 - 已复投
+      return { display: 'reinvested', isActive: true }
+    case UserStateEnum.FullTransOut: // 3 - 已转出
+      return { display: 'transferred_out', isActive: false }
+    case UserStateEnum.Out:          // 4 - 已出局
+      return { display: 'exited', isActive: false }
+    case UserStateEnum.UnInvested:   // 0 - 未投资
+    case UserStateEnum.Banned:       // 7 - 已封禁
+    default:
+      return { display: 'not_activated', isActive: false }
+  }
 }
 
 export interface TeamMember {

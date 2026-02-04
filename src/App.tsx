@@ -1,7 +1,8 @@
 import { ChakraProvider } from '@chakra-ui/react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-import { AuthGuard, MobileLayout, ProtectedRoute, SecondaryLayout } from './components/layout'
+import { AdminRoute, AuthGuard, MobileLayout, ProtectedRoute, SecondaryLayout } from './components/layout'
 import {
+  AdminDataPage,
   AssetsPage,
   BurnRecordsPage,
   HomePage,
@@ -68,6 +69,14 @@ function App() {
               <Route path="/team-members" element={<TeamMembersPage />} />
               <Route path="/team-performance" element={<TeamPerformancePage />} />
               <Route path="/nft-list" element={<NFTListPage />} />
+              <Route
+                path="/admin-data"
+                element={
+                  <AdminRoute>
+                    <AdminDataPage />
+                  </AdminRoute>
+                }
+              />
             </Route>
 
             {/* 404 重定向到首页 */}

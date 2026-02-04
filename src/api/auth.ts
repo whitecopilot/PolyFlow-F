@@ -6,7 +6,6 @@ import type {
   LoginRequest,
   LoginResponse,
   BindInviterRequest,
-  UserOverview,
   CreateInviteCodeResponse,
 } from './types'
 
@@ -27,11 +26,6 @@ export async function login(data: LoginRequest): Promise<LoginResponse> {
   return response
 }
 
-// 获取当前用户信息
-export async function getMe(): Promise<UserOverview> {
-  return get<UserOverview>('/me')
-}
-
 // 生成邀请码
 export async function createInviteCode(): Promise<CreateInviteCodeResponse> {
   return get<CreateInviteCodeResponse>('/me/invite')
@@ -46,7 +40,6 @@ export async function bindInviter(data: BindInviterRequest): Promise<{ message: 
 export const authApi = {
   getNonce,
   login,
-  getMe,
   createInviteCode,
   bindInviter,
 }

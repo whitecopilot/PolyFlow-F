@@ -9,6 +9,7 @@ import {
   HiOutlineChartBar,
   HiOutlineCheckCircle,
   HiOutlineChevronRight,
+  HiOutlineCog6Tooth,
   HiOutlineCurrencyDollar,
   HiOutlineDocumentText,
   HiOutlineTrophy,
@@ -23,6 +24,7 @@ import {
   NodeBadge,
   PageHeader,
 } from '../components/common'
+import { AdminType } from '../api/types'
 import { usePayFiStore } from '../stores/payfiStore'
 
 const MotionBox = motion.create(Box)
@@ -45,6 +47,9 @@ export function TeamPage() {
     fetchTeamStats,
     fetchNodeLevelConfigs,
   } = usePayFiStore()
+
+  // 是否为超级管理员（从 /assets 接口返回的 adminType 判断）
+  const isSuperAdmin = userAssets?.adminType === AdminType.SuperAdmin
   const fetchedRef = useRef(false)
 
   useEffect(() => {
@@ -231,7 +236,7 @@ export function TeamPage() {
                 <Text fontSize="xs" color="whiteAlpha.600">{t('team.max_line_perf_value')}</Text>
               </HStack>
               <Text fontSize="xl" fontWeight="bold" color="white">
-                ${(teamStats?.maxLinePerf || 0).toLocaleString()}
+                ${(teamStats?.todayStakingAmount || 0).toLocaleString()}
               </Text>
             </MotionBox>
 
@@ -347,6 +352,44 @@ export function TeamPage() {
               </VStack>
             </MotionBox>
           </Box>
+        )}
+
+        {/* 管理员数据入口 - 仅超级管理员可见 */}
+        {isSuperAdmin && (
+          <MotionBox
+            bg="#17171C"
+            borderRadius="xl"
+            p="4"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            cursor="pointer"
+            onClick={() => navigate('/admin-data')}
+            _hover={{ bg: '#1f1f26' }}
+          >
+            <Flex justify="space-between" align="center">
+              <HStack gap={3}>
+                <Box
+                  bg="orange.500/20"
+                  p="2"
+                  borderRadius="lg"
+                >
+                  <HiOutlineCog6Tooth size={20} color="#F97316" />
+                </Box>
+                <VStack align="start" gap={0}>
+                  <Text fontSize="sm" fontWeight="600" color="white">
+                    {t('team.admin_data')}
+                  </Text>
+                  <Text fontSize="xs" color="whiteAlpha.500">
+                    {t('team.admin_data_desc')}
+                  </Text>
+                </VStack>
+              </HStack>
+              <Box color="whiteAlpha.400">
+                <HiOutlineChevronRight size={16} />
+              </Box>
+            </Flex>
+          </MotionBox>
         )}
 
         {/* 底部间距 */}

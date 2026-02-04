@@ -110,6 +110,18 @@ export function TeamPerformancePage() {
     }
   }, [fetchWithTimeRange, resetTeamPerformance, timeRange])
 
+  // 抽屉打开时禁止背景滚动
+  useEffect(() => {
+    if (showFilterDrawer) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [showFilterDrawer])
+
   // 打开筛选抽屉
   const openFilterDrawer = () => {
     setTempTimeRange(timeRange)

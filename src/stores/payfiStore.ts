@@ -211,6 +211,8 @@ const getDefaultTeamStats = (): TeamStats => ({
   teamPerformance: 0,
   smallAreaPerf: 0,
   maxLinePerf: 0,
+  todayStakingAmount: 0,
+  todayStakingCount: 0,
 })
 
 // 转换 API PriceInfo
@@ -224,7 +226,7 @@ const convertPriceInfo = (apiPrice: ApiPriceInfo): PriceInfo => ({
 })
 
 // 转换 API UserRelation 到 TeamMember
-const convertToTeamMember = (relation: UserRelation, index: number, isDirectReferral: boolean): TeamMember => {
+const convertToTeamMember = (relation: UserRelation, isDirectReferral: boolean): TeamMember => {
   // 安全解析日期
   let joinedAt: Date
   try {
@@ -238,7 +240,7 @@ const convertToTeamMember = (relation: UserRelation, index: number, isDirectRefe
   }
 
   return {
-    id: index + 1,
+    id: relation.id,
     address: relation.address,
     nftLevel: null, // 第一阶段都是 null
     nodeLevel: 'P0', // 第一阶段都是 P0
@@ -449,6 +451,7 @@ export const usePayFiStore = create<PayFiState>()(
               // 用户状态（原 /me 接口字段，合并到 /assets 接口）
               is_active: apiAssets.is_active,
               hasInviter: apiAssets.hasInviter,
+              adminType: apiAssets.adminType,
               // 功能开关（直接使用 API 返回的值）
               featureFlags: apiAssets.featureFlags,
               // NFT 相关
@@ -745,11 +748,11 @@ export const usePayFiStore = create<PayFiState>()(
               userApi.getUserRelations(UserRelationType.Indirect, 1, 50),
             ])
 
-            const directMembers = (directResult.items || []).map((r, i) =>
-              convertToTeamMember(r, i, true)
+            const directMembers = (directResult.items || []).map((r) =>
+              convertToTeamMember(r, true)
             )
-            const indirectMembers = (indirectResult.items || []).map((r, i) =>
-              convertToTeamMember(r, directMembers.length + i, false)
+            const indirectMembers = (indirectResult.items || []).map((r) =>
+              convertToTeamMember(r, false)
             )
 
             // 合并并按地址去重，直推优先
