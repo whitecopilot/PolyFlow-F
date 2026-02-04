@@ -211,6 +211,8 @@ const getDefaultTeamStats = (): TeamStats => ({
   teamPerformance: 0,
   smallAreaPerf: 0,
   maxLinePerf: 0,
+  todayStakingAmount: 0,
+  todayStakingCount: 0,
 })
 
 // 转换 API PriceInfo

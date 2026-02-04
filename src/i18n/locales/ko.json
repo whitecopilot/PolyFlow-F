@@ -375,7 +375,11 @@
     "no_members": "팀 멤버 없음",
     "invite_friends": "친구를 초대하여 팀에 합류하세요",
     "activated": "활성화됨",
-    "not_activated": "미활성화"
+    "not_activated": "미활성화",
+    "performance_title": "판매 실적",
+    "sales_amount": "판매 총액",
+    "order_count": "주문 수",
+    "no_data": "데이터 없음"
   },
   "burn_records": {
     "title": "소각 기록",

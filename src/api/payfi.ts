@@ -17,6 +17,8 @@ import type {
   SystemConfig,
   TeamPerformanceRequest,
   TeamPerformanceResponse,
+  DirectMemberPerformanceRequest,
+  DirectMemberPerformanceResponse,
 } from './types'
 
 // 获取价格信息（公开接口）
@@ -83,6 +85,18 @@ export async function getTeamPerformance(
   return get<TeamPerformanceResponse>('/team/performance', params as Record<string, string | number | boolean | undefined>)
 }
 
+// 获取直推用户业绩
+export async function getDirectMemberPerformance(
+  params: DirectMemberPerformanceRequest
+): Promise<DirectMemberPerformanceResponse> {
+  const queryParams: Record<string, string | number | boolean | undefined> = {
+    targetUserId: params.targetUserId,
+    startDate: params.startDate,
+    endDate: params.endDate,
+  }
+  return get<DirectMemberPerformanceResponse>('/team/direct-member-performance', queryParams)
+}
+
 // 导出 PayFi API
 export const payfiApi = {
   getPriceInfo,
@@ -96,6 +110,7 @@ export const payfiApi = {
   getTeamStats,
   getRewardsByType,
   getTeamPerformance,
+  getDirectMemberPerformance,
 }
 
 export default payfiApi

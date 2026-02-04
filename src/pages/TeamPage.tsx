@@ -236,7 +236,7 @@ export function TeamPage() {
                 <Text fontSize="xs" color="whiteAlpha.600">{t('team.max_line_perf_value')}</Text>
               </HStack>
               <Text fontSize="xl" fontWeight="bold" color="white">
-                ${(teamStats?.maxLinePerf || 0).toLocaleString()}
+                ${(teamStats?.todayStakingAmount || 0).toLocaleString()}
               </Text>
             </MotionBox>
 

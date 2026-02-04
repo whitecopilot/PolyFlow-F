@@ -393,7 +393,11 @@
     "no_members": "暂无团队成员",
     "invite_friends": "邀请好友加入你的团队",
     "activated": "已激活",
-    "not_activated": "未激活"
+    "not_activated": "未激活",
+    "performance_title": "销售业绩",
+    "sales_amount": "销售总额",
+    "order_count": "订单数",
+    "no_data": "暂无数据"
   },
   "burn_records": {
     "title": "销毁记录",

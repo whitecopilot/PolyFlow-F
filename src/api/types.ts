@@ -342,6 +342,8 @@ export interface TeamStatsResponse {
   teamCount: number           // 团队总人数
   teamOrderCount: number      // 团队总单数
   nodeLevel: string           // 节点等级
+  todayStakingAmount: string  // 日新增算力值 (USDT)
+  todayStakingCount: number   // 今日质押笔数
 }
 
 export interface DailyReward {
@@ -712,4 +714,22 @@ export interface TeamPerformanceResponse {
   pageSize: number
   total: number
   totalPages: number
+}
+
+// ================================
+// 直推用户业绩相关
+// ================================
+
+// 直推用户业绩请求参数
+export interface DirectMemberPerformanceRequest {
+  targetUserId: number
+  startDate?: string
+  endDate?: string
+}
+
+// 直推用户业绩响应
+export interface DirectMemberPerformanceResponse {
+  totalAmount: number   // 销售业绩总金额
+  orderCount: number    // 订单数
+  userAddress: string   // 用户地址
 }

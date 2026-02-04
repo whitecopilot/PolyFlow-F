@@ -375,7 +375,11 @@
     "no_members": "暫無團隊成員",
     "invite_friends": "邀請好友加入你的團隊",
     "activated": "已激活",
-    "not_activated": "未激活"
+    "not_activated": "未激活",
+    "performance_title": "銷售業績",
+    "sales_amount": "銷售總額",
+    "order_count": "訂單數",
+    "no_data": "暫無數據"
   },
   "burn_records": {
     "title": "銷毀記錄",

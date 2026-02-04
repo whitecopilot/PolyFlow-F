@@ -375,7 +375,11 @@
     "no_members": "チームメンバーなし",
     "invite_friends": "友達を招待してチームに参加させましょう",
     "activated": "活性化済み",
-    "not_activated": "未活性化"
+    "not_activated": "未活性化",
+    "performance_title": "販売実績",
+    "sales_amount": "販売総額",
+    "order_count": "注文数",
+    "no_data": "データなし"
   },
   "burn_records": {
     "title": "焼却記録",

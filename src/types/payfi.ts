@@ -108,6 +108,8 @@ export interface TeamStats {
   maxLinePerf: number;         // 大区业绩 - 质押业绩(USDT)
   smallAreaPerf: number;       // 小区业绩 - 质押业绩
   nodeLevel: NodeLevel;        // 节点等级
+  todayStakingAmount: number;  // 日新增算力值 (USDT)
+  todayStakingCount: number;   // 今日质押笔数
 }
 
 // 收益统计

@@ -393,7 +393,11 @@
     "no_members": "No team members",
     "invite_friends": "Invite friends to join your team",
     "activated": "Activated",
-    "not_activated": "Not Activated"
+    "not_activated": "Not Activated",
+    "performance_title": "Sales Performance",
+    "sales_amount": "Total Sales",
+    "order_count": "Order Count",
+    "no_data": "No Data"
   },
   "burn_records": {
     "title": "Burn Records",
