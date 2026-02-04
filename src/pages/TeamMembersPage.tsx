@@ -79,6 +79,18 @@ export function TeamMembersPage() {
     fetchTeamMembers()
   }, [fetchTeamMembers])
 
+  // 抽屉打开时禁止背景滚动
+  useEffect(() => {
+    if (showPerformanceDrawer) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [showPerformanceDrawer])
+
   // 查询直推用户业绩
   const fetchMemberPerformance = useCallback(async (memberId: number, range: TimeRange, customStart?: string, customEnd?: string) => {
     setIsLoadingPerformance(true)
