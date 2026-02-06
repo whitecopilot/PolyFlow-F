@@ -192,6 +192,7 @@ interface PayFiState {
 const getDefaultUserAssets = (): UserAssets => ({
   totalAssetValueUSDT: 0,
   usdtBalance: 0,
+  usdcBalance: 0,
   currentNFTLevel: null,
   nftCoefficient: 0,
   picBurnExitMultiplier: 0,
@@ -509,8 +510,9 @@ export const usePayFiStore = create<PayFiState>()(
               // 总资产估值
               totalAssetValueUSDT: apiAssets.totalAssetValueUSDT || 0,
 
-              // 钱包 USDT 余额
+              // 钱包 ERC20 余额
               usdtBalance: apiAssets.usdtBalance || 0,
+              usdcBalance: apiAssets.usdcBalance || 0,
             }
 
             // 同时从 assets API 提取价格信息
@@ -1273,6 +1275,8 @@ export const usePayFiStore = create<PayFiState>()(
       partialize: (state) => ({
         inviteCode: state.inviteCode,
         inviteLink: state.inviteLink,
+        nftLevelConfigs: state.nftLevelConfigs,
+        nodeLevelConfigs: state.nodeLevelConfigs,
       }),
     }
   )

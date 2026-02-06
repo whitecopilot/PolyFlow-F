@@ -145,8 +145,10 @@ export interface WebSocketStatus {
   isConnected: boolean
   nftSubscriptionID: string
   usdtSubscriptionID: string
+  usdcSubscriptionID: string
   picBurnSubscriptionID: string
   usdtMonitorEnabled: boolean
+  usdcMonitorEnabled: boolean
   picBurnMonitorEnabled: boolean
   lastBlockNumber: number
   wsUrl: string
@@ -299,6 +301,7 @@ export interface UserAssets {
   // 资产汇总
   totalAssetValueUSDT?: number  // 总资产估值 (USDT)
   usdtBalance?: number  // 用户钱包持有的 USDT 数量
+  usdcBalance?: number  // 用户钱包持有的 USDC 数量
 
   // NFT 资产
   nft?: NFTAssetsResponse
@@ -422,9 +425,12 @@ export interface SystemConfig {
   sameLevelRate: number      // 平级奖励
 }
 
+export type PaymentCurrency = 'USDT' | 'USDC'
+
 export interface CreateNFTOrderRequest {
   nftLevel: NFTLevel
   isUpgrade?: boolean
+  paymentCurrency?: PaymentCurrency
 }
 
 // 钱包交易参数（由钱包处理 gas 和签名）
@@ -443,6 +449,7 @@ export interface CreateNFTOrderResponse {
   pidAmount: number
   toAddress: string
   randomNumber: string
+  paymentCurrency: string
   transactionParams: WalletTransactionParams // 交易参数（由钱包处理 gas 和签名）
 }
 

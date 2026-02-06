@@ -326,8 +326,9 @@
     "acquire_time": "Acquired",
     "no_nft_holdings": "No NFT Holdings",
     "insufficient_balance": "Insufficient Balance",
-    "balance_hint": "Current balance: {{balance}} USDT, Required: {{required}} USDT",
-    "wallet_balance": "Wallet Balance"
+    "balance_hint": "Current balance: {{balance}} {{currency}}, Required: {{required}} {{currency}}",
+    "wallet_balance": "Wallet Balance",
+    "payment_method": "Payment"
   },
   "purchase": {
     "status_creating": "Creating order...",

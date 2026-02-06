@@ -309,8 +309,9 @@
     "source_transfer": "轉入",
     "no_nft_holdings": "暫無 NFT",
     "insufficient_balance": "餘額不足",
-    "balance_hint": "當前餘額: {{balance}} USDT，需要: {{required}} USDT",
-    "wallet_balance": "錢包餘額"
+    "balance_hint": "當前餘額: {{balance}} {{currency}}，需要: {{required}} {{currency}}",
+    "wallet_balance": "錢包餘額",
+    "payment_method": "支付方式"
   },
   "purchase": {
     "status_creating": "建立訂單中...",

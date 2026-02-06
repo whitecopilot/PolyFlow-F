@@ -308,8 +308,9 @@
     "source_transfer": "수신",
     "no_nft_holdings": "보유한 NFT가 없습니다",
     "insufficient_balance": "잔액 부족",
-    "balance_hint": "현재 잔액: {{balance}} USDT, 필요: {{required}} USDT",
-    "wallet_balance": "지갑 잔액"
+    "balance_hint": "현재 잔액: {{balance}} {{currency}}, 필요: {{required}} {{currency}}",
+    "wallet_balance": "지갑 잔액",
+    "payment_method": "결제 방식"
   },
   "purchase": {
     "status_creating": "주문 생성 중...",

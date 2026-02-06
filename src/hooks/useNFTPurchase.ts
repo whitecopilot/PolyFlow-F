@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { type Hex } from 'viem'
 import { useAccount, useSendTransaction } from 'wagmi'
 import { ApiError, nftApi } from '../api'
-import type { CreateNFTOrderResponse, NFTLevel } from '../api/types'
+import type { CreateNFTOrderResponse, NFTLevel, PaymentCurrency } from '../api/types'
 import { config as wagmiConfig } from '../config/wagmi'
 
 // 购买状态枚举
@@ -57,9 +57,9 @@ export function useNFTPurchase() {
 
   // 购买 NFT 完整流程
   const purchaseNFT = useCallback(
-    async (level: NFTLevel, isUpgrade: boolean = false): Promise<boolean> => {
+    async (level: NFTLevel, isUpgrade: boolean = false, paymentCurrency: PaymentCurrency = 'USDT'): Promise<boolean> => {
       console.log('[NFTPurchase] ========== 开始购买流程 ==========')
-      console.log('[NFTPurchase] 参数:', { level, isUpgrade })
+      console.log('[NFTPurchase] 参数:', { level, isUpgrade, paymentCurrency })
       console.log('[NFTPurchase] 钱包状态:', { address, isConnected })
 
       if (!level) {
@@ -84,6 +84,7 @@ export function useNFTPurchase() {
           orderResponse = await nftApi.createNFTOrder({
             nftLevel: level,
             isUpgrade,
+            paymentCurrency,
           })
           console.log('[NFTPurchase] 订单创建成功:', orderResponse)
         } catch (error) {
