@@ -308,8 +308,9 @@
     "source_transfer": "受取",
     "no_nft_holdings": "NFT がありません",
     "insufficient_balance": "残高不足",
-    "balance_hint": "現在残高: {{balance}} USDT、必要: {{required}} USDT",
-    "wallet_balance": "ウォレット残高"
+    "balance_hint": "現在残高: {{balance}} {{currency}}、必要: {{required}} {{currency}}",
+    "wallet_balance": "ウォレット残高",
+    "payment_method": "支払い方法"
   },
   "purchase": {
     "status_creating": "注文を作成中...",

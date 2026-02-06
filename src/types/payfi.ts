@@ -63,8 +63,9 @@ export interface UserAssets {
   // 总资产估值
   totalAssetValueUSDT?: number;  // 总资产估值 (USDT)，按当前价格计算
 
-  // 钱包 USDT 余额
+  // 钱包 ERC20 余额
   usdtBalance?: number;  // 用户钱包持有的 USDT 数量
+  usdcBalance?: number;  // 用户钱包持有的 USDC 数量
 
   // NFT & 算力
   currentNFTLevel: NFTLevel;

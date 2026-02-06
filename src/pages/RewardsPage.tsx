@@ -23,6 +23,7 @@ import {
 import { usePayFiStore } from '../stores/payfiStore'
 import { useWithdraw } from '../hooks/useWithdraw'
 import type { RewardType } from '../types/payfi'
+import type { WithdrawSource } from '../api/types'
 
 const MotionBox = motion.create(Box)
 
@@ -105,7 +106,11 @@ export function RewardsPage() {
 
     // 根据选择的代币类型进行提现
     const tokenType = selectedTokenType === 'PIC_RELEASED' ? 'PIC' : selectedTokenType
-    const success = await withdraw(amount, tokenType)
+    // 确定提现来源：PIC_RELEASED 从释放余额提现，PIC 从原始余额提现
+    const source: WithdrawSource | undefined = selectedTokenType === 'PIC_RELEASED'
+      ? 'released'
+      : (selectedTokenType === 'PIC' ? 'balance' : undefined)
+    const success = await withdraw(amount, tokenType, source)
 
     // 无论提现是否成功都刷新余额（订单创建后后端已扣款）
     setWithdrawAmount('')

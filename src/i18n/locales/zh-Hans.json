@@ -326,8 +326,9 @@
     "acquire_time": "获得时间",
     "no_nft_holdings": "暂无 NFT",
     "insufficient_balance": "余额不足",
-    "balance_hint": "当前余额: {{balance}} USDT，需要: {{required}} USDT",
-    "wallet_balance": "钱包余额"
+    "balance_hint": "当前余额: {{balance}} {{currency}}，需要: {{required}} {{currency}}",
+    "wallet_balance": "钱包余额",
+    "payment_method": "支付方式"
   },
   "purchase": {
     "status_creating": "创建订单中...",

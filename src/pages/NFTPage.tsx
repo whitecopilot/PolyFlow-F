@@ -30,7 +30,7 @@ import { usePayFiStore } from '../stores/payfiStore'
 import { useNFTPurchase, type PurchaseStep } from '../hooks/useNFTPurchase'
 import { useNFTStake, type StakeStep } from '../hooks/useNFTStake'
 import type { NFTLevel } from '../types/payfi'
-import type { UserNFTItem } from '../api/types'
+import type { PaymentCurrency, UserNFTItem } from '../api/types'
 
 const MotionBox = motion.create(Box)
 
@@ -529,6 +529,7 @@ export function NFTPage() {
   } = useNFTStake()
 
   const [selectedLevel, setSelectedLevel] = useState<NFTLevel>(null)
+  const [paymentCurrency, setPaymentCurrency] = useState<PaymentCurrency>('USDT')
   const [showNFTSelector, setShowNFTSelector] = useState(false)
   const [selectorFilterLevel, setSelectorFilterLevel] = useState<string | null>(null)
 
@@ -580,8 +581,10 @@ export function NFTPage() {
   const stakedNFTCount = userNFTList.filter(n => n.isStaked).length
   const hasUnstakedNFTs = totalNFTCount - stakedNFTCount > 0
 
-  // 获取用户 USDT 余额
-  const usdtBalance = userAssets?.usdtBalance ?? 0
+  // 获取用户钱包余额（根据选择的支付币种）
+  const selectedBalance = paymentCurrency === 'USDC'
+    ? (userAssets?.usdcBalance ?? 0)
+    : (userAssets?.usdtBalance ?? 0)
 
   // 获取全局质押开关
   const isStakingEnabled = userAssets?.featureFlags?.pidStakingEnabled ?? false
@@ -590,8 +593,8 @@ export function NFTPage() {
   const selectedConfig = getNFTConfig(selectedLevel)
   const selectedPrice = selectedConfig?.price ?? 0
 
-  // 检查 USDT 余额是否足够购买选中的 NFT
-  const hasInsufficientBalance = !!selectedLevel && usdtBalance < selectedPrice
+  // 检查余额是否足够购买选中的 NFT
+  const hasInsufficientBalance = !!selectedLevel && selectedBalance < selectedPrice
 
   // 检查选中等级是否开启销售
   const isSelectedLevelEnabled = selectedConfig?.enable ?? true
@@ -601,9 +604,9 @@ export function NFTPage() {
     if (!selectedLevel || isPurchasing) return
 
     const isUpgrade = isUpgradeAction
-    console.log('[NFTPage] 开始购买/升级:', { selectedLevel, isUpgrade })
+    console.log('[NFTPage] 开始购买/升级:', { selectedLevel, isUpgrade, paymentCurrency })
 
-    const success = await purchaseNFT(selectedLevel, isUpgrade)
+    const success = await purchaseNFT(selectedLevel, isUpgrade, paymentCurrency)
     console.log('[NFTPage] 购买结果:', success)
 
     if (success) {
@@ -1064,14 +1067,43 @@ export function NFTPage() {
                         </Text>
                         <Text fontSize="xs" color="whiteAlpha.500">
                           {t('nft.balance_hint', {
-                            balance: usdtBalance.toFixed(2),
+                            balance: selectedBalance.toFixed(2),
                             required: selectedPrice.toFixed(2),
+                            currency: paymentCurrency,
                           })}
                         </Text>
                       </VStack>
                     </HStack>
                   </Box>
                 )}
+
+                {/* 币种选择 */}
+                <HStack gap={2} w="full" justify="center" mb={2}>
+                  <Text fontSize="xs" color="whiteAlpha.500" flexShrink={0}>
+                    {t('nft.payment_method')}
+                  </Text>
+                  {(['USDT', 'USDC'] as PaymentCurrency[]).map((currency) => (
+                    <Box
+                      key={currency}
+                      as="button"
+                      px={4}
+                      py={1.5}
+                      borderRadius="full"
+                      fontSize="sm"
+                      fontWeight="600"
+                      cursor="pointer"
+                      transition="all 0.2s"
+                      bg={paymentCurrency === currency ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)'}
+                      color={paymentCurrency === currency ? 'white' : 'whiteAlpha.600'}
+                      borderWidth={1}
+                      borderColor={paymentCurrency === currency ? 'rgba(255,255,255,0.3)' : 'transparent'}
+                      onClick={() => setPaymentCurrency(currency)}
+                      _hover={{ bg: paymentCurrency === currency ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)' }}
+                    >
+                      {currency}
+                    </Box>
+                  ))}
+                </HStack>
 
                 {/* 质押 + 购买/升级按钮 */}
                 <HStack gap={3} w="full">
@@ -1126,7 +1158,7 @@ export function NFTPage() {
                 {!hasInsufficientBalance && (
                   <Flex justify="center" mt="3">
                     <Text fontSize="xs" color="whiteAlpha.500">
-                      {t('nft.wallet_balance')}: {usdtBalance.toFixed(2)} USDT
+                      {t('nft.wallet_balance')}: {selectedBalance.toFixed(2)} {paymentCurrency}
                     </Text>
                   </Flex>
                 )}
