@@ -11,10 +11,10 @@ import {
   HiOutlineShoppingCart,
   HiOutlineSparkles,
 } from 'react-icons/hi2'
-import { ActionButton, GradientBorderCard, LazyVideo } from '../common'
+import type { PaymentCurrency } from '../../api/types'
 import { usePayFiStore } from '../../stores/payfiStore'
 import type { NFTLevel } from '../../types/payfi'
-import type { PaymentCurrency } from '../../api/types'
+import { ActionButton, GradientBorderCard, LazyVideo } from '../common'
 
 const MotionBox = motion.create(Box)
 
@@ -32,7 +32,6 @@ interface PurchaseCardProps {
 
 export function PurchaseCard({
   selectedLevel,
-  onSelectLevel,
   onOpenNFTSelector,
   isStakingLoading,
   isPurchasing,
