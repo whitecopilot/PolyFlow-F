@@ -233,7 +233,8 @@
     "swap_value": "Swap Value",
     "swap_fee": "Service Fee",
     "confirm_swap": "Confirm Swap",
-    "swap_hint": "Converted at real-time price, 3% service fee"
+    "swap_hint": "Converted at real-time price, 3% service fee",
+    "pic_swap_title": "PIC to USDT / USDC"
   },
   "rewards": {
     "today_plus": "Today +${{amount}}",
