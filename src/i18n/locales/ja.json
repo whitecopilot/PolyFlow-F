@@ -222,7 +222,8 @@
     "swap_value": "スワップ価値",
     "swap_fee": "手数料",
     "confirm_swap": "スワップ確認",
-    "swap_hint": "リアルタイム価格で換算、3%手数料"
+    "swap_hint": "リアルタイム価格で換算、3%手数料",
+    "pic_swap_title": "PIC を USDT / USDC に交換"
   },
   "rewards": {
     "today_plus": "本日 +${{amount}}",

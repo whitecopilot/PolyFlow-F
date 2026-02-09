@@ -222,7 +222,8 @@
     "swap_value": "兌換價值",
     "swap_fee": "服務費",
     "confirm_swap": "確認兌換",
-    "swap_hint": "按實時價格換算，收取 3% 服務費"
+    "swap_hint": "按實時價格換算，收取 3% 服務費",
+    "pic_swap_title": "PIC 兌換 USDT / USDC"
   },
   "rewards": {
     "today_plus": "今日 +${{amount}}",
