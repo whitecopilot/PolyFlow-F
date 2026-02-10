@@ -2,7 +2,7 @@
 
 import { Box, Flex, HStack, SimpleGrid, Spinner, Text, VStack } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   HiOutlineBanknotes,
@@ -13,6 +13,7 @@ import {
   HiOutlineCpuChip,
   HiOutlineCurrencyDollar,
   HiOutlineFire,
+  HiOutlineKey,
   HiOutlineQueueList,
   HiOutlineShoppingCart,
   HiOutlineSignal,
@@ -45,6 +46,51 @@ const StatusIndicator = ({ isOk, label }: { isOk: boolean; label: string }) => (
     </Text>
   </HStack>
 )
+
+// 解析 Go duration 字符串（如 "2m30s"、"1h5m"、"45s"）为毫秒
+const parseGoDuration = (s: string): number => {
+  let ms = 0
+  for (const [, val, unit] of s.matchAll(/(\d+)(h|m|s)/g)) {
+    const n = parseInt(val)
+    if (unit === 'h') ms += n * 3600000
+    else if (unit === 'm') ms += n * 60000
+    else if (unit === 's') ms += n * 1000
+  }
+  return ms
+}
+
+// TTL 实时倒计时组件
+const CountdownTTL = ({ remainingTTL }: { remainingTTL: string }) => {
+  const endTimeRef = useRef(Date.now() + parseGoDuration(remainingTTL))
+  const [diffMs, setDiffMs] = useState(() => parseGoDuration(remainingTTL))
+
+  // 数据刷新时重新计算结束时间
+  useEffect(() => {
+    endTimeRef.current = Date.now() + parseGoDuration(remainingTTL)
+  }, [remainingTTL])
+
+  useEffect(() => {
+    const tick = () => setDiffMs(Math.max(0, endTimeRef.current - Date.now()))
+    const timer = setInterval(tick, 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  const display = useMemo(() => {
+    if (diffMs <= 0) return 'expired'
+    const totalSec = Math.floor(diffMs / 1000)
+    const m = Math.floor(totalSec / 60)
+    const s = totalSec % 60
+    return `${m}m${s.toString().padStart(2, '0')}s`
+  }, [diffMs])
+
+  const color = diffMs <= 60000 ? '#EF4444' : '#F59E0B' // < 1m 红色警告
+
+  return (
+    <Text fontSize="xs" color={color}>
+      TTL: {display}
+    </Text>
+  )
+}
 
 // Tab 类型
 type TabType = 'cache' | 'monitoring'
@@ -143,7 +189,7 @@ export function AdminDataPage() {
     )
   }
 
-  const { globalStats, dailyFees, systemInfo } = cacheStatus || {}
+  const { globalStats, dailyFees, systemInfo, addressQueue } = cacheStatus || {}
   const { webSocket, taskDispatcher, taskCoordinator, eventQueues } = monitoringStatus || {}
 
   return (
@@ -399,6 +445,148 @@ export function AdminDataPage() {
         {/* 缓存 Tab 内容 */}
         {activeTab === 'cache' && (
           <>
+            {/* 地址队列 */}
+            {addressQueue && (
+              <Box>
+                <Text fontSize="sm" fontWeight="600" color="whiteAlpha.600" mb="3">
+                  {t('admin.address_queue')}
+                </Text>
+
+                {/* 活跃地址卡片 */}
+                {addressQueue.activeAddress && (
+                  <MotionBox
+                    bg="#17171C"
+                    borderRadius="xl"
+                    p="4"
+                    mb="3"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    <Flex justify="space-between" align="center" mb={3}>
+                      <HStack gap={2}>
+                        <HiOutlineKey size={16} color="#22C55E" />
+                        <Text fontSize="xs" color="whiteAlpha.600">{t('admin.active_address')}</Text>
+                      </HStack>
+                      <Text fontSize="xs" px="2" py="0.5" borderRadius="full" bg="green.500/20" color="#22C55E">
+                        {t('admin.state_active')}
+                      </Text>
+                    </Flex>
+                    <Text fontSize="sm" color="white" fontFamily="mono" mb={2}>
+                      {addressQueue.activeAddress.address.slice(0, 10)}...{addressQueue.activeAddress.address.slice(-8)}
+                    </Text>
+                    <SimpleGrid columns={2} gap={3}>
+                      <Box>
+                        <Text fontSize="xs" color="whiteAlpha.500">{t('admin.path_index')}</Text>
+                        <Text fontSize="sm" color="white">{addressQueue.activeAddress.pathIndex}</Text>
+                      </Box>
+                      <Box>
+                        <Text fontSize="xs" color="whiteAlpha.500">{t('admin.order_count')}</Text>
+                        <Text fontSize="sm" color="white">
+                          {addressQueue.activeAddress.successOrderCount} / {addressQueue.config.maxOrdersPerAddress}
+                        </Text>
+                      </Box>
+                      <Box>
+                        <Text fontSize="xs" color="whiteAlpha.500">{t('admin.created_at')}</Text>
+                        <Text fontSize="sm" color="white">{addressQueue.activeAddress.createdAt}</Text>
+                      </Box>
+                      <Box>
+                        <Text fontSize="xs" color="whiteAlpha.500">{t('admin.next_path_index')}</Text>
+                        <Text fontSize="sm" color="white">{addressQueue.nextPathIndex}</Text>
+                      </Box>
+                    </SimpleGrid>
+                  </MotionBox>
+                )}
+
+                {/* 监控地址列表 */}
+                {addressQueue.monitoredAddresses.length > 0 && (
+                  <MotionBox
+                    bg="#17171C"
+                    borderRadius="xl"
+                    p="4"
+                    mb="3"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.05 }}
+                  >
+                    <HStack gap={2} mb={3}>
+                      <HiOutlineQueueList size={16} color="#8A8A90" />
+                      <Text fontSize="xs" color="whiteAlpha.600">{t('admin.monitored_addresses')}</Text>
+                    </HStack>
+                    <VStack gap={2} align="stretch">
+                      {addressQueue.monitoredAddresses.map((addr, index) => (
+                        <Flex
+                          key={addr.address}
+                          justify="space-between"
+                          align="center"
+                          py="2"
+                          borderBottom={index < addressQueue.monitoredAddresses.length - 1 ? '1px solid' : 'none'}
+                          borderColor="whiteAlpha.100"
+                        >
+                          <VStack align="start" gap={0.5}>
+                            <Text fontSize="sm" color="white" fontFamily="mono">
+                              {addr.address.slice(0, 10)}...{addr.address.slice(-8)}
+                            </Text>
+                            <HStack gap={3}>
+                              <Text fontSize="xs" color="whiteAlpha.500">#{addr.pathIndex}</Text>
+                              <Text fontSize="xs" color="whiteAlpha.500">
+                                {t('admin.order_count')}: {addr.successOrderCount}
+                              </Text>
+                              <Text fontSize="xs" color="whiteAlpha.500">{addr.createdAt}</Text>
+                            </HStack>
+                          </VStack>
+                          <VStack align="end" gap={0.5}>
+                            <Text
+                              fontSize="xs"
+                              px="2"
+                              py="0.5"
+                              borderRadius="full"
+                              bg={addr.state === 'active' ? 'green.500/20' : 'orange.500/20'}
+                              color={addr.state === 'active' ? '#22C55E' : '#F97316'}
+                            >
+                              {addr.state === 'active' ? t('admin.state_active') : t('admin.state_consumed')}
+                            </Text>
+                            {addr.remainingTTL && (
+                              <CountdownTTL remainingTTL={addr.remainingTTL} />
+                            )}
+                          </VStack>
+                        </Flex>
+                      ))}
+                    </VStack>
+                  </MotionBox>
+                )}
+
+                {/* 队列配置 */}
+                <MotionBox
+                  bg="#17171C"
+                  borderRadius="xl"
+                  p="4"
+                  mb="3"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <HStack gap={2} mb={3}>
+                    <HiOutlineCog6Tooth size={16} color="#8A8A90" />
+                    <Text fontSize="xs" color="whiteAlpha.600">{t('admin.queue_config')}</Text>
+                  </HStack>
+                  <SimpleGrid columns={3} gap={3}>
+                    <Box>
+                      <Text fontSize="xs" color="whiteAlpha.500">{t('admin.max_orders')}</Text>
+                      <Text fontSize="sm" color="white">{addressQueue.config.maxOrdersPerAddress}</Text>
+                    </Box>
+                    <Box>
+                      <Text fontSize="xs" color="whiteAlpha.500">{t('admin.address_ttl')}</Text>
+                      <Text fontSize="sm" color="white">{addressQueue.config.addressTTL}</Text>
+                    </Box>
+                    <Box>
+                      <Text fontSize="xs" color="whiteAlpha.500">{t('admin.update_threshold')}</Text>
+                      <Text fontSize="sm" color="white">{addressQueue.config.addressUpdateThreshold}</Text>
+                    </Box>
+                  </SimpleGrid>
+                </MotionBox>
+              </Box>
+            )}
+
             {/* 系统信息 */}
             <MotionBox
               bg="#17171C"

@@ -110,7 +110,21 @@
     "event_queues": "Event Queues",
     "queue_stats": "Queue Statistics",
     "processed": "Processed",
-    "failed": "Failed"
+    "failed": "Failed",
+    "address_queue": "Address Queue",
+    "active_address": "Active Address",
+    "monitored_addresses": "Monitored Addresses",
+    "path_index": "Path Index",
+    "order_count": "Order Count",
+    "created_at": "Created At",
+    "remaining_ttl": "Remaining TTL",
+    "max_orders": "Max Orders",
+    "address_ttl": "Address TTL",
+    "update_threshold": "Update Threshold",
+    "state_active": "Active",
+    "state_consumed": "Consumed",
+    "next_path_index": "Next Path Index",
+    "queue_config": "Queue Config"
   },
   "invite": {
     "title": "Invite Friends",
