@@ -110,7 +110,21 @@
     "event_queues": "事件隊列",
     "queue_stats": "隊列統計",
     "processed": "已處理",
-    "failed": "失敗"
+    "failed": "失敗",
+    "address_queue": "地址隊列",
+    "active_address": "活躍收款地址",
+    "monitored_addresses": "監控地址",
+    "path_index": "派生索引",
+    "order_count": "訂單計數",
+    "created_at": "生成時間",
+    "remaining_ttl": "剩餘 TTL",
+    "max_orders": "最大訂單數",
+    "address_ttl": "地址 TTL",
+    "update_threshold": "更新閾值",
+    "state_active": "活躍",
+    "state_consumed": "已消耗",
+    "next_path_index": "下一派生索引",
+    "queue_config": "隊列配置"
   },
   "invite": {
     "title": "邀請好友",

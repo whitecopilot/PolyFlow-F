@@ -127,12 +127,38 @@ export interface CacheSettingsStatus {
   cleanupInterval: string
 }
 
+// 地址队列监控
+export interface AddressInfo {
+  address: string
+  pathIndex: number
+  successOrderCount: number
+  state: string
+  createdAt: string
+  consumedAt?: string
+  expireAt?: string
+  remainingTTL?: string
+}
+
+export interface QueueConfigInfo {
+  maxOrdersPerAddress: number
+  addressTTL: string
+  addressUpdateThreshold: string
+}
+
+export interface AddressQueueStatus {
+  activeAddress: AddressInfo | null
+  monitoredAddresses: AddressInfo[]
+  nextPathIndex: number
+  config: QueueConfigInfo
+}
+
 // 缓存状态响应
 export interface CacheStatusResponse {
   globalStats: GlobalStatsStatus
   dailyFees: DailyFeesStatus[]
   systemInfo: SystemInfoStatus
   cacheSettings: CacheSettingsStatus
+  addressQueue?: AddressQueueStatus
 }
 
 // ================================
