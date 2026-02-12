@@ -31,11 +31,11 @@ export function AssetsPage() {
       <VStack gap="5" p="4" align="stretch">
         <AssetCard type="PID" />
         <AssetCard type="PIC" />
-        <PIDReleaseCard />
-        <StakingSection />
-        <BurnSection />
-        <SwapSection />
         <PicSwapSection />
+        <BurnSection />
+        <StakingSection />
+        <PIDReleaseCard />
+        <SwapSection />
         <Box h="8" />
       </VStack>
     </Box>
