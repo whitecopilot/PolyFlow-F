@@ -744,6 +744,74 @@ export interface TeamPerformanceResponse {
 }
 
 // ================================
+// 代币兑换相关
+// ================================
+
+export type SwapType = 'PIC_TO_USDT' | 'PIC_TO_USDC' | 'PID_TO_PIC'
+
+export interface CreateSwapOrderRequest {
+  swapType: SwapType
+  fromAmount: number
+}
+
+export interface CreateSwapOrderResponse {
+  orderId: number
+  swapType: SwapType
+  fromToken: string
+  toToken: string
+  fromAmount: number
+  fromPrice: number
+  toPrice: number
+  feeRate: number
+  feeAmount: number
+  toAmount: number
+  toAddress: string
+  randomNumber: string
+  transactionParams: WalletTransactionParams
+  expiresAt: string
+}
+
+export interface SubmitSwapPaymentRequest {
+  orderId: number
+  transactionHash: string
+}
+
+// 后端直接返回 GORM 模型（PascalCase、State 为数字）
+export interface SwapOrder {
+  ID: number
+  SwapType: SwapType
+  FromToken: string
+  ToToken: string
+  FromAmount: number
+  ToAmount: number
+  FeeAmount: number
+  State: number // 0=UnPaid, 2=Pending, 3=Checked, 8=Canceled
+  TransactionHash?: string
+  BalanceUpdated: boolean
+  CreatedAt: string
+}
+
+// OrderState 常量（与后端 constants.OrderState 对应）
+export const SwapOrderState = {
+  UnPaid: 0,
+  Pending: 2,
+  Checked: 3,
+  Canceled: 8,
+  PaymentFailed: 9,
+} as const
+
+export interface SwapConfigResponse {
+  picToStableFeeRate: number
+  pidToPicFeeRate: number
+  minSwapAmount: number
+  picPrice: number
+  pidPrice: number
+}
+
+// 后端 WithdrawSource 兑换余额
+export const WithdrawSourceSwap = 4 as const
+
+// ================================
 // 直推用户业绩相关
 // ================================
 
