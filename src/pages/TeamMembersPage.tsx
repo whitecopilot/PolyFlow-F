@@ -21,7 +21,7 @@ import type { DirectMemberPerformanceResponse } from '../api/types'
 const MotionBox = motion.create(Box)
 
 // 时间范围选项
-type TimeRange = 'all' | 'today' | 'week' | 'month' | 'custom'
+type TimeRange = 'all' | 'yesterday' | 'today' | 'week' | 'month' | 'custom'
 
 // 获取日期范围
 function getDateRange(range: TimeRange, customStart?: string, customEnd?: string): { startDate?: string; endDate?: string } {
@@ -35,6 +35,11 @@ function getDateRange(range: TimeRange, customStart?: string, customEnd?: string
   let startDate: string
 
   switch (range) {
+    case 'yesterday':
+      const yesterday = new Date(now)
+      yesterday.setDate(yesterday.getDate() - 1)
+      startDate = yesterday.toISOString().split('T')[0]
+      return { startDate, endDate: startDate }
     case 'today':
       startDate = endDate
       break
@@ -365,7 +370,7 @@ export function TeamMembersPage() {
                   <Text fontSize="sm" color="whiteAlpha.500" mb={3}>
                     {t('team_performance.quick_select')}
                   </Text>
-                  <SimpleGrid columns={4} gap={2}>
+                  <SimpleGrid columns={5} gap={2}>
                     <QuickTimeOption
                       active={tempTimeRange === 'all'}
                       onClick={() => {
@@ -374,6 +379,18 @@ export function TeamMembersPage() {
                         setTempEndDate('')
                       }}
                       label={t('team_performance.time_all')}
+                    />
+                    <QuickTimeOption
+                      active={tempTimeRange === 'yesterday'}
+                      onClick={() => {
+                        const now = new Date()
+                        now.setDate(now.getDate() - 1)
+                        const yesterdayStr = now.toISOString().split('T')[0]
+                        setTempTimeRange('yesterday')
+                        setTempStartDate(yesterdayStr)
+                        setTempEndDate(yesterdayStr)
+                      }}
+                      label={t('team_performance.time_yesterday')}
                     />
                     <QuickTimeOption
                       active={tempTimeRange === 'today'}
