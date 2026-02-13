@@ -13,6 +13,7 @@ import {
   HiOutlineScale,
   HiOutlineUserGroup,
 } from 'react-icons/hi2'
+import { formatCompactNumber } from '../utils/format'
 import { useNavigate } from 'react-router-dom'
 import {
   ActionButton,
@@ -220,7 +221,7 @@ export function RewardsPage() {
                   {t('rewards.pid_available')}
                 </Text>
                 <Text fontSize="lg" fontWeight="bold" color="white">
-                  {pidWithdrawable.toFixed(2)}
+                  {formatCompactNumber(pidWithdrawable)}
                 </Text>
                 <Text fontSize="xs" color="white">
                   {t('rewards.no_fee')}
@@ -233,7 +234,7 @@ export function RewardsPage() {
                   {t('rewards.pic_available')}
                 </Text>
                 <Text fontSize="lg" fontWeight="bold" color="white">
-                  {picWithdrawable.toFixed(2)}
+                  {formatCompactNumber(picWithdrawable)}
                 </Text>
                 <Text fontSize="xs" color="whiteAlpha.600">
                   3% {t('rewards.fee_label')}
@@ -246,7 +247,7 @@ export function RewardsPage() {
                   {t('rewards.pic_released')}
                 </Text>
                 <Text fontSize="lg" fontWeight="bold" color="white">
-                  {picReleased.toFixed(2)}
+                  {formatCompactNumber(picReleased)}
                 </Text>
                 <Text fontSize="xs" color="white">
                   {t('rewards.no_fee')}
@@ -260,7 +261,7 @@ export function RewardsPage() {
                     {t('rewards.stablecoin_swap_balance')}
                   </Text>
                   <Text fontSize="lg" fontWeight="bold" color="white">
-                    {stablecoinSwap.toFixed(2)}
+                    {formatCompactNumber(stablecoinSwap)}
                   </Text>
                   <Text fontSize="xs" color="white">
                     {t('rewards.no_fee')}

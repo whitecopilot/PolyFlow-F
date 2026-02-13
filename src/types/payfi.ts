@@ -95,7 +95,8 @@ export interface UserAssets {
   pidBalance: number;          // PID可用余额
   picBalance: number;          // PIC可用余额（首次产出，提现有手续费）
   picReleasedBalance: number;  // PIC线性释放已解锁余额（提现无手续费）
-  walletPicBalance: number;    // 钱包 PIC 余额（链上实时查询，用于链上销毁功能）
+  walletPicBalance: number;    // 钱包 PIC 余额（链上实时查询）
+  walletPidBalance: number;    // 钱包 PID 余额（链上实时查询）
   stablecoinSwapBalance: number; // 兑换获得的稳定币余额（免手续费提现）
 }
 

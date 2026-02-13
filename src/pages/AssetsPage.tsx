@@ -15,13 +15,14 @@ import { usePayFiStore } from '../stores/payfiStore'
 
 export function AssetsPage() {
   const { t } = useTranslation()
-  const { fetchUserAssets, fetchNFTLevelConfigs, fetchSystemConfig } = usePayFiStore()
+  const { fetchUserAssets, fetchWalletBalances, fetchNFTLevelConfigs, fetchSystemConfig } = usePayFiStore()
 
   useEffect(() => {
     fetchUserAssets()
+    fetchWalletBalances()
     fetchNFTLevelConfigs()
     fetchSystemConfig()
-  }, [fetchUserAssets, fetchNFTLevelConfigs, fetchSystemConfig])
+  }, [fetchUserAssets, fetchWalletBalances, fetchNFTLevelConfigs, fetchSystemConfig])
 
   return (
     <Box minH="100vh" bg="#111111">

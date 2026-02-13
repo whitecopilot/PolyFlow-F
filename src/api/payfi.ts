@@ -45,6 +45,19 @@ export async function getUserAssets(): Promise<UserAssets> {
   return get<UserAssets>('/assets')
 }
 
+// 钱包链上余额响应
+export interface WalletBalancesResponse {
+  usdtBalance: number
+  usdcBalance: number
+  walletPicBalance: number
+  walletPidBalance: number
+}
+
+// 获取钱包链上余额（独立接口，避免拖慢 /assets）
+export async function getWalletBalances(): Promise<WalletBalancesResponse> {
+  return get<WalletBalancesResponse>('/wallet-balances')
+}
+
 // 获取奖励汇总
 export async function getRewardSummary(): Promise<RewardSummary> {
   return get<RewardSummary>('/rewards/summary')
@@ -98,6 +111,7 @@ export const payfiApi = {
   getNodeLevelConfigs,
   getSystemConfig,
   getUserAssets,
+  getWalletBalances,
   getRewardSummary,
   getDailyRewards,
   getTeamStats,

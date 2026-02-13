@@ -18,13 +18,13 @@ import {
   HiOutlineXCircle,
 } from 'react-icons/hi2'
 import { useNavigate } from 'react-router-dom'
+import { AdminType } from '../api/types'
 import {
   ActionButton,
   GradientBorderCard,
   NodeBadge,
   PageHeader,
 } from '../components/common'
-import { AdminType } from '../api/types'
 import { usePayFiStore } from '../stores/payfiStore'
 
 const MotionBox = motion.create(Box)
@@ -158,44 +158,50 @@ export function TeamPage() {
             {t('team.performance_stats')}
           </Text>
 
-          {/* 邀请业绩卡片 - 跨两列 */}
-          <MotionBox
-            bg="#17171C"
-            borderRadius="xl"
-            p="4"
-            mb="3"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
-          >
-            <HStack gap={2} mb={3}>
-              <HiOutlineCurrencyDollar size={16} color="#8A8A90" />
-              <Text fontSize="xs" color="whiteAlpha.600">{t('team.invite_performance')}</Text>
-            </HStack>
-            <Text fontSize="2xl" fontWeight="bold" color="white" mb={3}>
-              ${(teamStats?.directPerformance || 0).toLocaleString()}
-            </Text>
-            <Flex gap={4}>
-              <HStack gap={1}>
-                <HiOutlineUserPlus size={14} color="#8A8A90" />
-                <Text fontSize="xs" color="whiteAlpha.500">{t('team.invite_count')}</Text>
-                <Text fontSize="sm" fontWeight="600" color="white">
-                  {' '}{teamStats?.directCount || 0}{' '}
-                  <Text as="span" fontSize="xs" color="whiteAlpha.400">{t('team.person_unit')}</Text>
-                </Text>
-              </HStack>
-              <HStack gap={1}>
-                <HiOutlineDocumentText size={14} color="#8A8A90" />
-                <Text fontSize="xs" color="whiteAlpha.500">{t('team.invite_orders')}</Text>
-                <Text fontSize="sm" fontWeight="600" color="white">
-                  {' '}{teamStats?.directOrderCount || 0}{' '}
-                  <Text as="span" fontSize="xs" color="whiteAlpha.400">{t('team.order_unit')}</Text>
-                </Text>
-              </HStack>
-            </Flex>
-          </MotionBox>
-
           <SimpleGrid columns={2} gap="3">
+            {/* 邀请业绩卡片 */}
+            <MotionBox
+              bg="#17171C"
+              borderRadius="xl"
+              p="4"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+            >
+              <HStack gap={2} mb={2}>
+                <HiOutlineCurrencyDollar size={16} color="#8A8A90" />
+                <Text fontSize="xs" color="whiteAlpha.600">{t('team.invite_performance')}</Text>
+              </HStack>
+              <Text fontSize="xl" fontWeight="bold" color="white" mb={2}>
+                ${(teamStats?.directPerformance || 0).toLocaleString()}
+              </Text>
+              <VStack align="start" gap={1}>
+                <HStack gap={1}>
+                  <HiOutlineDocumentText size={12} color="#8A8A90" />
+                  <Text fontSize="xs" color="whiteAlpha.500">
+                    {t('team.invite_orders')} {teamStats?.directOrderCount || 0} {t('team.order_unit')}
+                  </Text>
+                </HStack>
+              </VStack>
+            </MotionBox>
+
+            {/* 团队总业绩卡片 */}
+            <MotionBox
+              bg="#17171C"
+              borderRadius="xl"
+              p="4"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.08 }}
+            >
+              <HStack gap={2} mb={2}>
+                <HiOutlineCurrencyDollar size={16} color="#8A8A90" />
+                <Text fontSize="xs" color="whiteAlpha.600">{t('team.team_sales_perf')}</Text>
+              </HStack>
+              <Text fontSize="xl" fontWeight="bold" color="white">
+                ${(teamStats?.teamSalesPerformance || 0).toLocaleString()}
+              </Text>
+            </MotionBox>
             <MotionBox
               bg="#17171C"
               borderRadius="xl"

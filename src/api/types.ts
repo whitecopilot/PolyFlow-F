@@ -354,8 +354,9 @@ export interface UserAssets {
   picBalance?: number
   picReleasedBalance?: number
 
-  // 链上钱包余额（用于链上销毁功能）
+  // 链上钱包余额
   walletPicBalance?: number
+  walletPidBalance?: number
 }
 
 export interface TeamStatsResponse {
@@ -750,7 +751,7 @@ export interface TeamPerformanceResponse {
 // 代币兑换相关
 // ================================
 
-export type SwapType = 'PIC_TO_USDT' | 'PIC_TO_USDC' | 'PID_TO_PIC'
+export type SwapType = 'PIC_TO_USDT' | 'PIC_TO_USDC' | 'PIC_TO_PID'
 
 export interface CreateSwapOrderRequest {
   swapType: SwapType
@@ -805,7 +806,7 @@ export const SwapOrderState = {
 
 export interface SwapConfigResponse {
   picToStableFeeRate: number
-  pidToPicFeeRate: number
+  picToPidFeeRate: number
   minSwapAmount: number
   picPrice: number
   pidPrice: number
