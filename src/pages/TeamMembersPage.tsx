@@ -182,29 +182,38 @@ export function TeamMembersPage() {
           <Flex justify="space-between" align="center">
             <HStack gap={3}>
               <Flex
-                w="12"
-                h="12"
+                w="10"
+                h="10"
                 borderRadius="xl"
                 bg="whiteAlpha.100"
                 align="center"
                 justify="center"
+                flexShrink={0}
               >
-                <HiOutlineUserGroup size={20} color="#8A8A90" />
+                <HiOutlineUserGroup size={18} color="#8A8A90" />
               </Flex>
               <Box>
-                <Text fontSize="sm" color="whiteAlpha.600">
+                <Text fontSize="xs" color="whiteAlpha.500">
                   {t('team_members.team_count')}
                 </Text>
-                <Text fontSize="xl" fontWeight="bold" color="white">
+                <Text fontSize="lg" fontWeight="bold" color="white">
                   {teamStats?.teamCount || teamMembers.length} {t('team_members.people')}
                 </Text>
               </Box>
             </HStack>
-            <VStack align="end" gap={0}>
+            <Box textAlign="center">
+              <Text fontSize="xs" color="whiteAlpha.500">
+                {t('team_members.sales_amount')}
+              </Text>
+              <Text fontSize="lg" fontWeight="bold" color="white">
+                {(teamStats?.teamSalesPerformance ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </Text>
+            </Box>
+            <Box textAlign="end">
               <Text fontSize="sm" color="white">
                 {t('team_members.invite_count', { count: directCount })}
               </Text>
-            </VStack>
+            </Box>
           </Flex>
         </MotionBox>
 

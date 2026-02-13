@@ -96,6 +96,7 @@ export interface UserAssets {
   picBalance: number;          // PIC可用余额（首次产出，提现有手续费）
   picReleasedBalance: number;  // PIC线性释放已解锁余额（提现无手续费）
   walletPicBalance: number;    // 钱包 PIC 余额（链上实时查询，用于链上销毁功能）
+  stablecoinSwapBalance: number; // 兑换获得的稳定币余额（免手续费提现）
 }
 
 // 团队统计（使用质押业绩）
@@ -106,6 +107,7 @@ export interface TeamStats {
   teamCount: number;           // 团队总人数
   teamOrderCount: number;      // 团队总单数
   teamPerformance: number;     // 团队总业绩 - 质押业绩(USDT)
+  teamSalesPerformance: number; // 团队总业绩 - 销售业绩(USDT)
   maxLinePerf: number;         // 大区业绩 - 质押业绩(USDT)
   smallAreaPerf: number;       // 小区业绩 - 质押业绩
   nodeLevel: NodeLevel;        // 节点等级
@@ -179,7 +181,7 @@ export type WithdrawSourceType = 'balance' | 'released';
 export interface WithdrawRecord {
   id: number;
   orderNum: string;         // 订单编号
-  tokenType: 'PID' | 'PIC'; // 代币类型
+  tokenType: 'PID' | 'PIC' | 'USDT' | 'USDC'; // 代币类型
   amount: number;           // 实际到账金额
   servicedFee: number;      // 手续费
   source: WithdrawSourceType; // 来源类型

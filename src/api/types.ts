@@ -344,6 +344,9 @@ export interface UserAssets {
   // 释放信息
   release?: ReleaseSummary
 
+  // 稳定币兑换余额（免手续费提现）
+  stablecoinSwapBalance?: number
+
   // 兼容旧字段
   rewards?: RewardSummary
   currentNftLevel?: string
@@ -360,6 +363,7 @@ export interface TeamStatsResponse {
   directCount: number         // 邀请人数
   directOrderCount: number    // 邀请单数
   teamPerformance: string     // 团队总业绩 - 质押业绩 (USDT)
+  teamSalesPerformance: string // 团队总业绩 - 销售业绩 (USDT)
   maxLinePerf: string         // 大区业绩 - 质押业绩 (USDT)
   smallAreaPerf: string       // 小区业绩 - 质押业绩 (USDT)
   teamCount: number           // 团队总人数
@@ -567,14 +571,15 @@ export interface SubmitStakingResponse {
 // 提现相关
 // ================================
 
-export type TokenType = 'PID' | 'PIC'
-export type WithdrawSource = 'balance' | 'released'
+export type TokenType = 'PID' | 'PIC' | 'USDT' | 'USDC'
+export type WithdrawSource = 'balance' | 'released' | 'swap'
 
 // 后端 TokenType 常量映射
 export const TokenTypeCode = {
   USDT: 1,
   PID: 2,
   PIC: 3,
+  USDC: 4,
 } as const
 
 // 后端 WithdrawSource 常量映射
@@ -582,6 +587,7 @@ export const WithdrawSourceCode = {
   AWT: 1,
   balance: 2,
   released: 3,
+  swap: 4,
 } as const
 
 export interface CreateWithdrawRequest {
@@ -595,9 +601,8 @@ export interface CreateWithdrawResponse {
   orderId: number
   orderNum: string
   state: number
-  // 交易数据（订单签名完成后返回）
-  tx?: string
-  tokenType?: string
+  // 钱包交易参数（订单签名完成后返回）
+  transactionParams?: WalletTransactionParams
 }
 
 // 提现订单状态
@@ -632,9 +637,7 @@ export interface CreateWithdrawTransactionRequest {
   orderId: number
 }
 
-export interface CreateWithdrawTransactionResponse {
-  tx: string
-  tokenType: string
+export interface CreateWithdrawTransactionResponse extends WalletTransactionParams {
 }
 
 export interface ClaimResultCheckRequest {
@@ -742,6 +745,74 @@ export interface TeamPerformanceResponse {
   total: number
   totalPages: number
 }
+
+// ================================
+// 代币兑换相关
+// ================================
+
+export type SwapType = 'PIC_TO_USDT' | 'PIC_TO_USDC' | 'PID_TO_PIC'
+
+export interface CreateSwapOrderRequest {
+  swapType: SwapType
+  fromAmount: number
+}
+
+export interface CreateSwapOrderResponse {
+  orderId: number
+  swapType: SwapType
+  fromToken: string
+  toToken: string
+  fromAmount: number
+  fromPrice: number
+  toPrice: number
+  feeRate: number
+  feeAmount: number
+  toAmount: number
+  toAddress: string
+  randomNumber: string
+  transactionParams: WalletTransactionParams
+  expiresAt: string
+}
+
+export interface SubmitSwapPaymentRequest {
+  orderId: number
+  transactionHash: string
+}
+
+// 后端直接返回 GORM 模型（PascalCase、State 为数字）
+export interface SwapOrder {
+  ID: number
+  SwapType: SwapType
+  FromToken: string
+  ToToken: string
+  FromAmount: number
+  ToAmount: number
+  FeeAmount: number
+  State: number // 0=UnPaid, 2=Pending, 3=Checked, 8=Canceled
+  TransactionHash?: string
+  BalanceUpdated: boolean
+  CreatedAt: string
+}
+
+// OrderState 常量（与后端 constants.OrderState 对应）
+export const SwapOrderState = {
+  UnPaid: 0,
+  Pending: 2,
+  Checked: 3,
+  Canceled: 8,
+  PaymentFailed: 9,
+} as const
+
+export interface SwapConfigResponse {
+  picToStableFeeRate: number
+  pidToPicFeeRate: number
+  minSwapAmount: number
+  picPrice: number
+  pidPrice: number
+}
+
+// 后端 WithdrawSource 兑换余额
+export const WithdrawSourceSwap = 4 as const
 
 // ================================
 // 直推用户业绩相关

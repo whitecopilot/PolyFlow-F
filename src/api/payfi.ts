@@ -5,7 +5,6 @@ import type {
   PriceInfo,
   UserAssets,
   RewardSummary,
-  ReleaseSummary,
   DailyReward,
   PaginatedData,
   PaginatedDataWithSummary,
@@ -59,11 +58,6 @@ export async function getDailyRewards(
   return get<PaginatedData<DailyReward>>('/rewards/daily', { page, pageSize })
 }
 
-// 获取释放汇总
-export async function getReleaseSummary(): Promise<ReleaseSummary> {
-  return get<ReleaseSummary>('/release')
-}
-
 // 获取团队统计
 export async function getTeamStats(): Promise<TeamStatsResponse> {
   return get<TeamStatsResponse>('/team/stats')
@@ -106,7 +100,6 @@ export const payfiApi = {
   getUserAssets,
   getRewardSummary,
   getDailyRewards,
-  getReleaseSummary,
   getTeamStats,
   getRewardsByType,
   getTeamStakingPerformance,
