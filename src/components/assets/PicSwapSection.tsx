@@ -51,6 +51,8 @@ export function PicSwapSection() {
   const picSwapReceiveAmount = picSwapUsdtValue - picSwapFee
   const minAmount = swapConfig?.minSwapAmount ?? 10
   const isValidPicSwapAmount = picSwapAmountNum >= minAmount && picSwapAmountNum <= picSwapFromBalance
+  const isBelowMin = picSwapAmountNum > 0 && picSwapAmountNum < minAmount
+  const isAboveBalance = picSwapAmountNum > picSwapFromBalance && picSwapFromBalance > 0
 
   const getSwapProgress = () => {
     switch (step) {
@@ -158,9 +160,24 @@ export function PicSwapSection() {
                 </HStack>
               </HStack>
             </Box>
-            <Text fontSize="xs" color="whiteAlpha.400" mt="1">
-              {t('assets.available')}: {picSwapFromBalance.toFixed(2)} PIC
-            </Text>
+            <Flex justify="space-between" mt="1">
+              <Text fontSize="xs" color="whiteAlpha.400">
+                {t('assets.available')}: {picSwapFromBalance.toFixed(2)} PIC
+              </Text>
+              <Text fontSize="xs" color="whiteAlpha.400">
+                {t('assets.min_swap_amount', { amount: minAmount })}
+              </Text>
+            </Flex>
+            {isBelowMin && (
+              <Text fontSize="xs" color="red.400" mt="1">
+                {t('assets.swap_below_min', { amount: minAmount })}
+              </Text>
+            )}
+            {isAboveBalance && (
+              <Text fontSize="xs" color="red.400" mt="1">
+                {t('assets.swap_insufficient_balance')}
+              </Text>
+            )}
           </Box>
 
           {/* 兑换箭头 */}

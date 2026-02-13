@@ -344,6 +344,9 @@ export interface UserAssets {
   // 释放信息
   release?: ReleaseSummary
 
+  // 稳定币兑换余额（免手续费提现）
+  stablecoinSwapBalance?: number
+
   // 兼容旧字段
   rewards?: RewardSummary
   currentNftLevel?: string
@@ -567,14 +570,15 @@ export interface SubmitStakingResponse {
 // 提现相关
 // ================================
 
-export type TokenType = 'PID' | 'PIC'
-export type WithdrawSource = 'balance' | 'released'
+export type TokenType = 'PID' | 'PIC' | 'USDT' | 'USDC'
+export type WithdrawSource = 'balance' | 'released' | 'swap'
 
 // 后端 TokenType 常量映射
 export const TokenTypeCode = {
   USDT: 1,
   PID: 2,
   PIC: 3,
+  USDC: 4,
 } as const
 
 // 后端 WithdrawSource 常量映射
@@ -582,6 +586,7 @@ export const WithdrawSourceCode = {
   AWT: 1,
   balance: 2,
   released: 3,
+  swap: 4,
 } as const
 
 export interface CreateWithdrawRequest {
@@ -595,9 +600,8 @@ export interface CreateWithdrawResponse {
   orderId: number
   orderNum: string
   state: number
-  // 交易数据（订单签名完成后返回）
-  tx?: string
-  tokenType?: string
+  // 钱包交易参数（订单签名完成后返回）
+  transactionParams?: WalletTransactionParams
 }
 
 // 提现订单状态
@@ -632,9 +636,7 @@ export interface CreateWithdrawTransactionRequest {
   orderId: number
 }
 
-export interface CreateWithdrawTransactionResponse {
-  tx: string
-  tokenType: string
+export interface CreateWithdrawTransactionResponse extends WalletTransactionParams {
 }
 
 export interface ClaimResultCheckRequest {

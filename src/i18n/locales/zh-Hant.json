@@ -236,6 +236,9 @@
     "swap_value": "兌換價值",
     "swap_fee": "服務費",
     "confirm_swap": "確認兌換",
+    "min_swap_amount": "最低 {{amount}}",
+    "swap_below_min": "最低兌換數量為 {{amount}}",
+    "swap_insufficient_balance": "餘額不足",
     "swap_hint": "按實時價格換算",
     "swap_error_create": "創建兌換訂單失敗",
     "swap_error_submit": "支付確認提交失敗",
@@ -284,6 +287,8 @@
     "pid_available": "PID 可提現",
     "pic_available": "PIC 可提現",
     "pic_released": "PIC 已釋放",
+    "pic_released_short": "已釋放",
+    "stablecoin_swap_balance": "USDT/USDC",
     "instant_arrival": "即時到賬",
     "fee_label": "手續費"
   },

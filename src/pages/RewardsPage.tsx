@@ -59,7 +59,7 @@ export function RewardsPage() {
 
   const [withdrawAmount, setWithdrawAmount] = useState('')
   const [showWithdrawModal, setShowWithdrawModal] = useState(false)
-  const [selectedTokenType, setSelectedTokenType] = useState<'PID' | 'PIC' | 'PIC_RELEASED'>('PID')
+  const [selectedTokenType, setSelectedTokenType] = useState<'PID' | 'PIC' | 'PIC_RELEASED' | 'USDT_USDC'>('PID')
 
   useEffect(() => {
     // 只获取收益页面需要的数据
@@ -82,6 +82,8 @@ export function RewardsPage() {
         return userAssets.picBalance || 0
       case 'PIC_RELEASED':
         return userAssets.picReleasedBalance || 0
+      case 'USDT_USDC':
+        return userAssets.stablecoinSwapBalance || 0
       default:
         return 0
     }
@@ -94,6 +96,7 @@ export function RewardsPage() {
     { type: 'PID' as const, balance: userAssets?.pidBalance || 0, label: 'PID', fee: false },
     { type: 'PIC' as const, balance: userAssets?.picBalance || 0, label: 'PIC', fee: true },
     { type: 'PIC_RELEASED' as const, balance: userAssets?.picReleasedBalance || 0, label: t('rewards.pic_released_short'), fee: false },
+    { type: 'USDT_USDC' as const, balance: userAssets?.stablecoinSwapBalance || 0, label: 'USDT/USDC', fee: false },
   ].filter(t => t.balance > 0)
 
   // 处理提现
@@ -105,11 +108,25 @@ export function RewardsPage() {
     setShowWithdrawModal(false)
 
     // 根据选择的代币类型进行提现
-    const tokenType = selectedTokenType === 'PIC_RELEASED' ? 'PIC' : selectedTokenType
-    // 确定提现来源：PIC_RELEASED 从释放余额提现，PIC 从原始余额提现
-    const source: WithdrawSource | undefined = selectedTokenType === 'PIC_RELEASED'
-      ? 'released'
-      : (selectedTokenType === 'PIC' ? 'balance' : undefined)
+    let tokenType: 'PID' | 'PIC' | 'USDT' | 'USDC'
+    let source: WithdrawSource | undefined
+    switch (selectedTokenType) {
+      case 'PIC_RELEASED':
+        tokenType = 'PIC'
+        source = 'released'
+        break
+      case 'PIC':
+        tokenType = 'PIC'
+        source = 'balance'
+        break
+      case 'USDT_USDC':
+        tokenType = 'USDT' // 默认使用 USDT，后端根据兑换记录处理
+        source = 'swap'
+        break
+      default:
+        tokenType = 'PID'
+        source = undefined
+    }
     const success = await withdraw(amount, tokenType, source)
 
     // 无论提现是否成功都刷新余额（订单创建后后端已扣款）
@@ -149,11 +166,12 @@ export function RewardsPage() {
   // 累计收益：使用 userAssets.earnedRewards（历史 USDT 价值，不受价格波动影响）
   const totalEarnings = userAssets?.earnedRewards || 0
 
-  // 三种可提现余额
+  // 四种可提现余额
   const pidWithdrawable = userAssets?.pidBalance || 0
   const picWithdrawable = userAssets?.picBalance || 0
   const picReleased = userAssets?.picReleasedBalance || 0
-  const hasWithdrawable = pidWithdrawable > 0 || picWithdrawable > 0 || picReleased > 0
+  const stablecoinSwap = userAssets?.stablecoinSwapBalance || 0
+  const hasWithdrawable = pidWithdrawable > 0 || picWithdrawable > 0 || picReleased > 0 || stablecoinSwap > 0
 
   // 节点配置
   // const nodeConfig = getNodeConfig(teamStats?.nodeLevel || 'P0')
@@ -194,8 +212,8 @@ export function RewardsPage() {
               ${totalEarnings.toLocaleString(undefined, { minimumFractionDigits: 2 })}
             </Text>
 
-            {/* 三列可提现余额 */}
-            <SimpleGrid columns={3} gap={3} mb="4">
+            {/* 可提现余额 */}
+            <SimpleGrid columns={stablecoinSwap > 0 ? 4 : 3} gap={3} mb="4">
               {/* PID 可提现 */}
               <Box textAlign="center">
                 <Text fontSize="xs" color="whiteAlpha.500" mb="1">
@@ -234,6 +252,21 @@ export function RewardsPage() {
                   {t('rewards.no_fee')}
                 </Text>
               </Box>
+
+              {/* USDT/USDC 兑换余额 */}
+              {stablecoinSwap > 0 && (
+                <Box textAlign="center">
+                  <Text fontSize="xs" color="whiteAlpha.500" mb="1">
+                    {t('rewards.stablecoin_swap_balance')}
+                  </Text>
+                  <Text fontSize="lg" fontWeight="bold" color="white">
+                    {stablecoinSwap.toFixed(2)}
+                  </Text>
+                  <Text fontSize="xs" color="white">
+                    {t('rewards.no_fee')}
+                  </Text>
+                </Box>
+              )}
             </SimpleGrid>
 
             <ActionButton
@@ -424,8 +457,8 @@ export function RewardsPage() {
                     </>
                   )}
 
-                  {/* PID 或 PIC 已释放 - 无手续费，100% 即时到账 */}
-                  {(selectedTokenType === 'PID' || selectedTokenType === 'PIC_RELEASED') && (
+                  {/* PID / PIC 已释放 / USDT_USDC - 无手续费，100% 即时到账 */}
+                  {(selectedTokenType === 'PID' || selectedTokenType === 'PIC_RELEASED' || selectedTokenType === 'USDT_USDC') && (
                     <>
                       <Flex justify="space-between" align="center">
                         <HStack gap={2}>
@@ -433,7 +466,7 @@ export function RewardsPage() {
                           <Text fontSize="xs" color="white">({t('rewards.no_fee')})</Text>
                         </HStack>
                         <Text fontSize="lg" fontWeight="bold" color="white">
-                          {withdrawTokenAmount.toFixed(2)} {selectedTokenType === 'PIC_RELEASED' ? 'PIC' : 'PID'}
+                          {withdrawTokenAmount.toFixed(2)} {selectedTokenType === 'PIC_RELEASED' ? 'PIC' : selectedTokenType === 'USDT_USDC' ? 'USDT' : 'PID'}
                         </Text>
                       </Flex>
                     </>

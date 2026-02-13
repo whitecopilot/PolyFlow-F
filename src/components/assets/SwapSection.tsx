@@ -54,6 +54,8 @@ export function SwapSection() {
   const swapReceiveAmount = picPrice > 0 ? swapReceiveUsdt / picPrice : 0
   const minAmount = swapConfig?.minSwapAmount ?? 10
   const isValidSwapAmount = swapAmountNum >= minAmount && swapAmountNum <= swapFromBalance
+  const isBelowMin = swapAmountNum > 0 && swapAmountNum < minAmount
+  const isAboveBalance = swapAmountNum > swapFromBalance && swapFromBalance > 0
 
   const getSwapProgress = () => {
     switch (step) {
@@ -160,9 +162,24 @@ export function SwapSection() {
                 </HStack>
               </HStack>
             </Box>
-            <Text fontSize="xs" color="whiteAlpha.400" mt="1">
-              {t('assets.available')}: {swapFromBalance.toFixed(2)} PID
-            </Text>
+            <Flex justify="space-between" mt="1">
+              <Text fontSize="xs" color="whiteAlpha.400">
+                {t('assets.available')}: {swapFromBalance.toFixed(2)} PID
+              </Text>
+              <Text fontSize="xs" color="whiteAlpha.400">
+                {t('assets.min_swap_amount', { amount: minAmount })}
+              </Text>
+            </Flex>
+            {isBelowMin && (
+              <Text fontSize="xs" color="red.400" mt="1">
+                {t('assets.swap_below_min', { amount: minAmount })}
+              </Text>
+            )}
+            {isAboveBalance && (
+              <Text fontSize="xs" color="red.400" mt="1">
+                {t('assets.swap_insufficient_balance')}
+              </Text>
+            )}
           </Box>
 
           {/* 兑换箭头 */}

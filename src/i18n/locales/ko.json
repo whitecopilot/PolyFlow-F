@@ -222,6 +222,9 @@
     "swap_value": "스왑 가치",
     "swap_fee": "서비스 수수료",
     "confirm_swap": "스왑 확인",
+    "min_swap_amount": "최소 {{amount}}",
+    "swap_below_min": "최소 교환 수량은 {{amount}}입니다",
+    "swap_insufficient_balance": "잔액 부족",
     "swap_hint": "실시간 가격으로 환산",
     "swap_error_create": "스왑 주문 생성 실패",
     "swap_error_submit": "결제 확인 제출 실패",
@@ -270,6 +273,8 @@
     "pid_available": "PID 출금 가능",
     "pic_available": "PIC 출금 가능",
     "pic_released": "PIC 릴리스됨",
+    "pic_released_short": "릴리스됨",
+    "stablecoin_swap_balance": "USDT/USDC",
     "instant_arrival": "즉시 입금",
     "fee_label": "수수료"
   },

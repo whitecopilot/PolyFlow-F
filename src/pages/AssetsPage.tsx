@@ -7,23 +7,21 @@ import {
   AssetCard,
   BurnSection,
   PicSwapSection,
-  PIDReleaseCard,
   StakingSection,
-  SwapSection,
+  SwapSection
 } from '../components/assets'
 import { PageHeader } from '../components/common'
 import { usePayFiStore } from '../stores/payfiStore'
 
 export function AssetsPage() {
   const { t } = useTranslation()
-  const { fetchUserAssets, fetchPIDReleasePlans, fetchNFTLevelConfigs, fetchSystemConfig } = usePayFiStore()
+  const { fetchUserAssets, fetchNFTLevelConfigs, fetchSystemConfig } = usePayFiStore()
 
   useEffect(() => {
     fetchUserAssets()
-    fetchPIDReleasePlans()
     fetchNFTLevelConfigs()
     fetchSystemConfig()
-  }, [fetchUserAssets, fetchPIDReleasePlans, fetchNFTLevelConfigs, fetchSystemConfig])
+  }, [fetchUserAssets, fetchNFTLevelConfigs, fetchSystemConfig])
 
   return (
     <Box minH="100vh" bg="#111111">
@@ -31,10 +29,10 @@ export function AssetsPage() {
       <VStack gap="5" p="4" align="stretch">
         <AssetCard type="PID" />
         <AssetCard type="PIC" />
+        {/* <PIDReleaseCard /> */}
         <PicSwapSection />
         <BurnSection />
         <StakingSection />
-        <PIDReleaseCard />
         <SwapSection />
         <Box h="8" />
       </VStack>

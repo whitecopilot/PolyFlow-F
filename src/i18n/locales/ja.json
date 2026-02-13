@@ -222,6 +222,9 @@
     "swap_value": "スワップ価値",
     "swap_fee": "手数料",
     "confirm_swap": "スワップ確認",
+    "min_swap_amount": "最低 {{amount}}",
+    "swap_below_min": "最低交換数量は {{amount}} です",
+    "swap_insufficient_balance": "残高不足",
     "swap_hint": "リアルタイム価格で換算",
     "swap_error_create": "スワップ注文の作成に失敗",
     "swap_error_submit": "支払い確認の送信に失敗",
@@ -270,6 +273,8 @@
     "pid_available": "PID 引き出し可能",
     "pic_available": "PIC 引き出し可能",
     "pic_released": "PIC リリース済み",
+    "pic_released_short": "リリース済み",
+    "stablecoin_swap_balance": "USDT/USDC",
     "instant_arrival": "即時入金",
     "fee_label": "手数料"
   },

@@ -215,6 +215,7 @@ const getDefaultUserAssets = (): UserAssets => ({
   picBalance: 0,
   picReleasedBalance: 0,
   walletPicBalance: 0,
+  stablecoinSwapBalance: 0,
 })
 
 const getDefaultTeamStats = (): TeamStats => ({
@@ -499,6 +500,9 @@ export const usePayFiStore = create<PayFiState>()(
               picReleasedBalance: pic?.releasedBalance ?? apiAssets.picReleasedBalance ?? 0,
               walletPicBalance: (apiAssets as any).walletPicBalance ?? 0,  // 钱包 PIC 余额（链上查询）
 
+              // 稳定币兑换余额
+              stablecoinSwapBalance: apiAssets.stablecoinSwapBalance ?? 0,
+
               // 收益和出局相关
               earnedRewards: earnings?.earnedRewardsUSDT ?? 0,
               totalExitLimit: earnings?.totalExitLimit ?? 0,
@@ -515,11 +519,46 @@ export const usePayFiStore = create<PayFiState>()(
               usdcBalance: apiAssets.usdcBalance || 0,
             }
 
-            // 同时从 assets API 提取价格信息
+            // 同时从 assets API 提取价格信息和生成 PID 释放计划
             const updates: Partial<PayFiState> = { userAssets }
             if (apiAssets.prices) {
               updates.priceInfo = convertPriceInfo(apiAssets.prices)
             }
+
+            // 从 release 数据生成 PID 释放计划（无需单独请求 /release 接口）
+            const release = apiAssets.release
+            if (release) {
+              const totalLocked = release.totalLocked || 0
+              const totalReleased = release.totalReleased || 0
+              if (totalLocked > 0) {
+                const monthsTotal = 25
+                const dailyAmount = totalLocked / (monthsTotal * 30)
+                const monthlyAmount = totalLocked / monthsTotal
+                const monthsCompleted = Math.min(
+                  Math.floor(totalReleased / monthlyAmount),
+                  monthsTotal
+                )
+                const startDate = new Date()
+                startDate.setMonth(startDate.getMonth() - monthsCompleted)
+                const endDate = new Date(startDate)
+                endDate.setMonth(endDate.getMonth() + monthsTotal)
+
+                updates.pidReleasePlans = [{
+                  id: 1,
+                  totalAmount: totalLocked,
+                  releasedAmount: totalReleased,
+                  startDate,
+                  endDate,
+                  dailyAmount,
+                  status: totalReleased >= totalLocked ? 'completed' : 'active',
+                  monthsTotal,
+                  monthsCompleted,
+                }]
+              } else {
+                updates.pidReleasePlans = []
+              }
+            }
+
             set(updates)
           } catch (error) {
             console.error('获取用户资产失败:', error)
@@ -581,50 +620,8 @@ export const usePayFiStore = create<PayFiState>()(
       },
 
       fetchPIDReleasePlans: async () => {
-        return dedupeRequest('pidReleasePlans', async () => {
-          try {
-            const releaseSummary = await payfiApi.getReleaseSummary()
-            const totalLocked = releaseSummary.totalLocked || 0
-            const totalReleased = releaseSummary.totalReleased || 0
-
-            // 如果没有锁仓，返回空数组
-            if (totalLocked <= 0) {
-              set({ pidReleasePlans: [] })
-              return
-            }
-
-            // 生成释放计划（25 个月线性释放）
-            const monthsTotal = 25
-            const dailyAmount = totalLocked / (monthsTotal * 30)
-            const monthlyAmount = totalLocked / monthsTotal
-            const monthsCompleted = Math.min(
-              Math.floor(totalReleased / monthlyAmount),
-              monthsTotal
-            )
-
-            const startDate = new Date()
-            startDate.setMonth(startDate.getMonth() - monthsCompleted)
-
-            const endDate = new Date(startDate)
-            endDate.setMonth(endDate.getMonth() + monthsTotal)
-
-            const plan: PIDReleasePlan = {
-              id: 1,
-              totalAmount: totalLocked,
-              releasedAmount: totalReleased,
-              startDate,
-              endDate,
-              dailyAmount,
-              status: totalReleased >= totalLocked ? 'completed' : 'active',
-              monthsTotal,
-              monthsCompleted,
-            }
-
-            set({ pidReleasePlans: [plan] })
-          } catch (error) {
-            console.error('获取释放计划失败:', error)
-          }
-        })
+        // 释放计划数据已在 fetchUserAssets 中从 /assets 接口获取并生成，无需单独请求
+        // 保留此方法以兼容已有调用
       },
 
       fetchRewardRecords: async () => {
