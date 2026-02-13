@@ -363,6 +363,7 @@ export interface TeamStatsResponse {
   directCount: number         // 邀请人数
   directOrderCount: number    // 邀请单数
   teamPerformance: string     // 团队总业绩 - 质押业绩 (USDT)
+  teamSalesPerformance: string // 团队总业绩 - 销售业绩 (USDT)
   maxLinePerf: string         // 大区业绩 - 质押业绩 (USDT)
   smallAreaPerf: string       // 小区业绩 - 质押业绩 (USDT)
   teamCount: number           // 团队总人数

@@ -107,6 +107,7 @@ export interface TeamStats {
   teamCount: number;           // 团队总人数
   teamOrderCount: number;      // 团队总单数
   teamPerformance: number;     // 团队总业绩 - 质押业绩(USDT)
+  teamSalesPerformance: number; // 团队总业绩 - 销售业绩(USDT)
   maxLinePerf: number;         // 大区业绩 - 质押业绩(USDT)
   smallAreaPerf: number;       // 小区业绩 - 质押业绩
   nodeLevel: NodeLevel;        // 节点等级
