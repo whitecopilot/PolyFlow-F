@@ -42,16 +42,16 @@ export function SwapSection() {
     }
   }, [showSwapOverlay])
 
-  // PID → PIC 兑换：用 PID 余额（链上钱包余额）
-  const feeRate = swapConfig?.pidToPicFeeRate ?? 0
+  // PIC → PID 兑换：用钱包持有的 PIC（链上余额）
+  const feeRate = swapConfig?.picToPidFeeRate ?? 0
   const pidPrice = swapConfig?.pidPrice ?? 0
   const picPrice = swapConfig?.picPrice ?? 0
-  const swapFromBalance = userAssets?.pidBalance || 0
+  const swapFromBalance = userAssets?.walletPicBalance || 0
   const swapAmountNum = parseFloat(swapAmount) || 0
-  const swapUsdtValue = swapAmountNum * pidPrice
+  const swapUsdtValue = swapAmountNum * picPrice
   const swapFee = swapUsdtValue * feeRate
   const swapReceiveUsdt = swapUsdtValue - swapFee
-  const swapReceiveAmount = picPrice > 0 ? swapReceiveUsdt / picPrice : 0
+  const swapReceiveAmount = pidPrice > 0 ? swapReceiveUsdt / pidPrice : 0
   const minAmount = swapConfig?.minSwapAmount ?? 10
   const isValidSwapAmount = swapAmountNum >= minAmount && swapAmountNum <= swapFromBalance
   const isBelowMin = swapAmountNum > 0 && swapAmountNum < minAmount
@@ -72,7 +72,7 @@ export function SwapSection() {
 
   const handleSwap = async () => {
     if (!isValidSwapAmount || isLoading) return
-    const success = await executeSwap('PID_TO_PIC', swapAmountNum)
+    const success = await executeSwap('PIC_TO_PID', swapAmountNum)
     if (success) {
       setSwapAmount('')
       await fetchUserAssets()
@@ -97,7 +97,7 @@ export function SwapSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.22 }}
         >
-          {/* 支付代币 (PID) */}
+          {/* 支付代币 (PIC) */}
           <Box mb="3">
             <Text fontSize="xs" color="whiteAlpha.500" mb="2">
               {t('assets.swap_from')}
@@ -154,17 +154,17 @@ export function SwapSection() {
                     alignItems="center"
                     justifyContent="center"
                   >
-                    <PolyFlowLogo size={12} />
+                    <PicLogo size={12} />
                   </Box>
                   <Text fontSize="sm" fontWeight="600" color="white">
-                    PID
+                    PIC
                   </Text>
                 </HStack>
               </HStack>
             </Box>
             <Flex justify="space-between" mt="1">
               <Text fontSize="xs" color="whiteAlpha.400">
-                {t('assets.available')}: {swapFromBalance.toFixed(2)} PID
+                {t('assets.available')}: {swapFromBalance.toFixed(2)} PIC
               </Text>
               <Text fontSize="xs" color="whiteAlpha.400">
                 {t('assets.min_swap_amount', { amount: minAmount })}
@@ -197,7 +197,7 @@ export function SwapSection() {
             </Box>
           </Flex>
 
-          {/* 获得代币 (PIC) */}
+          {/* 获得代币 (PID) */}
           <Box mb="4">
             <Text fontSize="xs" color="whiteAlpha.500" mb="2">
               {t('assets.swap_to')}
@@ -226,10 +226,10 @@ export function SwapSection() {
                   alignItems="center"
                   justifyContent="center"
                 >
-                  <PicLogo size={12} />
+                  <PolyFlowLogo size={12} />
                 </Box>
                 <Text fontSize="sm" fontWeight="600" color="white">
-                  PIC
+                  PID
                 </Text>
               </HStack>
             </Box>
@@ -243,7 +243,7 @@ export function SwapSection() {
                   {t('assets.swap_rate')}
                 </Text>
                 <Text fontSize="xs" color="white">
-                  1 PID = {picPrice > 0 ? (pidPrice / picPrice).toFixed(4) : '0'} PIC
+                  1 PIC = {pidPrice > 0 ? (picPrice / pidPrice).toFixed(4) : '0'} PID
                 </Text>
               </HStack>
               <HStack justify="space-between" mb="2">

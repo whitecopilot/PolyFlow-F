@@ -44,7 +44,7 @@ export function PicSwapSection() {
 
   const feeRate = swapConfig?.picToStableFeeRate ?? 0.03
   const picPrice = swapConfig?.picPrice ?? 0
-  const picSwapFromBalance = userAssets?.picBalance || 0
+  const picSwapFromBalance = userAssets?.walletPicBalance || 0
   const picSwapAmountNum = parseFloat(picSwapAmount) || 0
   const picSwapUsdtValue = picSwapAmountNum * picPrice
   const picSwapFee = picSwapUsdtValue * feeRate

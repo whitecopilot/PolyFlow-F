@@ -29,6 +29,7 @@ export function NFTPage() {
   const {
     nftHoldings,
     fetchUserAssets,
+    fetchWalletBalances,
     fetchUserNFTList,
     fetchUserNFTStats,
     fetchNFTLevelConfigs,
@@ -58,10 +59,11 @@ export function NFTPage() {
 
   useEffect(() => {
     fetchUserAssets()
+    fetchWalletBalances()
     fetchUserNFTStats()
     fetchUserNFTList(1, 50)
     fetchNFTLevelConfigs()
-  }, [fetchUserAssets, fetchUserNFTStats, fetchUserNFTList, fetchNFTLevelConfigs])
+  }, [fetchUserAssets, fetchWalletBalances, fetchUserNFTStats, fetchUserNFTList, fetchNFTLevelConfigs])
 
   // 统一滚动穿透修复（所有蒙版）
   const showPurchaseOverlay = purchaseStep !== 'idle'

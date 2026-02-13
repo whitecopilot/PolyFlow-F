@@ -147,6 +147,7 @@ interface PayFiState {
   fetchAllData: () => Promise<void>
   fetchPriceInfo: () => Promise<void>
   fetchUserAssets: () => Promise<void>
+  fetchWalletBalances: () => Promise<void>
   fetchTeamStats: () => Promise<void>
   fetchEarningsStats: () => Promise<void>
   fetchPIDReleasePlans: () => Promise<void>
@@ -215,6 +216,7 @@ const getDefaultUserAssets = (): UserAssets => ({
   picBalance: 0,
   picReleasedBalance: 0,
   walletPicBalance: 0,
+  walletPidBalance: 0,
   stablecoinSwapBalance: 0,
 })
 
@@ -499,7 +501,8 @@ export const usePayFiStore = create<PayFiState>()(
               // PIC 相关
               picBalance: pic?.available ?? apiAssets.picBalance ?? 0,
               picReleasedBalance: pic?.releasedBalance ?? apiAssets.picReleasedBalance ?? 0,
-              walletPicBalance: (apiAssets as any).walletPicBalance ?? 0,  // 钱包 PIC 余额（链上查询）
+              walletPicBalance: 0,  // 由 fetchWalletBalances 异步填充
+              walletPidBalance: 0,  // 由 fetchWalletBalances 异步填充
 
               // 稳定币兑换余额
               stablecoinSwapBalance: apiAssets.stablecoinSwapBalance ?? 0,
@@ -515,9 +518,9 @@ export const usePayFiStore = create<PayFiState>()(
               // 总资产估值
               totalAssetValueUSDT: apiAssets.totalAssetValueUSDT || 0,
 
-              // 钱包 ERC20 余额
-              usdtBalance: apiAssets.usdtBalance || 0,
-              usdcBalance: apiAssets.usdcBalance || 0,
+              // 钱包 ERC20 余额（由 fetchWalletBalances 异步填充）
+              usdtBalance: 0,
+              usdcBalance: 0,
             }
 
             // 同时从 assets API 提取价格信息和生成 PID 释放计划
@@ -566,6 +569,28 @@ export const usePayFiStore = create<PayFiState>()(
             if (error instanceof ApiError && error.isUnauthorized) {
               set({ error: '请先登录' })
             }
+          }
+        })
+      },
+
+      fetchWalletBalances: async () => {
+        return dedupeRequest('walletBalances', async () => {
+          try {
+            const balances = await payfiApi.getWalletBalances()
+            const current = get().userAssets
+            if (current) {
+              set({
+                userAssets: {
+                  ...current,
+                  usdtBalance: balances.usdtBalance ?? 0,
+                  usdcBalance: balances.usdcBalance ?? 0,
+                  walletPicBalance: balances.walletPicBalance ?? 0,
+                  walletPidBalance: balances.walletPidBalance ?? 0,
+                },
+              })
+            }
+          } catch (error) {
+            console.error('获取钱包链上余额失败:', error)
           }
         })
       },
